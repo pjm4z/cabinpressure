@@ -1,0 +1,6 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3 uid="uid://y5461vvcvqmg"]
+
+[ext_resource type="Shader" path="res://shaders/spritemap.gdshader" id="1_a1uxh"]
+
+[resource]
+shader = ExtResource("1_a1uxh")

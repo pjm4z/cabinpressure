@@ -1,0 +1,28 @@
+[gd_scene load_steps=6 format=3 uid="uid://irdicxioylfl"]
+
+[ext_resource type="Script" path="res://scripts/SurfaceScene.cs" id="1_xuffd"]
+[ext_resource type="Script" path="res://scripts/SurfaceMap.cs" id="2_h5rq6"]
+[ext_resource type="PackedScene" uid="uid://boxhlj4kob12l" path="res://scenes/fish.tscn" id="3_q0hui"]
+[ext_resource type="Material" uid="uid://b1offxqvshr6q" path="res://shaders/materials/surfacematerial.tres" id="4_jexw6"]
+[ext_resource type="Script" path="res://scripts/SurfaceRect.cs" id="5_7etf6"]
+
+[node name="surface" type="Node2D"]
+script = ExtResource("1_xuffd")
+
+[node name="surfaceviewport" type="SubViewport" parent="."]
+
+[node name="fish" parent="surfaceviewport" instance=ExtResource("3_q0hui")]
+z_index = -1
+position = Vector2(313, 138)
+
+[node name="surfacemap" type="Node2D" parent="surfaceviewport"]
+script = ExtResource("2_h5rq6")
+GridPts = Vector2(10, 10)
+
+[node name="surfacecamera" type="Camera2D" parent="surfaceviewport"]
+
+[node name="surfacerect" type="TextureRect" parent="."]
+material = ExtResource("4_jexw6")
+offset_right = 1152.0
+offset_bottom = 644.0
+script = ExtResource("5_7etf6")

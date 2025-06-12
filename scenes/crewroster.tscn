@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://b2iy1ftso7uni"]
+
+[ext_resource type="Script" path="res://scripts/CrewRoster.cs" id="1_sm0xv"]
+
+[node name="crewroster" type="Node2D"]
+script = ExtResource("1_sm0xv")

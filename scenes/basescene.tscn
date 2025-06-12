@@ -1,0 +1,165 @@
+[gd_scene load_steps=17 format=3 uid="uid://dsxnf6bp5eun6"]
+
+[ext_resource type="Script" path="res://scripts/BaseScene.cs" id="1_e0vm4"]
+[ext_resource type="Script" path="res://scripts/Underwater.cs" id="2_od24b"]
+[ext_resource type="PackedScene" uid="uid://irdicxioylfl" path="res://scenes/surface.tscn" id="3_3gtv8"]
+[ext_resource type="Script" path="res://scripts/HUD.cs" id="3_4gi1w"]
+[ext_resource type="PackedScene" uid="uid://d0q4pux665fv6" path="res://scenes/boat.tscn" id="4_n1nc8"]
+[ext_resource type="PackedScene" uid="uid://ccg41jlynxfth" path="res://scenes/skip.tscn" id="5_jpoub"]
+[ext_resource type="PackedScene" uid="uid://b2iy1ftso7uni" path="res://scenes/crewroster.tscn" id="6_4rxua"]
+[ext_resource type="PackedScene" uid="uid://cft1r7wppv5bq" path="res://scenes/crew.tscn" id="7_fvhgo"]
+[ext_resource type="PackedScene" uid="uid://k70ygdkfq0pd" path="res://scenes/item.tscn" id="8_ty5my"]
+[ext_resource type="PackedScene" uid="uid://dl24gnkim6ke4" path="res://scenes/post.tscn" id="9_kwnd6"]
+[ext_resource type="PackedScene" uid="uid://pmlba6c4s0lm" path="res://scenes/weaponslot.tscn" id="10_ld6h8"]
+[ext_resource type="PackedScene" uid="uid://84ry0sqcrixf" path="res://scenes/weapon.tscn" id="11_8kkmp"]
+[ext_resource type="PackedScene" uid="uid://caxwo6rfev2ki" path="res://scenes/postctrl.tscn" id="12_l100h"]
+
+[sub_resource type="Gradient" id="Gradient_f2up5"]
+offsets = PackedFloat32Array(0, 0.94832)
+colors = PackedColorArray(0.022, 0.096, 0.296, 0.757, 0, 0, 100, 0.471)
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_iu6tl"]
+frequency = 0.0001
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_b0b52"]
+width = 2048
+height = 2048
+color_ramp = SubResource("Gradient_f2up5")
+noise = SubResource("FastNoiseLite_iu6tl")
+
+[node name="basescene" type="Node"]
+process_mode = 3
+script = ExtResource("1_e0vm4")
+
+[node name="underwater" type="Node2D" parent="."]
+process_mode = 1
+script = ExtResource("2_od24b")
+
+[node name="waterdepth" type="TextureRect" parent="underwater"]
+visible = false
+z_index = -1
+offset_left = -2710.0
+offset_top = -1520.0
+offset_right = 2708.0
+offset_bottom = 1882.0
+texture = SubResource("NoiseTexture2D_b0b52")
+
+[node name="HUD" type="CanvasLayer" parent="."]
+script = ExtResource("3_4gi1w")
+
+[node name="weaponscontainer" type="PanelContainer" parent="HUD"]
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_top = -40.0
+offset_right = 92.0
+grow_vertical = 0
+
+[node name="weaponspanel" type="HBoxContainer" parent="HUD/weaponscontainer"]
+layout_mode = 2
+
+[node name="surface" parent="." instance=ExtResource("3_3gtv8")]
+process_mode = 1
+
+[node name="boat" parent="surface" instance=ExtResource("4_n1nc8")]
+light_mask = 1
+visibility_layer = 1
+z_index = 2
+position = Vector2(2.91038e-11, -1.78814e-07)
+rotation = 3.14159
+
+[node name="postctrl" parent="surface/boat" instance=ExtResource("12_l100h")]
+
+[node name="post" parent="surface/boat/postctrl" instance=ExtResource("9_kwnd6")]
+position = Vector2(40.8649, 42.1315)
+scale = Vector2(0.116549, 0.126503)
+
+[node name="post2" parent="surface/boat/postctrl" instance=ExtResource("9_kwnd6")]
+position = Vector2(-40.1379, 42.8713)
+scale = Vector2(0.116549, 0.126503)
+
+[node name="skip" parent="surface/boat" instance=ExtResource("5_jpoub")]
+position = Vector2(35.0448, -13.8875)
+rotation = 3.14159
+
+[node name="crewroster" parent="surface/boat" instance=ExtResource("6_4rxua")]
+position = Vector2(1.99999, 0.00642502)
+
+[node name="crew" parent="surface/boat/crewroster" instance=ExtResource("7_fvhgo")]
+z_index = 2
+position = Vector2(19.7333, 83.064)
+rotation = 3.14159
+
+[node name="crew2" parent="surface/boat/crewroster" instance=ExtResource("7_fvhgo")]
+z_index = 2
+position = Vector2(-9.0002, 83.9936)
+rotation = 3.14159
+
+[node name="crew3" parent="surface/boat/crewroster" instance=ExtResource("7_fvhgo")]
+z_index = 2
+position = Vector2(25.9999, 34.9937)
+rotation = 3.14159
+
+[node name="crew4" parent="surface/boat/crewroster" instance=ExtResource("7_fvhgo")]
+z_index = 2
+position = Vector2(-11.0001, 25.9935)
+rotation = 3.14159
+
+[node name="item" parent="surface/boat" instance=ExtResource("8_ty5my")]
+position = Vector2(24.6111, 121.08)
+
+[node name="item2" parent="surface/boat" instance=ExtResource("8_ty5my")]
+position = Vector2(9.55019, 140.031)
+
+[node name="item3" parent="surface/boat" instance=ExtResource("8_ty5my")]
+position = Vector2(-40.2954, 91.871)
+
+[node name="item4" parent="surface/boat" instance=ExtResource("8_ty5my")]
+position = Vector2(21.0192, -5.93251)
+
+[node name="item5" parent="surface/boat" instance=ExtResource("8_ty5my")]
+position = Vector2(-8.44972, 139.974)
+
+[node name="item6" parent="surface/boat" instance=ExtResource("8_ty5my")]
+position = Vector2(-6.39191, 121.98)
+
+[node name="item7" parent="surface/boat" instance=ExtResource("8_ty5my")]
+position = Vector2(8.61123, 121.028)
+
+[node name="item8" parent="surface/boat" instance=ExtResource("8_ty5my")]
+position = Vector2(-39.2375, 73.8743)
+
+[node name="item9" parent="surface/boat" instance=ExtResource("8_ty5my")]
+position = Vector2(21.0706, -21.9324)
+
+[node name="item10" parent="surface/boat" instance=ExtResource("8_ty5my")]
+position = Vector2(6.07065, -21.9806)
+
+[node name="item11" parent="surface/boat" instance=ExtResource("8_ty5my")]
+position = Vector2(6.01925, -5.98071)
+
+[node name="weaponslot" parent="surface/boat" instance=ExtResource("10_ld6h8")]
+position = Vector2(55.9162, 26.1798)
+rotation = 3.14159
+
+[node name="weapon" parent="surface/boat/weaponslot" instance=ExtResource("11_8kkmp")]
+position = Vector2(-153.916, -1.1798)
+
+[node name="weaponslot2" parent="surface/boat" instance=ExtResource("10_ld6h8")]
+position = Vector2(55.9998, 88.0001)
+rotation = -3.14159
+
+[node name="weapon" parent="surface/boat/weaponslot2" instance=ExtResource("11_8kkmp")]
+position = Vector2(-153.916, -1.1798)
+
+[node name="weaponslot3" parent="surface/boat" instance=ExtResource("10_ld6h8")]
+position = Vector2(-56, 26)
+
+[node name="weapon" parent="surface/boat/weaponslot3" instance=ExtResource("11_8kkmp")]
+position = Vector2(-153.916, -1.1798)
+
+[node name="weaponslot4" parent="surface/boat" instance=ExtResource("10_ld6h8")]
+position = Vector2(-56.0002, 92.9999)
+
+[node name="weapon" parent="surface/boat/weaponslot4" instance=ExtResource("11_8kkmp")]
+position = Vector2(-153.916, -1.1798)

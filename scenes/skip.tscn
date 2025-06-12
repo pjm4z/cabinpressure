@@ -1,0 +1,29 @@
+[gd_scene load_steps=6 format=3 uid="uid://ccg41jlynxfth"]
+
+[ext_resource type="Script" path="res://scripts/Skip.cs" id="1_y0g3m"]
+[ext_resource type="Texture2D" uid="uid://b21k6xsansvdt" path="res://assets/skip.png" id="2_iy2j3"]
+[ext_resource type="Material" uid="uid://y5461vvcvqmg" path="res://shaders/materials/spritemapmaterial.tres" id="3_au5vw"]
+[ext_resource type="Texture2D" uid="uid://bhbe3dlxyd5qc" path="res://assets/spriteTest.png" id="4_jvx3b"]
+[ext_resource type="Texture2D" uid="uid://daem8psob0yrn" path="res://assets/mapTest.png" id="5_7hbgo"]
+
+[node name="skip" type="CharacterBody2D"]
+z_index = 10
+position = Vector2(-5.35836e-11, -5.96038e-08)
+collision_layer = 2
+collision_mask = 3
+script = ExtResource("1_y0g3m")
+
+[node name="skipsprite" type="Sprite2D" parent="."]
+texture = ExtResource("2_iy2j3")
+
+[node name="skippolygon" type="CollisionPolygon2D" parent="."]
+polygon = PackedVector2Array(-4, -5, 3, -5, 3, 3, -4, 3)
+
+[node name="spriteTest" type="Sprite2D" parent="."]
+visible = false
+material = ExtResource("3_au5vw")
+texture = ExtResource("4_jvx3b")
+
+[node name="mapTest" type="Sprite2D" parent="."]
+visible = false
+texture = ExtResource("5_7hbgo")

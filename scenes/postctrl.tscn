@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://caxwo6rfev2ki"]
+
+[ext_resource type="Script" path="res://scripts/PostCtrl.cs" id="1_nc8c3"]
+
+[node name="postctrl" type="Node2D"]
+script = ExtResource("1_nc8c3")

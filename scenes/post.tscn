@@ -1,0 +1,16 @@
+[gd_scene load_steps=4 format=3 uid="uid://dl24gnkim6ke4"]
+
+[ext_resource type="Script" path="res://scripts/Post.cs" id="1_npiqr"]
+[ext_resource type="Texture2D" uid="uid://lkol6oqb6klj" path="res://assets/icon.svg" id="2_5ufxr"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_r24kp"]
+radius = 59.0762
+
+[node name="post" type="Area2D"]
+script = ExtResource("1_npiqr")
+
+[node name="postcollision" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_r24kp")
+
+[node name="postsprite" type="Sprite2D" parent="."]
+texture = ExtResource("2_5ufxr")

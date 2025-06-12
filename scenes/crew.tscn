@@ -1,0 +1,96 @@
+[gd_scene load_steps=7 format=3 uid="uid://cft1r7wppv5bq"]
+
+[ext_resource type="Texture2D" uid="uid://b21k6xsansvdt" path="res://assets/skip.png" id="1_b3ub0"]
+[ext_resource type="Script" path="res://scripts/Crew.cs" id="1_gqvbd"]
+[ext_resource type="Script" path="res://scripts/CrewRay.cs" id="3_5ig1p"]
+[ext_resource type="Script" path="res://scripts/CrewProgress.cs" id="3_l2qo1"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_knyyy"]
+radius = 4.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_rhvp5"]
+radius = 6.08276
+
+[node name="crew" type="CharacterBody2D"]
+collision_layer = 2
+collision_mask = 3
+motion_mode = 1
+wall_min_slide_angle = 0.0
+script = ExtResource("1_gqvbd")
+
+[node name="collision" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_knyyy")
+
+[node name="sprite" type="Sprite2D" parent="."]
+modulate = Color(1, 0.054902, 0.0666667, 1)
+texture = ExtResource("1_b3ub0")
+
+[node name="interactarea" type="Area2D" parent="sprite"]
+
+[node name="interactcollision" type="CollisionShape2D" parent="sprite/interactarea"]
+shape = SubResource("CircleShape2D_rhvp5")
+
+[node name="north" type="RayCast2D" parent="sprite"]
+target_position = Vector2(0, -25)
+collide_with_areas = true
+collide_with_bodies = false
+script = ExtResource("3_5ig1p")
+
+[node name="northeast" type="RayCast2D" parent="sprite"]
+target_position = Vector2(15, -15)
+script = ExtResource("3_5ig1p")
+
+[node name="east" type="RayCast2D" parent="sprite"]
+target_position = Vector2(25, 0)
+script = ExtResource("3_5ig1p")
+
+[node name="southeast" type="RayCast2D" parent="sprite"]
+target_position = Vector2(15, 15)
+script = ExtResource("3_5ig1p")
+
+[node name="south" type="RayCast2D" parent="sprite"]
+target_position = Vector2(0, 25)
+script = ExtResource("3_5ig1p")
+
+[node name="southwest" type="RayCast2D" parent="sprite"]
+target_position = Vector2(-15, 15)
+script = ExtResource("3_5ig1p")
+
+[node name="west" type="RayCast2D" parent="sprite"]
+target_position = Vector2(-25, 0)
+script = ExtResource("3_5ig1p")
+
+[node name="northwest" type="RayCast2D" parent="sprite"]
+target_position = Vector2(-15, -15)
+collide_with_areas = true
+collide_with_bodies = false
+script = ExtResource("3_5ig1p")
+
+[node name="nav" type="NavigationAgent2D" parent="."]
+path_desired_distance = 5.0
+path_postprocessing = 1
+debug_enabled = true
+
+[node name="crewtimer" type="Timer" parent="."]
+wait_time = 0.5
+autostart = true
+
+[node name="navtimer" type="Timer" parent="."]
+wait_time = 0.5
+one_shot = true
+autostart = true
+
+[node name="progress" type="ProgressBar" parent="."]
+offset_right = 4.0
+offset_bottom = 27.0
+script = ExtResource("3_l2qo1")
+
+[node name="label" type="Label" parent="."]
+offset_left = -19.0
+offset_top = -32.0
+offset_right = 21.0
+offset_bottom = -9.0
+theme_override_font_sizes/font_size = 0
+
+[connection signal="timeout" from="crewtimer" to="." method="_on_crewtimer_timeout"]
+[connection signal="timeout" from="navtimer" to="." method="_on_navtimer_timeout"]

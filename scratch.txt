@@ -1,0 +1,379 @@
+	public void _Initialize_Map_B() { 
+		rightBarrier = (int) (camera.GlobalPosition.X + camera.GetViewport().GetVisibleRect().Size.X/2);
+		leftBarrier = (int) (camera.GlobalPosition.X - camera.GetViewport().GetVisibleRect().Size.X/2);
+		topBarrier = (int) (camera.GlobalPosition.Y - camera.GetViewport().GetVisibleRect().Size.Y/2);
+		bottomBarrier = (int) (camera.GlobalPosition.Y + camera.GetViewport().GetVisibleRect().Size.Y/2);
+		
+		int gpX = (int)GridPts.X;
+		int gpY = (int)GridPts.Y;
+		RightCol = (gpX-1) * PointDist;
+		BottomRow = (gpY-1) * PointDist;
+		
+		for (int x = 0; x < gpX; x++) { // 
+			if (x * PointDist < rightBarrier) {
+				PointsMap.Add(new List<SurfacePt>());
+			} else {
+				gpX = x;
+				break;
+			}
+			for (int y = 0; y < gpY; y++) {
+				if (y * PointDist < bottomBarrier) {
+					SurfacePt sp = new SurfacePt();
+					sp.Texture =  ptTexture;
+					Vector2 pos = new Vector2(PointDist * x, PointDist * y);
+					
+					int xPos = PointDist * -y + PointDist * x; // can add offset here later if needed
+					int yPos = PointDist * x + PointDist * y;
+					AddChild(sp);
+					PointsMap[x].Add(sp);
+					sp._Initialize(xPos, yPos);
+				} else {
+					gpY = y;	
+					break;
+				}
+			}
+		}
+		_Initialize_Lines();
+	}
+	
+	
+	
+	public void _Check_Borders_Backup() {
+		_Refresh_Barriers();
+		// bottommost row should be >= 1 point dist below bottom barrier
+		if ((BottomRow - bottomBarrier) < PointDist) {
+			int curY = 0;
+			for (int x = 0; x < PointsMap.Count; x++) {
+				curY = PointsMap[x].Count;
+				int yOffset = (int) PointsMap[x][0].targetHeight / PointDist;
+				while ((curY + yOffset) * PointDist < bottomBarrier) {
+					SurfacePt sp = new SurfacePt();
+					sp.Texture =  ptTexture;
+					int curX = (int)(topLeft.Position.X / PointDist) + x;
+					int xPos = PointDist * curX;
+					int yPos = (PointDist * curY) + (int) (PointsMap[x][0].targetHeight);// (curY + yOffset);
+					Vector2 pos = new Vector2(xPos, yPos);
+					AddChild(sp);
+					PointsMap[x].Add(sp);
+					sp._Initialize(xPos, yPos);
+					
+					int y = PointsMap[x].Count - 1;
+					curY++;
+				}
+			}
+			_Refresh_Barriers();
+		}
+		// bottommost row should delete >= 2 point dist below bottom barrier
+		if ((BottomRow - bottomBarrier) > (2 * PointDist)) {
+			int y = 0;
+			for (int x = 0; x < PointsMap.Count; x++) {
+				y = PointsMap[x].Count - 1;
+				int yOffset = (int) PointsMap[x][0].targetHeight / PointDist;
+				while ((y + yOffset) * PointDist > (bottomBarrier + (1 * PointDist))) { // handle line
+					SurfacePt sp = PointsMap[x][y];
+					PointsMap[x].RemoveAt(y);
+					if (IsInstanceValid(sp.curve)) {
+						sp.curve._Drop_Line();
+					}
+					if (IsInstanceValid(sp.curveY)) {
+						sp.curveY._Drop_Line();
+					}
+					RemoveChild(sp);
+					sp.QueueFree();
+					y--;
+				}
+			}
+			_Refresh_Barriers();
+		}
+		_Refresh_Barriers();
+		int xr = PointsMap.Count;
+		// rightmost col should be >= 1 point dist ahead of right barrier
+		while ((RightCol - rightBarrier) < PointDist) {
+			PointsMap.Add(new List<SurfacePt>());
+			for (int y = 0; y < PointsMap[0].Count; y++) {
+				SurfacePt sp = new SurfacePt();
+				sp.Texture =  ptTexture;
+				int xPos = PointDist + (int)PointsMap[xr - 1][y].Position.X;
+				int yPos = (PointDist * y) + (int) PointsMap[0][0].targetHeight;
+				Vector2 pos = new Vector2(xPos, yPos);
+				AddChild(sp);
+				PointsMap[xr].Add(sp);
+				sp._Initialize(xPos, yPos);
+			}
+			_Refresh_Barriers();
+			xr++;
+		}
+		_Refresh_Barriers();
+		// rightmost col should delete >= 2 point dist ahead of right barrier
+		while ((RightCol - rightBarrier) > (2 * PointDist)) {
+			for (int y = 0; y < PointsMap[PointsMap.Count - 1].Count; y++) { // handle line
+				SurfacePt sp = PointsMap[PointsMap.Count - 1][y];
+				if (IsInstanceValid(sp.curve)) {
+					sp.curve._Drop_Line();
+				}
+				if (IsInstanceValid(sp.curveY)) {
+						sp.curveY._Drop_Line();
+				}
+				RemoveChild(sp);
+				sp.QueueFree();
+			}
+			PointsMap.RemoveAt(PointsMap.Count - 1);
+			_Refresh_Barriers();
+		}
+		// leftmost col should be >= 1 point dist before left barrier
+		int xl = (int) topLeft.Position.X / PointDist;
+		while (LeftCol - leftBarrier > PointDist) {
+			xl--;
+			PointsMap.Insert(0, new List<SurfacePt>());
+			LeftCol = xl * PointDist;
+			int i = 0;
+			for (int y = (int)topLeft.targetHeight / PointDist; y * PointDist < bottomBarrier; y++) {
+				SurfacePt sp = new SurfacePt();
+				sp.Texture =  ptTexture;
+				int xPos = PointDist * xl;
+				int yPos = PointDist * y;
+				Vector2 pos = new Vector2(xPos, yPos);
+				AddChild(sp);
+				PointsMap[0].Add(sp);
+				sp._Initialize(xPos, yPos);
+				i++;
+			}
+		}
+		leftCols -= xl;
+		_Refresh_Barriers();
+		// leftmost col should delete >= 2 point dist before left barrier
+		while (LeftCol - leftBarrier < (-1 * PointDist)) {
+			for (int y = 0; y < PointsMap[0].Count; y++) { // handle line
+				SurfacePt sp = PointsMap[0][y];
+				RemoveChild(sp);
+				sp.QueueFree();
+				if (IsInstanceValid(sp.curve)) {
+					sp.curve._Drop_Line();
+				}
+				if (IsInstanceValid(sp.curveY)) {
+						sp.curveY._Drop_Line();
+				}
+			}
+			PointsMap.RemoveAt(0);
+			_Refresh_Barriers();
+		}
+		_Refresh_Barriers();
+
+		int newTopPts = 0;
+		// topmost row should be >= 1 point dist below bottom barrier 
+		if ((TopRow - topBarrier) > PointDist) {
+			int curY = 0;
+			int i = 0;
+			for (int x = 0; x < PointsMap.Count; x++) {
+				curY = (int) (PointsMap[x][0].targetHeight / PointDist);
+				i = -1 * topRows;
+				while (curY * PointDist > topBarrier) {
+					curY--;
+					SurfacePt sp = new SurfacePt();
+					sp.Texture =  ptTexture;
+					int curX = (int)(topLeft.Position.X / PointDist) + x;
+					int xPos = PointDist * curX;
+					int yPos = PointDist * curY;
+					Vector2 pos = new Vector2(xPos, yPos);
+					AddChild(sp);
+					newTopPts++;
+					PointsMap[x].Insert(0, sp);
+					sp._Initialize(xPos, yPos);
+					i++;
+
+				}
+			}
+			_Refresh_Barriers();
+		}
+		// topmost row should delete >= 2 point dist before top barrier
+		if ((TopRow - topBarrier) < (-1 * PointDist)) {
+			for (int x = 0; x < PointsMap.Count; x++) {
+				while (PointsMap[x][0].targetHeight < (topBarrier - (1 * PointDist))) { // handle line
+					SurfacePt sp = PointsMap[x][0];
+					PointsMap[x].RemoveAt(0);
+					if (IsInstanceValid(sp.curve)) {
+						sp.curve._Drop_Line();
+					}
+					if (IsInstanceValid(sp.curveY)) {
+						sp.curveY._Drop_Line();
+					}
+					RemoveChild(sp);
+					sp.QueueFree();
+					if (x == 0) {
+						topRows--;
+					}
+					// if line != null
+					//		remove point from line
+				}
+			}
+			_Refresh_Barriers();
+		}
+	}
+	
+	public void _Check_Borders() {
+		_Refresh_Barriers();
+		// bottommost row should be >= 1 point dist below bottom barrier
+		/*if ((BottomRow - bottomBarrier) < PointDist) {
+			int curY = 0;
+			for (int x = 0; x < PointsMap.Count; x++) {
+				Vector2 curPos = PointsMap[x][PointsMap[x].Count-1].Position;
+				while (curPos.Y < bottomBarrier) {
+					SurfacePt sp = new SurfacePt();
+					sp.Texture =  ptTexture;
+					int newX = (int) curPos.X - PointDist;
+					int newY = (int) curPos.Y + PointDist;
+					
+					curPos = new Vector2(newX, newY);
+					AddChild(sp);
+					PointsMap[x].Add(sp);
+					sp._Initialize(newX, newY);
+				}
+			}
+			_Refresh_Barriers();
+		}
+		// bottommost row should delete >= 2 point dist below bottom barrier
+		if ((BottomRow - bottomBarrier) > (2 * PointDist)) {
+			int y = 0;
+			for (int x = 0; x < PointsMap.Count; x++) {
+				y = PointsMap[x].Count - 1;
+				int yOffset = (int) PointsMap[x][0].targetHeight / PointDist;
+				while ((y + yOffset) * PointDist > (bottomBarrier + (1 * PointDist))) { // handle line
+					SurfacePt sp = PointsMap[x][y];
+					PointsMap[x].RemoveAt(y);
+					if (IsInstanceValid(sp.curve)) {
+						sp.curve._Drop_Line();
+					}
+					if (IsInstanceValid(sp.curveY)) {
+						sp.curveY._Drop_Line();
+					}
+					RemoveChild(sp);
+					sp.QueueFree();
+					y--;
+				}
+			}
+			_Refresh_Barriers();
+		}
+		_Refresh_Barriers();
+		int xr = PointsMap.Count;
+		// rightmost col should be >= 1 point dist ahead of right barrier
+		while ((RightCol - rightBarrier) < PointDist) {
+			PointsMap.Add(new List<SurfacePt>());
+			for (int y = 0; y < PointsMap[0].Count; y++) {
+				SurfacePt sp = new SurfacePt();
+				sp.Texture =  ptTexture;
+				int xPos = PointDist + (int)PointsMap[xr - 1][y].Position.X;
+				int yPos = (PointDist * y) + (int) PointsMap[0][0].targetHeight;
+				Vector2 pos = new Vector2(xPos, yPos);
+				AddChild(sp);
+				PointsMap[xr].Add(sp);
+				sp._Initialize(xPos, yPos);
+			}
+			_Refresh_Barriers();
+			xr++;
+		}*/
+		/*_Refresh_Barriers();
+		// rightmost col should delete >= 2 point dist ahead of right barrier
+		while ((RightCol - rightBarrier) > (2 * PointDist)) {
+			for (int y = 0; y < PointsMap[PointsMap.Count - 1].Count; y++) { // handle line
+				SurfacePt sp = PointsMap[PointsMap.Count - 1][y];
+				if (IsInstanceValid(sp.curve)) {
+					sp.curve._Drop_Line();
+				}
+				if (IsInstanceValid(sp.curveY)) {
+						sp.curveY._Drop_Line();
+				}
+				RemoveChild(sp);
+				sp.QueueFree();
+			}
+			PointsMap.RemoveAt(PointsMap.Count - 1);
+			_Refresh_Barriers();
+		}
+		// leftmost col should be >= 1 point dist before left barrier
+		int xl = (int) topLeft.Position.X / PointDist;
+		while (LeftCol - leftBarrier > PointDist) {
+			xl--;
+			PointsMap.Insert(0, new List<SurfacePt>());
+			LeftCol = xl * PointDist;
+			int i = 0;
+			for (int y = (int)topLeft.targetHeight / PointDist; y * PointDist < bottomBarrier; y++) {
+				SurfacePt sp = new SurfacePt();
+				sp.Texture =  ptTexture;
+				int xPos = PointDist * xl;
+				int yPos = PointDist * y;
+				Vector2 pos = new Vector2(xPos, yPos);
+				AddChild(sp);
+				PointsMap[0].Add(sp);
+				sp._Initialize(xPos, yPos);
+				i++;
+			}
+		}
+		leftCols -= xl;
+		_Refresh_Barriers();
+		// leftmost col should delete >= 2 point dist before left barrier
+		while (LeftCol - leftBarrier < (-1 * PointDist)) {
+			for (int y = 0; y < PointsMap[0].Count; y++) { // handle line
+				SurfacePt sp = PointsMap[0][y];
+				RemoveChild(sp);
+				sp.QueueFree();
+				if (IsInstanceValid(sp.curve)) {
+					sp.curve._Drop_Line();
+				}
+				if (IsInstanceValid(sp.curveY)) {
+						sp.curveY._Drop_Line();
+				}
+			}
+			PointsMap.RemoveAt(0);
+			_Refresh_Barriers();
+		}
+		_Refresh_Barriers();
+
+		int newTopPts = 0;
+		// topmost row should be >= 1 point dist below bottom barrier 
+		if ((TopRow - topBarrier) > PointDist) {
+			int curY = 0;
+			int i = 0;
+			for (int x = 0; x < PointsMap.Count; x++) {
+				curY = (int) (PointsMap[x][0].targetHeight / PointDist);
+				i = -1 * topRows;
+				while (curY * PointDist > topBarrier) {
+					curY--;
+					SurfacePt sp = new SurfacePt();
+					sp.Texture =  ptTexture;
+					int curX = (int)(topLeft.Position.X / PointDist) + x;
+					int xPos = PointDist * curX;
+					int yPos = PointDist * curY;
+					Vector2 pos = new Vector2(xPos, yPos);
+					AddChild(sp);
+					newTopPts++;
+					PointsMap[x].Insert(0, sp);
+					sp._Initialize(xPos, yPos);
+					i++;
+
+				}
+			}
+			_Refresh_Barriers();
+		}
+		// topmost row should delete >= 2 point dist before top barrier
+		if ((TopRow - topBarrier) < (-1 * PointDist)) {
+			for (int x = 0; x < PointsMap.Count; x++) {
+				while (PointsMap[x][0].targetHeight < (topBarrier - (1 * PointDist))) { // handle line
+					SurfacePt sp = PointsMap[x][0];
+					PointsMap[x].RemoveAt(0);
+					if (IsInstanceValid(sp.curve)) {
+						sp.curve._Drop_Line();
+					}
+					if (IsInstanceValid(sp.curveY)) {
+						sp.curveY._Drop_Line();
+					}
+					RemoveChild(sp);
+					sp.QueueFree();
+					if (x == 0) {
+						topRows--;
+					}
+					// if line != null
+					//		remove point from line
+				}
+			}
+			_Refresh_Barriers();
+		}*/
+	}

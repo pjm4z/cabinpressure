@@ -1,0 +1,15 @@
+[gd_resource type="ShaderMaterial" load_steps=3 format=3 uid="uid://c6o5d47p2mi3q"]
+
+[ext_resource type="Shader" path="res://shaders/water.gdshader" id="1_j7lco"]
+[ext_resource type="Texture2D" uid="uid://bx73j3jr80d51" path="res://assets/waterpt.png" id="2_wd1ta"]
+
+[resource]
+shader = ExtResource("1_j7lco")
+shader_parameter/effect_origin = Vector2(500, 300)
+shader_parameter/point_dist = 25.0
+shader_parameter/gpX = 100
+shader_parameter/gpY = 100
+shader_parameter/xOffset = 0.0
+shader_parameter/yOffset = 0.0
+shader_parameter/yDiffs = null
+shader_parameter/data_texture = ExtResource("2_wd1ta")
