@@ -125,7 +125,7 @@ public partial class WaveCurve : Path2D						// have combined waveline and smoot
 
 	private void ApplyStraighten()
 	{
-		GD.Print("ST");
+		//GD.Print("ST");
 		int pointCount = curve.GetPointCount();
 		for (int i = 0; i < pointCount; i++)
 		{

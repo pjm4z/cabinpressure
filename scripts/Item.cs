@@ -16,7 +16,6 @@ public partial class Item : Area2D	 				//TODO  --:> inventory sys, boat should 
 	public override void _Process(double delta)
 	{
 		if (this.crew != null && pickedUp == true) {
-			GD.Print("picked up");
 			this.Visible = false;
 			this.GlobalPosition = this.crew.GlobalPosition;
 		}
@@ -27,11 +26,9 @@ public partial class Item : Area2D	 				//TODO  --:> inventory sys, boat should 
 		this.pickedUp = true;
 		crew.soughtItem = null;
 		crew.inventory = this;
-		GD.Print("PICKED UP " + crew.firstName);
 	}
 	
 	public void use(Crew crew) {
-		GD.Print("ATE " + crew.firstName);
 		crew.hunger = 10f;
 		crew.sleep = 10f;
 		crew.sleeping = false;

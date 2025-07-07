@@ -1,4 +1,5 @@
 using Godot;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -9,30 +10,30 @@ public partial class Boat : CharacterBody2D
 	
 	public const float MaxSpeed = 1000.0f;  // Max forward speed
 	public const float MaxReverseSpeed = 20.0f;  // Max reverse speed
-	public const float TurnSpeed = 0.33f;  // Rotation speed (turning speed)
+	public const float TurnAcceleration = 0.01f;  // Rotation speed (turning speed)
+	public const float TurnSpeed = 0.01f;
 	public const float Acceleration = 100.0f;  // Acceleration rate
-	public const float Deceleration = 0.995f;  // Deceleration rate
+	public const float ReverseAcceleration = 10.0f;  // Reverse cceleration rate
 	private Vector2 velocity = Vector2.Zero;
 	 
-	[Export] private GpuParticles2D wake;
+//	[Export] private GpuParticles2D wake;
 	private Node2D surface;
 	private SubViewport underwater;
 	private SurfaceMap surfaceMap;
 	public Vector2 InitialPosition;
 	//public Skip skip;
-	public Camera2D camera;
+	
 	public bool active = true;
-	private CrewRoster crewRoster;
+	
 	public Queue<Furniture> availableBeds = new Queue<Furniture>();  // TODO --> change to bed when i have bed class
 	private List<Furniture> takenBeds = new List<Furniture>();
-	private PostCtrl postCtrl;
-	private List<WeaponSlot> weaponSlots = new List<WeaponSlot>();
-	
-	List<Post> postList = new List<Post>();
-	[Export] Post leftTorpedo;
-	[Export] Post leftTorpedo2;
-	[Export] Post rightTorpedo;
-	
+	//private List<WeaponSlot> weaponSlots = new List<WeaponSlot>();
+	//private WireCtrl wireCtrl;
+	[Export] public Camera2D camera;
+	[Export] private TileMapLayer hullMap;
+	[Export] private PowerGrid powerGrid;
+	[Export] public CrewRoster defaultRoster;
+	public float rotationSpeed;
 	
 	public override void _Ready() {
 		ZIndex = 1;
@@ -40,23 +41,20 @@ public partial class Boat : CharacterBody2D
 		
 		underwater = (SubViewport) GetNode("/root/basescene/surface/surfaceviewport");
 		surfaceMap = GetNode<SurfaceMap>("/root/basescene/surface/surfaceviewport/surfacemap");
-		postCtrl = (PostCtrl) GetNode("postctrl");
-		leftTorpedo = (Post) GetNode("postctrl/post");
-		rightTorpedo = (Post) GetNode("postctrl/post2");
-		camera = (Camera2D) GetNode("playercamera");
-		crewRoster = (CrewRoster) GetNode("crewroster");
+
+		//camera = (Camera2D) GetNode("playercamera");
+		//defaultRoster = (CrewRoster) GetNode("crewroster");
+		//hullMap = (TileMapLayer) GetNode("hullmap");
 		//skip = (Skip) GetNode("/root/basescene/surface/boatscene/skip");
-		wake.Lifetime = 0.5f;
-		ParticleProcessMaterial wakeMaterial = (ParticleProcessMaterial) wake.ProcessMaterial;
-		wakeMaterial.LifetimeRandomness = 1.0f;
-		wake.Amount = 50;
-		wake.Emitting = true;
+
 		InitialPosition = Position;
-		
-		//initPosts();
-		//initCrew();
+		rotationSpeed = 0;
 		initBeds();
-		initWeaponSlots();
+		//initWeaponSlots();
+	}
+	
+	public PowerGrid getPowerGrid() {
+		return powerGrid;
 	}
 	
 	public void initBeds() {
@@ -70,7 +68,7 @@ public partial class Boat : CharacterBody2D
 		}
 	}
 	
-	public void initWeaponSlots() {
+	/*public void initWeaponSlots() {
 		var wpnArray = GetChildren()
 			.Where(child => child is WeaponSlot) // TODO --> change to bed when I have bed class
 			.Select(child => child)          
@@ -83,10 +81,9 @@ public partial class Boat : CharacterBody2D
 			i += 1;
 		}
 	}
-	
+	*/
 	public void giveBed(Crew crew) {
 		if (availableBeds.Count > 0) {
-			GD.Print("givinbed");
 			Furniture bed = availableBeds.Dequeue();
 			crew.bed = bed;
 			bed.crew = crew;
@@ -104,8 +101,7 @@ public partial class Boat : CharacterBody2D
 			postList.Add(post);
 		}
 	}*/
-	
-	
+
 
 	bool l1 = true;
 	public override void _Input(InputEvent inputEvent) {
@@ -116,25 +112,10 @@ public partial class Boat : CharacterBody2D
 			
 		}
 	}
-
 	
 	public override void _PhysicsProcess(double delta) {
-		//_Track_Boat();
-		// Get the current velocity of the boat
-		/*if (leftTorpedo.assignedCrew == null) {
-			GD.Print("LT: " + leftTorpedo.queuedOrders + " " + leftTorpedo.assignedCrew);
-		} else {
-			GD.Print("LT: " + leftTorpedo.queuedOrders + " " + leftTorpedo.assignedCrew.firstName + " " + leftTorpedo.assignedCrew.sleep);
-		}
-		
-		if (rightTorpedo.assignedCrew == null) {
-			GD.Print("RT: " + rightTorpedo.queuedOrders + " " + rightTorpedo.assignedCrew);
-		} else {
-			GD.Print("RT: " + rightTorpedo.queuedOrders + " " + rightTorpedo.assignedCrew.firstName+ " " + rightTorpedo.assignedCrew.sleep);
-		}
-		GD.Print();*/
-		
 		velocity = Velocity;
+		float speed = Velocity.Length();
 		
 		if (!active) {
 			//RemoveChild(camera);
@@ -142,29 +123,39 @@ public partial class Boat : CharacterBody2D
 		}
 		else { // Handle rotation (turning the boat)
 			if (Input.IsActionPressed("ui_left") || Input.IsActionPressed("a")) {
-				if (Velocity.Length() > 0) {
-					Rotation -= (Velocity.Length()/100 + TurnSpeed) * (float)delta;  // Rotate left
+
+				rotationSpeed -= TurnAcceleration * (float)(delta);
+				if (Math.Abs(rotationSpeed) > TurnSpeed) {
+					rotationSpeed = -1 * TurnSpeed;
 				}
-			
 			}
 			if (Input.IsActionPressed("ui_right") || Input.IsActionPressed("d")) {
-				if (Velocity.Length() > 0) {
-					Rotation += (Velocity.Length()/100 +  TurnSpeed) * (float)delta;  // Rotate right
+				rotationSpeed += TurnAcceleration * (float)delta;
+				if (rotationSpeed > TurnSpeed) {
+					rotationSpeed = TurnSpeed;
 				}
 			}
-
+			Rotation += rotationSpeed;
 			// Handle forward and reverse movement with acceleration
 			if (Input.IsActionPressed("ui_up") || Input.IsActionPressed("w")) {
 				// Accelerate forward based on the boat's rotation
-				velocity = velocity.MoveToward(new Vector2(0, MaxSpeed).Rotated(Rotation), Acceleration * (float)delta);
+				if (MaxSpeed > Velocity.Length()) {
+					speed = MaxSpeed;
+				}
+				velocity = velocity.MoveToward(
+					new Vector2(0, speed).Rotated(Rotation), 
+					Acceleration * (float)delta);
 			}
 			else if (Input.IsActionPressed("ui_down") || Input.IsActionPressed("s")) {
 				// Accelerate in reverse based on the boat's rotation
-				velocity = velocity.MoveToward(new Vector2(0, -MaxReverseSpeed).Rotated(Rotation), (Acceleration) * (float)delta);
+				if (MaxReverseSpeed > Velocity.Length()) {
+					speed = MaxReverseSpeed;
+				}
+				velocity = velocity.MoveToward(
+					new Vector2(0, speed).Rotated(Rotation + (float)Math.PI), 
+					ReverseAcceleration * (float)delta);
 			}
-			else {
-				velocity = velocity.MoveToward(new Vector2(0, Velocity.Length() * Deceleration).Rotated(Rotation), Acceleration * (float)delta);
-			}
+			
 			Velocity = velocity;
 			MoveAndSlide();
 		}

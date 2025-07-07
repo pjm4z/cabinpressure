@@ -6,28 +6,38 @@ using System.Threading.Tasks;
 
 public partial class Crew : CharacterBody2D
 {
-	public string firstName;
-	public string lastName;
-	
-	[Export] public NavigationAgent2D nav;
-	[Export] public NavigationRegion2D navRegion;
-	public Queue<Post> jobQueue = new Queue<Post>();
+	// Nodes
+	// parents
+	public Boat ship;
+	private CrewRoster roster;
+
+	// siblings
+	private Post lastPost;
 	public Post post;
 	public Weapon wpn;
+	public JobTarget job;
+	public Furniture bed;
+	
+	// children
+	private StateMachine brain;
+	private VBoxContainer crewPanel;
+	private Label nameplate;
+	private Label label;
+	public NavigationAgent2D nav;
 	private bool navReady = false;
-	private Boat boat;
-	private CrewRoster roster;
-	public Furniture bed; // --> TODO change to bed when i have bed class
-	private CrewProgress crewProgress;
-	
-	private Dictionary<string, RayCast2D> raycasts = new Dictionary<string, RayCast2D>();
-	
-	// multipliers/vars
-	public float readiness = 0;
+	public Sprite2D sprite;
+	public CrewProgress crewProgress;
+
+	// class vars
+	public string firstName;
+	public string lastName;
+	public int rank;
+	public double readiness = 0;
 	
 	public static float MAX_HEALTH = 10f;
 	public static float MAX_HUNGER = 10f;
 	public static float MAX_SLEEP = 10f;
+	public static float MIN_SLEEP = 5f;
 	public static float MAX_SPEED = 100f;
 	
 	public float health = MAX_HEALTH;
@@ -35,33 +45,23 @@ public partial class Crew : CharacterBody2D
 	public float sleep = MAX_SLEEP;
 	public float speed = MAX_SPEED;
 	
-	public float hunger_multiplier = 0.1f;
-	public float sleep_multiplier = 0.033f;
-	
-	private Label nameplate;
+	public float hunger_rate = 0.2f;
+	public float sleep_rate = 0.3f;
 	
 	public override void _Ready() {
-		nav = (NavigationAgent2D) GetNode("nav");
-		//navRegion = (NavigationRegion2D) GetNode("/root/basescene/surface/boat/boatnavregion");
-		crewProgress = (CrewProgress) GetNode("progress");
+		brain = (StateMachine) GetNode("brain");
+		sprite = (Sprite2D) GetNode("sprite");
 		roster = (CrewRoster) GetParent();
-		boat = (Boat) roster.GetParent();
-		nameplate = (Label) GetNode("label");
+		nav = (NavigationAgent2D) GetNode("nav");
+		crewProgress = (CrewProgress) GetNode("progress");
+		nameplate = (Label) GetNode("nameplate");
+		
 		ProcessMode = Node.ProcessModeEnum.Always;
-		InitializeRaycasts();
-	}
-	
-	
-	private void InitializeRaycasts() {
-		Sprite2D sprite = (Sprite2D) GetNode("sprite");
-		var raycastArray = sprite.GetChildren()
-			.Where(child => child is RayCast2D) // TODO --> change to bed when I have bed class
-			.Select(child => child)          
-			.Cast<RayCast2D>(); // TODO --> change to bed when I have bed class                 
-
-		foreach(var ray in raycastArray) {
-			raycasts.Add(ray.GetName(), ray);
-		}
+		
+		brain.parent = this;
+		brain.init();
+		
+		crewPanel = (VBoxContainer) GetNode("/root/basescene/HUD/crewcontainer/crewpanel");
 	}
 	
 	public bool seekingBed = false;
@@ -72,87 +72,62 @@ public partial class Crew : CharacterBody2D
 	
 	public Item inventory;
 	public Item soughtItem;
+	public Item soughtFood;
+	
+	Color red = new Color(1.0f,0.0f,0.0f,1.0f);
+	Color white = new Color(1.0f,1.0f,1.0f,1.0f);
+	
+	private void updateLabels() {
+		if (working == true || seekingJob == true) {
+			nameplate.Set("theme_override_colors/font_color",red);
+			label.Set("theme_override_colors/font_color",red);
+		} else {
+			nameplate.Set("theme_override_colors/font_color",white);
+			label.Set("theme_override_colors/font_color",white);
+		}
+	}
 	
 	public override void _PhysicsProcess(double delta) {
+		updateLabels();
+		
 		if (health <= 0) {
 			QueueFree();
 		}
-		//GD.Print(lastName + " " + (post == null) + " " + (wpn == null) + seekingJob + " " + working);
-		checkPriorities();
-		reportReadiness();
-		
+	
 		if (!GetTree().Paused) {
-		Vector2 dir;
-		
-		if (navReady == true) {
-			if (sleeping) { 
-				dir = GetGlobalPosition();
-			} else if (seekingBed) {
-				dir = seekBed();
-			} else if (seekingFood) {
-				dir = seekFood();
-			} else if (working) {
-				dir = GetGlobalPosition();
-			} else if (seekingJob) {
-				dir = seekJob();
-			} else {
-				dir = boat.GetGlobalPosition();
-			}
-		} else { // rest
-			dir = boat.GetGlobalPosition();
+			brain.process(delta);
 		}
-		
-		float rotation = (float) boat.GlobalRotation;
-		Velocity = adjustRotation(dir, rotation) * speed;
-		MoveAndSlide();
+	}
+	
+	public void move(Vector2 target) {
+		nav.TargetPosition = target;
+		target = nav.GetNextPathPosition();
+		float rotation = (float) ship.GlobalRotation;
+		sprite.Rotation = GetAngleTo(target) + 1.5708f;
+		target = adjustRotation(target, rotation) * speed;
+		if (nav.AvoidanceEnabled == true) {
+			nav.SetVelocity(target);
+		} else {
+			_on_nav_velocity_computed(target);
 		}
 	}
 	
 	public void reportReadiness() {
-		if (!seekingJob && !working && !seekingFood) {
-			readiness = hunger + sleep;
-			if (roster.maxReady != null) {
-				if (readiness > roster.maxReady.readiness) {
-					roster.maxReady = this;
-				}
-			} else {
+		readiness = hunger + sleep;
+		if (roster.maxReady != null) {
+			if (readiness > roster.maxReady.readiness) {
 				roster.maxReady = this;
 			}
 		} else {
-			readiness = 0;
-			//readiness = -1 * ((MAX_HUNGER - hunger) + (MAX_SLEEP - sleep));
-			if (roster.maxReady == this) {
-				roster.maxReady = null;
-			}
+			roster.maxReady = this;
 		}
 	}
 	
-	public void setNamePlate(string fn, string ln) {
-		nameplate.Text = /*fn + " " + */ln;
-	}
-	
-	public void checkPriorities() {
-		checkJobStatus(); // lowest priority (overridden by all others)
-		checkHunger();
-		checkSleep();	// top priority (overrides others)
-	}
-	
-	public void checkSleep() {
-		//if (sleep <= 0) {
-		//	sleeping = true;
-		//	seekingBed = false;
-		//} else 
-		if (sleep <= 2 && sleeping == false) {
-			seekingBed = true;
-			working = false;
-			//GD.Print("NOWORK --> SEEKING BED");
-			seekingJob = false;
-			seekingFood = false;
-		} else if (sleep >= MAX_SLEEP) {
-			sleeping = false;
-			seekingBed = false;
-			sleep = MAX_SLEEP;
-		}
+	public void setName(string fn, string ln) {
+		nameplate.Text = ln;
+		label = new Label();
+		label.Text = fn + " " + ln;
+		crewPanel.AddChild(label);
 	}
 	
 	public void checkHunger() {
@@ -160,136 +135,108 @@ public partial class Crew : CharacterBody2D
 			if (inventory != null) {
 				inventory.use(this);
 				seekingFood = false;
-				
-				//GD.Print(hunger + " " + sleep + " " + seekingFood + " ");
 			} else {
-				//speed = MAX_SPEED + ((hunger - 5f) * 10f);
-				//working = false;
-				kickbackOrders();
+				working = false;
 				seekingFood = true;
 			}
 		} else {
-			//speed = MAX_SPEED;
 			seekingFood = false;
 		}
 	}
 	
-	public void checkJobStatus() {
-		if (working == false && post != null  && wpn != null) { 
-			if (post.assignedCrew == this && wpn.assignedCrew == this) {
-				if (wpn.active == true || wpn.queuedOrders > 0) {
-					seekingJob = true;
+	public bool checkWork() {
+		if (post != null && job != null) {
+			if (post.isOccupied && (job.count() > 0 || job.getActive() == true)) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public bool checkSleep() {
+		if (sleeping) {
+			if (sleep < MAX_SLEEP) {
+				return true;
+			} else {
+				return false;
+			}
+		}
+		return ((sleep <= 0) || (sleep < MIN_SLEEP && atLocation(bed)));
+	}
+	
+	public bool checkSeekBed() {
+		if (sleep <= MIN_SLEEP) {
+			if (bed == null) {
+				ship.giveBed(this);
+			}
+			return (bed != null);
+		} 
+		return false; 
+	}
+	
+	public bool checkWakeUp() {
+		if (sleep >= MAX_SLEEP) {
+			sleep = MAX_SLEEP;
+			return true;
+		}
+		return false;
+	}
+	
+	public bool checkSeekFood() {
+		if (hunger <= 5) {
+			if (soughtFood == null) {
+				soughtFood = findFood();
+			}
+			return (soughtFood != null);
+		} 
+		return false;
+	}
+	
+	public bool checkSeekJob() {
+		if (post != null && job != null) { 
+			if (post.assignedCrew == this && job.assignedCrew == this) {
+				if (job.getActive() == true || job.count() > 0) {
+					return true;
 				} else {
 					GD.Print("Assigned post with no queued orders and not active? " + lastName);
-					GD.Print(working, seekingJob, (post==null),(wpn==null),wpn.posted,wpn.queuedOrders,wpn.active);
-					detachOrders();
 				}
-				
 			} else {
-				GD.Print("ASSIGNED SOMEONE ELSE'S JOB??" + lastName+post.assignedCrew.lastName+wpn.assignedCrew.lastName);
-				detachOrders();
-			}
-		} if ((post == null || wpn == null) && ((post == null && wpn == null) == false)) { 
-			GD.Print(lastName + " " + (post == null) + " " + (wpn == null));
-			detachOrders();
-		}
-	}
-	
-	public async void doJob() {
-		//while ((wpn != null) && ((wpn.queuedOrders > 0 || wpn.active== true) && (sleeping == false && seekingBed == false && seekingFood == false))) {
-		while (working == true && (wpn.queuedOrders > 0 || wpn.active == true)) {
-			if (wpn.queuedOrders > 0) { // && !GetTree().Paused
-				GD.Print("awaiting " + lastName + " " + wpn.queuedOrders);
-				await post.doJob(wpn);
-				crewProgress.deltaElapsed = 0;
-			} else {
-				await Task.Delay(1);
+				if (post.assignedCrew != null) {
+					GD.Print("ASSIGNED SOMEONE ELSE'S JOB??" + lastName+post.assignedCrew.lastName+job.assignedCrew.lastName);
+				} 
 			}
 		}
-		if ((wpn != null) && (wpn.queuedOrders > 0 || wpn.active== true)) {
-			kickbackOrders();
-		} else {
-			detachOrders();
-		}
+		detachOrders();
+		return false;
 	}
 	
+	public bool isNavReady() {
+		return navReady;
+	}
 	
-	public Vector2 seekFood() {		// handle case of no food
-		if (this.soughtItem == null) {
-			var food = boat.GetChildren()
-				.Where(child => child is Item) // We only want nodes that we know are Post nodes
-				.Select(child => child)          
-				.Cast<Item>(); 
+	private Item findFood() {
+		var food = ship.GetChildren()
+			.Where(child => child is Item) // We only want nodes that we know are Post nodes
+			.Select(child => child)          
+			.Cast<Item>(); 
 				
-			foreach (Item i in food) {
-				if (i.crew == null) {
-					soughtItem = i;
-					soughtItem.crew = this;
-					break;
-				}
+		foreach (Item i in food) {
+			if (i.crew == null) {
+				i.crew = this;
+				return i;
 			}
 		}
-		Vector2 dir = new Vector2(boat.GlobalPosition.X, boat.GlobalPosition.Y + 25f);
-		
-		if (soughtItem != null) {
-			nav.TargetPosition = soughtItem.GlobalPosition;				// set nav path to job pos
-			dir = nav.GetNextPathPosition();
-					
-			if (Math.Abs(GlobalPosition.X - soughtItem.GlobalPosition.X) < nav.TargetDesiredDistance &&
-				Math.Abs(GlobalPosition.Y - soughtItem.GlobalPosition.Y) < nav.TargetDesiredDistance) {			// if at job location, dequeue job
-				GD.Print("PICKUP "  + firstName);
-				soughtItem.pickUp(this);
-			} else {
-				//GD.Print("SEEK " + firstName + " " + nav.TargetDesiredDistance + " " + (GlobalPosition - soughtItem.GlobalPosition) + " " + (Position - soughtItem.Position));			// high velocity can get caught in seek
-				//GD.Print(firstName + " " + nav.TargetDesiredDistance + " " + (GlobalPosition) + " " + (Position));			// high velocity can get caught in seek
-				//GD.Print(firstName + " " + nav.TargetDesiredDistance + " " + (soughtItem.GlobalPosition) + " " + (soughtItem.Position));			// high velocity can get caught in seek
-				//GD.Print();
-			}
-		} 
-		//GD.Print("! " + firstName +  " "  + soughtItem);
-		//GD.Print("SfFFFF ");
-		//GD.Print(this.hunger + " " + this.seekingFood);
-		return dir;
+		return null;
 	}
 	
-	public Vector2 seekJob() {
-		
-				
-		//if (Math.Abs(GlobalPosition.X - jobQueue.Peek().GlobalPosition.X) < nav.TargetDesiredDistance &&
-		//	Math.Abs(GlobalPosition.Y - jobQueue.Peek().GlobalPosition.Y) < nav.TargetDesiredDistance) {			// if at job location, dequeue job
-		if (Math.Abs(GlobalPosition.X - post.GlobalPosition.X) < nav.TargetDesiredDistance &&
-			Math.Abs(GlobalPosition.Y - post.GlobalPosition.Y) < nav.TargetDesiredDistance) {
-			if (working == false) {
-				seekingJob = false;
-				working = true;
-				GD.Print("DOING JOB " + lastName);
-				doJob();
-			}
-		} 
-		Vector2 dir;
-		nav.TargetPosition = post.GlobalPosition;//jobQueue.Peek().GlobalPosition;				// set nav path to job pos
-		dir = nav.GetNextPathPosition();
-		return dir;
-	}
-	
-	public Vector2 seekBed() {
-		if (bed == null) {
-			boat.giveBed(this);
-		} if (bed == null) {
-			sleeping = true;
-			seekingBed = false;
-			return GetGlobalPosition();
+	public bool atLocation(Node2D node) {
+		if (node != null) {
+			if (Math.Abs(GlobalPosition.X - node.GlobalPosition.X) < nav.TargetDesiredDistance &&
+				Math.Abs(GlobalPosition.Y - node.GlobalPosition.Y) < nav.TargetDesiredDistance) {			// if at job location, dequeue job
+				return true;
+			} 
 		}
-		Vector2 dir;
-		nav.TargetPosition = bed.GlobalPosition;				// set nav path to job pos
-		dir = nav.GetNextPathPosition();
-				
-		if (Math.Abs(GlobalPosition.X - bed.GlobalPosition.X) < nav.TargetDesiredDistance &&
-			Math.Abs(GlobalPosition.Y - bed.GlobalPosition.Y) < nav.TargetDesiredDistance) {			// if at job location, dequeue job
-			sleeping = true;
-			seekingBed = false;
-		} 
-		return dir;
+		return false;
 	}
 	
 	public Vector2 adjustRotation(Vector2 globalDir, float globalRotation) {
@@ -333,14 +280,30 @@ public partial class Crew : CharacterBody2D
 		return dir;
 	}
 	
-	public void receiveOrder(Weapon wpn, Post post) {
+	public void receiveOrder(JobTarget job, Post post) {
 		GD.Print("aye aye capn");
 		detachOrders();
-		this.wpn = wpn;
-		this.post = post;
-		this.wpn.posted = false;
-		this.wpn.assignedCrew = this;
-		this.post.assignedCrew = this;
+		this.job = job;
+		this.job.setPosted(false);
+		this.job.assignedCrew = this;
+		if (this.lastPost == null) {
+			this.post = post;
+		} else {
+			if (this.lastPost.assignedCrew == null || 
+				this.lastPost.assignedCrew == this) { 
+				if (GlobalPosition.DistanceTo(this.lastPost.GlobalPosition) >= 
+					GlobalPosition.DistanceTo(post.GlobalPosition)) {
+					this.post = post;
+				} else {
+					this.post = lastPost;
+				}
+			} else {
+				this.post = post;
+			}
+		} 
+		this.post.assignedCrew = this; 
+		this.post.RMSelfSignal += RMSelfPost;
+		this.job.RMSelfSignal += RMSelfJob;
 	}
 	
 	public void kickbackOrders() {
@@ -348,51 +311,76 @@ public partial class Crew : CharacterBody2D
 			this.post.assignedCrew = null;
 			this.post = null;
 		}
-		if (this.wpn != null) {
-			this.wpn.posted = true;
-			roster.jobBoard.AddLast(wpn);
-			this.wpn.assignedCrew = null;
-			this.wpn = null;
+		if (this.job != null) {
+			this.job.setPosted(true);
+			this.roster.kickbackJob(job);
+			this.job.assignedCrew = null;
+			this.job = null;
 		}
 		working = false;
 		seekingJob = false;
 	}
 	
 	public void detachOrders() {
-		GD.Print("DT");
 		if (this.post != null) {
 			this.post.assignedCrew = null;
+			this.lastPost = post;
+			lastPost.RMSelfSignal += RMSelfLastPost;
 			this.post = null;
 		}
-		if (this.wpn != null) {
-			this.wpn.posted = false;
-			this.wpn.assignedCrew = null;
-			this.wpn = null;
+		if (this.job != null) {
+			this.job.setPosted(false);
+			this.job.assignedCrew = null;
+			this.job = null;
 		}
 		working = false;
 		seekingJob = false;
 	}
 	
+	private void RMSelfJob(GridItem job) {
+		GD.Print("RM SELF JOB");
+		this.job = null;
+		detachOrders();
+	}
+
+	private void RMSelfPost(GridItem post) {
+		GD.Print("RM SELF POST");
+		this.post = null;
+		kickbackOrders();
+	}
+	
+	private void RMSelfLastPost(GridItem post) {
+		GD.Print("RM SELF LAST POST");
+		this.lastPost = null;
+	}
+	
 	
 	public void _on_crewtimer_timeout() {
-		hunger -= hunger_multiplier;
-		if (sleeping == false)
-			sleep -= sleep_multiplier;
+		float temp = sleep;
+		if (sleeping == false) {
+			sleep -= sleep_rate;
+			if (sleep < 0) {
+				sleep = 0;
+				health -= sleep_rate;
+			}
+		}
 		else {
-			sleep += sleep_multiplier * 3;
+			sleep += sleep_rate * 2;
 		}
 		
+		hunger -= hunger_rate;
 		if (hunger < 0) {
 			hunger = 0;
-			health -= hunger_multiplier;
-		}
-		if (sleep < 0) {
-			sleep = 0;
-			health -= sleep_multiplier;
+			health -= hunger_rate;
 		}
 	}
 	
 	public void _on_navtimer_timeout() {
 		navReady = true;
+	}
+	
+	public void _on_nav_velocity_computed(Vector2 velocity) {
+		Velocity = velocity;
+		MoveAndSlide();
 	}
 }

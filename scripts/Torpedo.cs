@@ -54,8 +54,6 @@ public partial class Torpedo : Node2D
 	{
 		// If the torpedo collides with a fish, apply damage
 		surfaceMap._Splash(Position.X,Position.Y,5);
-		//GD.Print("Hit");
-		//GD.Print(Position.X + " " +  Position.Y);
 		if (body is Fish fish)
 		{
 			fish.ApplyDamage(Damage);  // Call the damage method on the fish

@@ -39,7 +39,8 @@ public partial class BaseScene : Node
 	}
 	
 	public override void _Input(InputEvent inputEvent) {
-		if (Input.IsActionJustReleased("space")) {
+		if (Input.IsActionJustReleased("space")) { //todo nav doesnt pause (crew in motion)
+													// maybe from nav callback in crew script calling movenadslide?
 			GetTree().Paused = !GetTree().Paused;
 		}
 			

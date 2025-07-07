@@ -7,13 +7,14 @@
 script = ExtResource("1_vnsxd")
 
 [node name="sprite" type="Sprite2D" parent="."]
-position = Vector2(-17, 1)
-scale = Vector2(2.5, 2.125)
+position = Vector2(-8, 2.11758e-22)
+scale = Vector2(0.1, 0.1)
 texture = ExtResource("2_0lmku")
 
 [node name="polygon" type="CollisionPolygon2D" parent="."]
-position = Vector2(-17, 1)
-polygon = PackedVector2Array(-20, -3, -11, -3, -11, -5, 20, -5, 20, 3, -11, 3, -11, 0, -20, 0)
+position = Vector2(-6.91211, 0)
+scale = Vector2(0.517578, 1)
+polygon = PackedVector2Array(7, -7, 27, -7, 27, 7, 7, 7, 6, 6, 6, 4, -37, 4, -37, -4, 6, -4, 6, -6, 7, -7)
 
 [node name="shotpt" type="Node2D" parent="."]
-position = Vector2(-37, 0)
+position = Vector2(-53, 0)

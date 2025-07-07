@@ -28,7 +28,7 @@ public partial class CrewProgress : ProgressBar
 			deltaElapsed = 0;
 		} else if (crew.working == true) {
 			wpn = crew.wpn;
-			if (wpn.queuedOrders> 0) {
+			if (wpn.count() > 0) {
 				this.Visible = true;
 				deltaElapsed += delta;
 				this.MaxValue = wpn.taskTime * 1000;

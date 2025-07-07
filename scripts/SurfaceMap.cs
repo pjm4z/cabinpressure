@@ -184,8 +184,8 @@ public partial class SurfaceMap : Node2D
 		}
 		
 		db = i;
-		GD.Print(db + " " + dt + " " + ((2*db) * dt));
-		GD.Print(PointsMap[0].Count);
+		//GD.Print(db + " " + dt + " " + ((2*db) * dt));
+		//GD.Print(PointsMap[0].Count);
 		//_Move_Grid();
 	}
 	public void _Expand_Top() {

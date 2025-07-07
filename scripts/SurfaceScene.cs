@@ -33,7 +33,7 @@ public partial class SurfaceScene : Node2D
 	public override void _Process(double delta)
 	{
 		//GD.Print(DisplayServer.WindowGetSize());
-		Vector2 s = DisplayServer.WindowGetSize();
+		Vector2 s = DisplayServer.WindowGetSize() * new Vector2(1/0.75f,1/0.75f);
 		Vector2 p = camera.GlobalPosition;
 		
 		p.X -= s.X/2;

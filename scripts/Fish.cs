@@ -21,12 +21,12 @@ public partial class Fish : CharacterBody2D
 	public void ApplyDamage(int damage)
 	{
 		Health -= damage;  // Decrease the health by the damage amount
-		GD.Print("Fish health: " + Health);
+		//GD.Print("Fish health: " + Health);
 
 		// Optionally, add more logic for when the fish is dead (e.g., destroy the fish)
 		if (Health <= 0)
 		{
-			GD.Print("Fish is dead!");
+		//	GD.Print("Fish is dead!");
 			QueueFree();  // Destroy the fish if its health reaches 0
 		}
 	}
@@ -35,7 +35,7 @@ public partial class Fish : CharacterBody2D
 	{
 		ZIndex = 1;
 		boat = (CharacterBody2D) GetTree().Root.GetNode("basescene/surface/boat");
-		GD.Print("Boat" + boat);
+	//	GD.Print("Boat" + boat);
 		// Create a ShaderMaterial and assign the shader to it
 
 	}

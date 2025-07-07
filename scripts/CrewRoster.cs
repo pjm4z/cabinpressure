@@ -7,21 +7,18 @@ using static System.Collections.Generic.Dictionary<string,object>;
 
 public partial class CrewRoster : Node2D
 {
+	private Boat parent;
 	public Dictionary<int,string> firstNameDict = new Dictionary<int,string>();
 	public Dictionary<int,string> lastNameDict = new Dictionary<int,string>();
-	public Dictionary<string,Crew> crewDict = new Dictionary<string,Crew>();
-	public LinkedList<Crew> crewList;
-	public Queue<Crew> crewQueue;
-	//public LinkedList<Post> jobBoard = new LinkedList<Post>();
-	public LinkedList<Weapon> jobBoard = new LinkedList<Weapon>();
+	public LinkedList<JobTarget> jobBoard = new LinkedList<JobTarget>();
 	
+	public Weapon nextOrder = null;
 	public Crew maxReady = null;
 	
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
-		crewList = new LinkedList<Crew>();
-		crewQueue = new Queue<Crew>();
+		parent = (Boat) GetParent();
 		
 		// TOPDO --> can get duplucate keys in name dict
 		firstNameDict[0] = "Allen";
@@ -50,64 +47,99 @@ public partial class CrewRoster : Node2D
 		
 		ProcessMode = Node.ProcessModeEnum.Always;
 	}
+	
+		// Called every frame. 'delta' is the elapsed time since the previous frame.
+	public void _ProcessNew(double delta)
+	{
+		// if avail try to assign post/crew
+		if (nextOrder != null) {
+			if (maxReady != null) {
+				Post post = nextOrder.getPost();
+				if (post != null) {
+					maxReady.receiveOrder(nextOrder, post);
+					maxReady = null;
+					nextOrder = null;
+				} 
+			}
+		}
+	}
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _Process(double delta)
 	{
+		// check if first wpn is not avail, prune
 		if (jobBoard.First != null) {
 			if (jobBoard.First.Value.assignedCrew != null || 
-			(jobBoard.First.Value.queuedOrders <= 0 && jobBoard.First.Value.active == false)) {
-				jobBoard.First.Value.posted = false;
+				(jobBoard.First.Value.count() <= 0 && jobBoard.First.Value.getActive() == false)) {
+				jobBoard.First.Value.setPosted(false);
 				jobBoard.RemoveFirst();
 			}
 		}
+		// check if last wpn is not avail, prune
 		if (jobBoard.Last != null) {
-			if (jobBoard.Last.Value.assignedCrew != null || 
-			(jobBoard.Last.Value.queuedOrders <= 0 && jobBoard.Last.Value.active == false)) {
-				jobBoard.Last.Value.posted = false;
+			if (jobBoard
+				.Last
+				.Value
+				.assignedCrew != null || 
+			(jobBoard.Last.Value.count() <= 0 && jobBoard.Last.Value.getActive() == false)) {
+				jobBoard.Last.Value.setPosted(false);
 				jobBoard.RemoveLast();
 			}
 		}
+		// if avail try to assign post/crew
 		if (jobBoard.Count > 0) {
 			if (maxReady != null) {	
-				if (maxReady.post == null && maxReady.wpn == null) {
-					//if (!seekingJob && !working && !seekingFood) {
-					Post post = jobBoard.Last.Value.postCtrl.givePost();
-					if (post != null) {
-						maxReady.receiveOrder(jobBoard.Last.Value, post);
-						maxReady = null;
-						jobBoard.RemoveLast();
-					}
-				} else {
+				//Post post = jobBoard.Last.Value.postCtrl.givePost();
+				Post post = jobBoard.Last.Value.getPost();
+				if (post != null) {
+					maxReady.receiveOrder(jobBoard.Last.Value, post);
 					maxReady = null;
-				}										// TODO compare each crew w maxReady in rpoc funct, make readiness rating, re add to end of LL if worker cant fnish job
-				
+					jobBoard.RemoveLast();
+				} 
 			}
 		}
 	}
-	
+	public int rank = 1;
 	private void initCrew() {
-		Random rnd = new Random();
+		
 		var crewArray = GetChildren()
 			.Where(child => child is Crew) // We only want nodes that we know are Post nodes
 			.Select(child => child)          
-			.Cast<Crew>();    
+			.Cast<Crew>();  
+			  
 		foreach(var crew in crewArray) {
-			crewQueue.Enqueue(crew);
+			crew.ship = parent;
+			crew.rank = rank;
+			rank += 1;
 			//generate name
-			crew.firstName = firstNameDict[rnd.Next(0,9)];
-			crew.lastName = lastNameDict[rnd.Next(0,9)];
+			nameCrew(crew);
+			Random rnd = new Random();
 			crew.sleep = rnd.Next(5,10);
-			crewDict.Add(crew.firstName + " " + crew.lastName, crew);
-			crew.setNamePlate(crew.firstName, crew.lastName);
-			GD.Print(":)________");
-			GD.Print(crew.firstName + " " + crew.lastName + " " + crew.sleep);
 		}
 	}
 	
-	public void postJob(Weapon /*Post*/ post) {
-		jobBoard.AddFirst(post);
-		post.posted = true;
+	public void nameCrew(Crew crew) {
+		Random rnd = new Random();
+		crew.firstName = firstNameDict[rnd.Next(0,9)];
+		crew.lastName = lastNameDict[rnd.Next(0,9)];
+		crew.setName(crew.firstName, crew.lastName);
 	}
 	
+	public void postJob(JobTarget job) {
+		jobBoard.AddFirst(job);
+		job.RMSelfSignal += RMSelfWpn;
+		job.setPosted(true);
+	}
+	
+	public void kickbackJob(JobTarget job) {
+		jobBoard.AddLast(job);
+		job.RMSelfSignal += RMSelfWpn;
+		job.setPosted(true);
+	}
+	
+	private void RMSelfWpn(GridItem wpn) {
+		if (wpn is Weapon) {
+			this.jobBoard.Remove((Weapon)wpn);
+		}
+	}	
 }

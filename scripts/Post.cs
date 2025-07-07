@@ -2,54 +2,88 @@ using Godot;
 using System;
 using System.Threading.Tasks;
 
-public partial class Post : Area2D
+public partial class Post : GridItem
 {
-	//public bool active = false;
+	[Export] private PowerGrid grid;
+	private Vector2 tilePos;
 	public bool isOccupied = false;
-	//public bool posted = false;
-	//public bool crewAssigned = false;
-	public Crew assignedCrew;
-	//public int queuedOrders = 0;
-	[Export] private PackedScene torpedoScene;
+	[Export] public Crew assignedCrew;
+	private PackedScene torpedoScene;
 	private SubViewport underwater;
-	private Boat boat;
-	private CrewRoster crewRoster;
+	public int groupId;
+	//private WireCtrl wireCtrl;
+	private PostCtrl postCtrl;
+	private Sprite2D sprite;
+	private Area2D area;
 	
-	
-	//public Weapon target;
-	
+	//[Signal]
+	//public delegate void RMSelfSignalEventHandler();
 	
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready() {
-		Monitoring = true;
-		boat = (Boat) GetNode("/root/basescene/surface/boat");
-		crewRoster = (CrewRoster) boat.GetNode("crewroster");
-		//ProcessMode = Node.ProcessModeEnum.Pausable;
 		ProcessMode = Node.ProcessModeEnum.Always;
+		sprite = (Sprite2D) GetNode("sprite");
+		area = (Area2D) GetNode("area");
 	}
 	
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _Process(double delta) {
-
-		//if (queuedOrders > 0 && assignedCrew == null) { 
-		//	crewRoster.assignCrew(this);
-		//}
-		
-		//if ((queuedOrders() > 0 || targetActive() == true) && (posted == false && assignedCrew == null)) {
-		//	crewRoster.postJob(this);
-		//}
 		if (HasOverlappingAreas() == true) {
 			isOccupied = true;
 		} else {
 			isOccupied = false;
 		}
+		if (this.assignedCrew == null && this.postCtrl != null) {
+			reportReadiness();
+		}
 	}
 	
-	public async Task doJob(Weapon target) {
+	public bool HasOverlappingAreas() {
+		return area.HasOverlappingAreas();
+	}
+	
+	
+	public void reportReadiness() { // add connected check
+		Post maxReady = postCtrl.getMaxReady();
+		if (maxReady != null) {
+			if (maxReady.assignedCrew != null) {
+				postCtrl.setMaxReady(this);
+			}
+		} else {
+			postCtrl.setMaxReady(this);
+		}
+	}	
+	
+	public override void setWireCtrl(WireCtrl wireCtrl) {
+		base.setWireCtrl(wireCtrl);
+		this.postCtrl = wireCtrl.getPostCtrl();
+		if (GetParent() != null) {
+			Reparent(wireCtrl.getPostCtrl());
+		} else {
+			wireCtrl.getPostCtrl().AddChild(this);
+		}
+		sprite.Modulate =  wireCtrl.color; 
+	}
+	
+	public override void removeSelf() {
+		if (this.postCtrl.getMaxReady() == this) {
+			this.postCtrl.setMaxReady(null);
+		}
+		if (this.assignedCrew != null) {
+			this.assignedCrew.kickbackOrders();
+		}
+		//EmitSignal(SignalName.RMSelfSignal);
+		base.removeSelf();
+	}
+	
+	public async Task doJob(JobTarget target) {
+		//GD.Print("trying to shoot");
 		await waitForGameTime(target.taskTime);
-		if (isOccupied == true) {
+		//GD.Print("EXEC");
+		if (isOccupied == true && isConnected(target)) {
 			target.execute();
 		}
+	
 	}
 	
 	public async Task waitForGameTime(double seconds) {
@@ -60,7 +94,6 @@ public partial class Post : Area2D
 		AddChild(timer);
 		timer.Start();
 		await ToSignal(timer, "timeout");
-		GD.Print("QF");
 		timer.QueueFree();
 	}
 }

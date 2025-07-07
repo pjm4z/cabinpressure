@@ -2,90 +2,87 @@ using Godot;
 using System;
 using static System.Math;
 
-public partial class Weapon : Area2D
+public partial class Weapon : JobTarget
 {
-	public Area2D wpnSlot;
-	public PostCtrl postCtrl;
-	private CrewRoster crewRoster;
+	public WeaponSlot wpnSlot;
+	/*[Export] private Boat ship;
+	[Export] public PostCtrl postCtrl;
+	[Export] private CrewRoster crewRoster;
 	public int queuedOrders = 0;
+	private double queueTime = 0;
 	public bool posted = false;
-	public bool active = false;
-	public double taskTime = 1;
-	private Node2D shotPt;
-	private SubViewport underwater;
-	private PackedScene torpedoScene;
+	private bool active = false;
 	public Crew assignedCrew;
-	public HBoxContainer weaponsPanel;
-	public Label label;
-	
+	private Sprite2D sprite;
 	Color red = new Color(1.0f,0.0f,0.0f,1.0f);
 	Color white = new Color(1.0f,1.0f,1.0f,1.0f);
+	private Label label;*/
 	
+	private PackedScene torpedoScene;
+	private bool timing = false;
+	
+	private Node2D shotPt;
+	private SubViewport underwater;
+	public HBoxContainer weaponsPanel;
+	
+
 	// Called when the node enters the scene tree for the first time.
+	public int groupId = 0;
+	
 	public override void _Ready()
 	{
-		wpnSlot = (Area2D) GetParent();
 		shotPt = (Node2D) GetNode("shotpt");
-		postCtrl = (PostCtrl) wpnSlot.GetParent().GetNode("postctrl");
-		crewRoster = (CrewRoster) wpnSlot.GetParent().GetNode("crewroster");
+		sprite = (Sprite2D) GetNode("sprite");
+		
 		underwater = (SubViewport) GetNode("/root/basescene/surface/surfaceviewport");
 		torpedoScene = GD.Load<PackedScene>("res://scenes/torpedo.tscn");
-		
-		label = new Label();
-		weaponsPanel = (HBoxContainer) GetNode("/root/basescene/HUD/weaponscontainer/weaponspanel");
-		label.Text = this.Name;
-		weaponsPanel.AddChild(label);
-		
+		ProcessMode = Node.ProcessModeEnum.Always;
+	}
+	
+	public void setWpnSlot(WeaponSlot wpnSlot) {
+		this.wpnSlot = wpnSlot;
 		this.GlobalPosition = wpnSlot.GlobalPosition;
 		this.GlobalRotation = wpnSlot.GlobalRotation;
-		ProcessMode = Node.ProcessModeEnum.Always;
-		//ProcessMode = Node.ProcessModeEnum.Pausable;
+	}
+	
+	public override void setName(string name) {
+		base.setName(name);
+		weaponsPanel = (HBoxContainer) GetNode("/root/basescene/HUD/weaponscontainer/weaponspanel");
+		weaponsPanel.AddChild(base.label);
 	}
 
-	// Called every frame. 'delta' is the elapsed time since the previous frame.
-	public override void _Process(double delta)
-	{
-		if (active == true && queuedOrders == 0) {
-			GD.Print(label.Text + " " + posted + " " + (assignedCrew == null));
-			
-			// --> POSTED IS REMAINING TRUE, but if posted shouldnt active be false? can only set active if q empty
+
+	// move to jt
+	//public override void _Process(double delta) {
+	//	base._Process(delta);
+	//}
+	
+	
+	/*
+	public void reportReadiness(double delta) {
+		if (this.crewRoster != null) {
+			if (crewRoster.nextOrder != null) {
+				if (this.queueTime > crewRoster.nextOrder.getTime()) {
+					crewRoster.nextOrder = this;
+				}
+			} else {
+				crewRoster.nextOrder = this;
+			}
 		}
-		
-		label.Text = this.Name + " " + this.queuedOrders;
-		if (active == true) {
-			label.Set("theme_override_colors/font_color",red);
-		} else {
-			label.Set("theme_override_colors/font_color",white);
+	}*/
+	
+	// move to jt + override
+	public override void removeSelf() {
+		if (this.wpnSlot != null) {
+			this.wpnSlot.removeWpn();
 		}
-		//GD.Print("(" + (this.queuedOrders > 0) + " || " + (this.active == true) + ") && (" + (this.posted == false) + " && " + (this.assignedCrew == null) + ")");
-		if ((queuedOrders > 0 || active == true) && (posted == false && assignedCrew == null)) {
-			//consoleCtrl.weaponQueue.Enqueue(this);
-			
-			crewRoster.postJob(this);
-			this.posted = true;
-		}
+		base.removeSelf();
 	}
 	
-	public void fire() {
-		if (this.posted == false && this.assignedCrew == null) {
-			GD.Print(":0000000000");
-			crewRoster.postJob(this);
-			this.posted = true;
-		}
-		queuedOrders += 1;
-	}
-	
-	public void execute() {
+	// move to jt + override
+	public override void execute() {
+		base.execute();
 		_Shoot_Torpedo();
-		if (queuedOrders > 0) {
-			queuedOrders -= 1;
-		}
-	}
-	
-	public bool canActivate() {
-		return posted == false && ((crewRoster.jobBoard.Count == 0 && postCtrl.givePost() != null) || assignedCrew != null);
-		
-		// issue --> jobBoard.Count can be empty but still have active wpns already assigned to crew!
 	}
 	
 	public void _Shoot_Torpedo() {
@@ -95,4 +92,28 @@ public partial class Weapon : Area2D
 		torpedo.GlobalRotation = shotPt.GlobalRotation - (float) Math.PI;
 		underwater.AddChild(torpedo);
 	}	
+	
+	
+	
+		/*public double getTime() {
+		return this.queueTime;
+	}
+	
+	public void startTiming() {
+		timing = true;
+	}
+	
+	public void startTiming(double startTime) {
+		timing = true;
+		this.queueTime = startTime;
+	}
+	
+	public void pauseTiming() {
+		timing = false;
+	}
+	
+	public void stopTiming() {
+		this.queueTime = 0f;
+		timing = false;
+	}*/
 }

@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=3 uid="uid://dsxnf6bp5eun6"]
+[gd_scene load_steps=12 format=3 uid="uid://dsxnf6bp5eun6"]
 
 [ext_resource type="Script" path="res://scripts/BaseScene.cs" id="1_e0vm4"]
 [ext_resource type="Script" path="res://scripts/Underwater.cs" id="2_od24b"]
@@ -6,13 +6,8 @@
 [ext_resource type="Script" path="res://scripts/HUD.cs" id="3_4gi1w"]
 [ext_resource type="PackedScene" uid="uid://d0q4pux665fv6" path="res://scenes/boat.tscn" id="4_n1nc8"]
 [ext_resource type="PackedScene" uid="uid://ccg41jlynxfth" path="res://scenes/skip.tscn" id="5_jpoub"]
-[ext_resource type="PackedScene" uid="uid://b2iy1ftso7uni" path="res://scenes/crewroster.tscn" id="6_4rxua"]
-[ext_resource type="PackedScene" uid="uid://cft1r7wppv5bq" path="res://scenes/crew.tscn" id="7_fvhgo"]
 [ext_resource type="PackedScene" uid="uid://k70ygdkfq0pd" path="res://scenes/item.tscn" id="8_ty5my"]
-[ext_resource type="PackedScene" uid="uid://dl24gnkim6ke4" path="res://scenes/post.tscn" id="9_kwnd6"]
-[ext_resource type="PackedScene" uid="uid://pmlba6c4s0lm" path="res://scenes/weaponslot.tscn" id="10_ld6h8"]
-[ext_resource type="PackedScene" uid="uid://84ry0sqcrixf" path="res://scenes/weapon.tscn" id="11_8kkmp"]
-[ext_resource type="PackedScene" uid="uid://caxwo6rfev2ki" path="res://scenes/postctrl.tscn" id="12_l100h"]
+[ext_resource type="PackedScene" uid="uid://nyjgnbrqeon0" path="res://scenes/furniture.tscn" id="14_cpjgl"]
 
 [sub_resource type="Gradient" id="Gradient_f2up5"]
 offsets = PackedFloat32Array(0, 0.94832)
@@ -58,6 +53,20 @@ grow_vertical = 0
 [node name="weaponspanel" type="HBoxContainer" parent="HUD/weaponscontainer"]
 layout_mode = 2
 
+[node name="crewcontainer" type="PanelContainer" parent="HUD"]
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 29.0
+offset_top = -550.0
+offset_right = 121.0
+offset_bottom = -510.0
+grow_vertical = 0
+scale = Vector2(0.76038, 0.908694)
+
+[node name="crewpanel" type="VBoxContainer" parent="HUD/crewcontainer"]
+layout_mode = 2
+
 [node name="surface" parent="." instance=ExtResource("3_3gtv8")]
 process_mode = 1
 
@@ -65,101 +74,54 @@ process_mode = 1
 light_mask = 1
 visibility_layer = 1
 z_index = 2
-position = Vector2(2.91038e-11, -1.78814e-07)
+position = Vector2(-1, 55)
 rotation = 3.14159
-
-[node name="postctrl" parent="surface/boat" instance=ExtResource("12_l100h")]
-
-[node name="post" parent="surface/boat/postctrl" instance=ExtResource("9_kwnd6")]
-position = Vector2(40.8649, 42.1315)
-scale = Vector2(0.116549, 0.126503)
-
-[node name="post2" parent="surface/boat/postctrl" instance=ExtResource("9_kwnd6")]
-position = Vector2(-40.1379, 42.8713)
-scale = Vector2(0.116549, 0.126503)
 
 [node name="skip" parent="surface/boat" instance=ExtResource("5_jpoub")]
-position = Vector2(35.0448, -13.8875)
+position = Vector2(41, -83)
 rotation = 3.14159
 
-[node name="crewroster" parent="surface/boat" instance=ExtResource("6_4rxua")]
-position = Vector2(1.99999, 0.00642502)
+[node name="furniture" parent="surface/boat" instance=ExtResource("14_cpjgl")]
+position = Vector2(-16, -88)
 
-[node name="crew" parent="surface/boat/crewroster" instance=ExtResource("7_fvhgo")]
-z_index = 2
-position = Vector2(19.7333, 83.064)
-rotation = 3.14159
+[node name="furniture2" parent="surface/boat" instance=ExtResource("14_cpjgl")]
+position = Vector2(-16, -72)
 
-[node name="crew2" parent="surface/boat/crewroster" instance=ExtResource("7_fvhgo")]
-z_index = 2
-position = Vector2(-9.0002, 83.9936)
-rotation = 3.14159
+[node name="furniture3" parent="surface/boat" instance=ExtResource("14_cpjgl")]
+position = Vector2(-33, 57)
 
-[node name="crew3" parent="surface/boat/crewroster" instance=ExtResource("7_fvhgo")]
-z_index = 2
-position = Vector2(25.9999, 34.9937)
-rotation = 3.14159
-
-[node name="crew4" parent="surface/boat/crewroster" instance=ExtResource("7_fvhgo")]
-z_index = 2
-position = Vector2(-11.0001, 25.9935)
-rotation = 3.14159
+[node name="furniture4" parent="surface/boat" instance=ExtResource("14_cpjgl")]
+position = Vector2(-33, -39)
 
 [node name="item" parent="surface/boat" instance=ExtResource("8_ty5my")]
-position = Vector2(24.6111, 121.08)
+position = Vector2(23.9998, 69.049)
 
 [node name="item2" parent="surface/boat" instance=ExtResource("8_ty5my")]
-position = Vector2(9.55019, 140.031)
+position = Vector2(22, 55)
 
 [node name="item3" parent="surface/boat" instance=ExtResource("8_ty5my")]
-position = Vector2(-40.2954, 91.871)
+position = Vector2(40, -25)
 
 [node name="item4" parent="surface/boat" instance=ExtResource("8_ty5my")]
-position = Vector2(21.0192, -5.93251)
+position = Vector2(4, -75)
 
 [node name="item5" parent="surface/boat" instance=ExtResource("8_ty5my")]
-position = Vector2(-8.44972, 139.974)
+position = Vector2(-27, 70)
 
 [node name="item6" parent="surface/boat" instance=ExtResource("8_ty5my")]
-position = Vector2(-6.39191, 121.98)
+position = Vector2(-7.00318, 69.949)
 
 [node name="item7" parent="surface/boat" instance=ExtResource("8_ty5my")]
-position = Vector2(8.61123, 121.028)
+position = Vector2(7.99996, 68.997)
 
 [node name="item8" parent="surface/boat" instance=ExtResource("8_ty5my")]
-position = Vector2(-39.2375, 73.8743)
+position = Vector2(-39.8488, 21.8433)
 
 [node name="item9" parent="surface/boat" instance=ExtResource("8_ty5my")]
-position = Vector2(21.0706, -21.9324)
+position = Vector2(8, -89)
 
 [node name="item10" parent="surface/boat" instance=ExtResource("8_ty5my")]
-position = Vector2(6.07065, -21.9806)
+position = Vector2(-13, -88)
 
 [node name="item11" parent="surface/boat" instance=ExtResource("8_ty5my")]
-position = Vector2(6.01925, -5.98071)
-
-[node name="weaponslot" parent="surface/boat" instance=ExtResource("10_ld6h8")]
-position = Vector2(55.9162, 26.1798)
-rotation = 3.14159
-
-[node name="weapon" parent="surface/boat/weaponslot" instance=ExtResource("11_8kkmp")]
-position = Vector2(-153.916, -1.1798)
-
-[node name="weaponslot2" parent="surface/boat" instance=ExtResource("10_ld6h8")]
-position = Vector2(55.9998, 88.0001)
-rotation = -3.14159
-
-[node name="weapon" parent="surface/boat/weaponslot2" instance=ExtResource("11_8kkmp")]
-position = Vector2(-153.916, -1.1798)
-
-[node name="weaponslot3" parent="surface/boat" instance=ExtResource("10_ld6h8")]
-position = Vector2(-56, 26)
-
-[node name="weapon" parent="surface/boat/weaponslot3" instance=ExtResource("11_8kkmp")]
-position = Vector2(-153.916, -1.1798)
-
-[node name="weaponslot4" parent="surface/boat" instance=ExtResource("10_ld6h8")]
-position = Vector2(-56.0002, 92.9999)
-
-[node name="weapon" parent="surface/boat/weaponslot4" instance=ExtResource("11_8kkmp")]
-position = Vector2(-153.916, -1.1798)
+position = Vector2(-35, -89)
