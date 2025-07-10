@@ -46,7 +46,7 @@ public partial class Crew : CharacterBody2D
 	public float speed = MAX_SPEED;
 	
 	public float hunger_rate = 0.2f;
-	public float sleep_rate = 0.3f;
+	public float sleep_rate = 0f;
 	
 	public override void _Ready() {
 		brain = (StateMachine) GetNode("brain");
@@ -78,6 +78,9 @@ public partial class Crew : CharacterBody2D
 	Color white = new Color(1.0f,1.0f,1.0f,1.0f);
 	
 	private void updateLabels() {
+		if (job != null) {
+			label.Text = nameplate.Text + " " + job.count();
+		}
 		if (working == true || seekingJob == true) {
 			nameplate.Set("theme_override_colors/font_color",red);
 			label.Set("theme_override_colors/font_color",red);
@@ -302,8 +305,8 @@ public partial class Crew : CharacterBody2D
 			}
 		} 
 		this.post.assignedCrew = this; 
-		this.post.RMSelfSignal += RMSelfPost;
-		this.job.RMSelfSignal += RMSelfJob;
+		this.post.RMSelfSignal += rmSelfPostEvent;
+		this.job.RMSelfSignal += rmSelfJobEvent;
 	}
 	
 	public void kickbackOrders() {
@@ -325,7 +328,7 @@ public partial class Crew : CharacterBody2D
 		if (this.post != null) {
 			this.post.assignedCrew = null;
 			this.lastPost = post;
-			lastPost.RMSelfSignal += RMSelfLastPost;
+			lastPost.RMSelfSignal += rmSelfLastPostEvent;
 			this.post = null;
 		}
 		if (this.job != null) {
@@ -337,20 +340,20 @@ public partial class Crew : CharacterBody2D
 		seekingJob = false;
 	}
 	
-	private void RMSelfJob(GridItem job) {
+	private void rmSelfJobEvent(GridItem job) {
 		GD.Print("RM SELF JOB");
 		this.job = null;
 		detachOrders();
 	}
 
-	private void RMSelfPost(GridItem post) {
+	private void rmSelfPostEvent(GridItem post) {
 		GD.Print("RM SELF POST");
 		this.post = null;
 		kickbackOrders();
 	}
 	
-	private void RMSelfLastPost(GridItem post) {
-		GD.Print("RM SELF LAST POST");
+	private void rmSelfLastPostEvent(GridItem post) {
+		//GD.Print("RM SELF LAST POST");
 		this.lastPost = null;
 	}
 	

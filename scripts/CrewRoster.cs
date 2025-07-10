@@ -113,8 +113,8 @@ public partial class CrewRoster : Node2D
 			rank += 1;
 			//generate name
 			nameCrew(crew);
-			Random rnd = new Random();
-			crew.sleep = rnd.Next(5,10);
+		//	Random rnd = new Random();
+		//	crew.sleep = rnd.Next(5,10);
 		}
 	}
 	
@@ -127,17 +127,17 @@ public partial class CrewRoster : Node2D
 	
 	public void postJob(JobTarget job) {
 		jobBoard.AddFirst(job);
-		job.RMSelfSignal += RMSelfWpn;
+		job.RMSelfSignal += rmSelfWpnEvent;
 		job.setPosted(true);
 	}
 	
 	public void kickbackJob(JobTarget job) {
 		jobBoard.AddLast(job);
-		job.RMSelfSignal += RMSelfWpn;
+		job.RMSelfSignal += rmSelfWpnEvent;
 		job.setPosted(true);
 	}
 	
-	private void RMSelfWpn(GridItem wpn) {
+	private void rmSelfWpnEvent(GridItem wpn) {
 		if (wpn is Weapon) {
 			this.jobBoard.Remove((Weapon)wpn);
 		}

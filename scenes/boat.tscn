@@ -1,4 +1,4 @@
-[gd_scene load_steps=22 format=4 uid="uid://d0q4pux665fv6"]
+[gd_scene load_steps=23 format=4 uid="uid://d0q4pux665fv6"]
 
 [ext_resource type="Script" path="res://scripts/Boat.cs" id="1_he26f"]
 [ext_resource type="Script" path="res://scripts/PlayerCamera.cs" id="3_e8qs2"]
@@ -8,6 +8,7 @@
 [ext_resource type="Script" path="res://scripts/PowerGrid.cs" id="5_vitnn"]
 [ext_resource type="PackedScene" uid="uid://dl24gnkim6ke4" path="res://scenes/post.tscn" id="6_xd5mm"]
 [ext_resource type="PackedScene" uid="uid://84ry0sqcrixf" path="res://scenes/weapon.tscn" id="7_as43g"]
+[ext_resource type="PackedScene" uid="uid://de3xk52di0t0s" path="res://scenes/engine.tscn" id="7_tsa4u"]
 [ext_resource type="PackedScene" uid="uid://pmlba6c4s0lm" path="res://scenes/weaponslot.tscn" id="7_xtxwm"]
 [ext_resource type="PackedScene" uid="uid://b2iy1ftso7uni" path="res://scenes/crewroster.tscn" id="9_qqbgp"]
 [ext_resource type="PackedScene" uid="uid://cft1r7wppv5bq" path="res://scenes/crew.tscn" id="10_rtian"]
@@ -120,6 +121,7 @@ tile_set = SubResource("TileSet_tw6wy")
 script = ExtResource("5_vitnn")
 tileMap = NodePath("../hullmap")
 wireScene = ExtResource("5_rpxud")
+engineScene = ExtResource("7_tsa4u")
 postScene = ExtResource("6_xd5mm")
 wpnSlotScene = ExtResource("7_xtxwm")
 wpnScene = ExtResource("7_as43g")
@@ -130,15 +132,30 @@ position = Vector2(3.00014, -54)
 
 [node name="crew" parent="crewroster" instance=ExtResource("10_rtian")]
 z_index = 2
-position = Vector2(34.9999, 94)
+position = Vector2(-45.0001, -32)
 rotation = 3.14159
 
 [node name="crew2" parent="crewroster" instance=ExtResource("10_rtian")]
 z_index = 2
-position = Vector2(34.9999, 94)
+position = Vector2(25.9999, 80)
 rotation = 3.14159
 
 [node name="crew3" parent="crewroster" instance=ExtResource("10_rtian")]
 z_index = 2
-position = Vector2(34.9999, 94)
+position = Vector2(-29.0001, 70)
+rotation = 3.14159
+
+[node name="crew4" parent="crewroster" instance=ExtResource("10_rtian")]
+z_index = 2
+position = Vector2(-27.0001, 125)
+rotation = 3.14159
+
+[node name="crew5" parent="crewroster" instance=ExtResource("10_rtian")]
+z_index = 2
+position = Vector2(12.9999, 123)
+rotation = 3.14159
+
+[node name="crew6" parent="crewroster" instance=ExtResource("10_rtian")]
+z_index = 2
+position = Vector2(24.9999, -29)
 rotation = 3.14159

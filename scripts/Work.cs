@@ -26,34 +26,47 @@ public partial class Work : State
 		post = crew.post;
 		crewProgress = crew.crewProgress;
 		working = false;
+		//crew.GlobalPosition = post.GlobalPosition;
+		job.addCharge();
+	}
+	
+	public override void exit() {
+		job.removeCharge(); // how to terminate async task execute?
 	}
 		
 	public override State process(double delta) {
 		State newState = checkPriorities();
 		if (newState != null) {
-			crew.kickbackOrders();
-			GD.Print("NEW STATE");
+			if (crew.job != null) {
+				crew.kickbackOrders();
+			}
+			//GD.Print("NEW STATE");
 			return newState;
 		}
 		if (!post.isConnected(job)) {
 			crew.kickbackOrders();
-			GD.Print("NOT CONNECTED");
+			//GD.Print("NOT CONNECTED");
 			return idle;
 		}
-		//GD.Print();
+		crew.move(post.GlobalPosition);
 		if (!working) {
 			work();
 		}
 		return null;
 	}
 	
-	private async void work() {		
-		if (job.count() > 0) {
+	private async void work() {
+		if (job.count() > 0 && job.ready()) {
 			working = true;
 			await post.doJob(job);
 			working = false;
 			crewProgress.deltaElapsed = 0;
 		} else {
+			if (!job.ready()) {
+				GD.Print("CANT SHOOT NO POWER");
+				job.requestPower(); 
+			}
+		//	GD.Print("2");
 			await Task.Delay(1);
 		}
 	}
@@ -70,6 +83,7 @@ public partial class Work : State
 		}
 		if (!crew.checkWork()) {
 			if ((job != null) && (job.count() > 0 || job.getActive() == true)) {
+				//GD.Print("!!");
 				crew.kickbackOrders();
 			} else {
 				crew.detachOrders();

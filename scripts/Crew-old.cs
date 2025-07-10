@@ -196,17 +196,17 @@ public partial class CrewX : CharacterBody2D
 				if (wpn.active == true || wpn.queuedOrders > 0) {
 					seekingJob = true;
 				} else {
-					GD.Print("Assigned post with no queued orders and not active? " + lastName);
-					GD.Print(working, seekingJob, (post==null),(wpn==null),wpn.posted,wpn.queuedOrders,wpn.active);
+					//GD.Print("Assigned post with no queued orders and not active? " + lastName);
+					//GD.Print(working, seekingJob, (post==null),(wpn==null),wpn.posted,wpn.queuedOrders,wpn.active);
 					detachOrders();
 				}
 				
 			} else {
 				if (post.assignedCrew != null) {
-					GD.Print("ASSIGNED SOMEONE ELSE'S JOB??" + lastName+post.assignedCrew.lastName+wpn.assignedCrew.lastName);
-					GD.Print(post.assignedCrew.lastName);
-					GD.Print(post.assignedCrew.post);
-					GD.Print(this.post);
+					//GD.Print("ASSIGNED SOMEONE ELSE'S JOB??" + lastName+post.assignedCrew.lastName+wpn.assignedCrew.lastName);
+					//GD.Print(post.assignedCrew.lastName);
+					//GD.Print(post.assignedCrew.post);
+					//GD.Print(this.post);
 					detachOrders();
 				} 
 			}
@@ -223,10 +223,10 @@ public partial class CrewX : CharacterBody2D
 			}
 		}
 		if ((wpn != null) && (wpn.queuedOrders > 0 || wpn.active == true)) {
-			GD.Print("KB " + lastName);
+			//GD.Print("KB " + lastName);
 			kickbackOrders();
 		} else {
-			GD.Print("DT " + lastName);
+			//GD.Print("DT " + lastName);
 			detachOrders();
 		}
 	}
@@ -340,7 +340,7 @@ public partial class CrewX : CharacterBody2D
 	}
 	
 	public void receiveOrder(Weapon wpn, Post post) {
-		GD.Print("aye aye capn");
+		//GD.Print("aye aye capn");
 		detachOrders();
 		this.wpn = wpn;
 		this.wpn.posted = false;

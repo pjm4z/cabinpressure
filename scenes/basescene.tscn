@@ -53,18 +53,36 @@ grow_vertical = 0
 [node name="weaponspanel" type="HBoxContainer" parent="HUD/weaponscontainer"]
 layout_mode = 2
 
+[node name="enginecontainer" type="PanelContainer" parent="HUD"]
+offset_left = 544.0
+offset_top = 605.0
+offset_right = 636.0
+offset_bottom = 645.0
+
+[node name="enginepanel" type="HBoxContainer" parent="HUD/enginecontainer"]
+layout_mode = 2
+
 [node name="crewcontainer" type="PanelContainer" parent="HUD"]
 anchors_preset = 2
 anchor_top = 1.0
 anchor_bottom = 1.0
-offset_left = 29.0
-offset_top = -550.0
-offset_right = 121.0
-offset_bottom = -510.0
+offset_left = 9.0
+offset_top = -646.0
+offset_right = 101.0
+offset_bottom = -606.0
 grow_vertical = 0
 scale = Vector2(0.76038, 0.908694)
 
 [node name="crewpanel" type="VBoxContainer" parent="HUD/crewcontainer"]
+layout_mode = 2
+
+[node name="postcontainer" type="PanelContainer" parent="HUD"]
+offset_left = 1046.0
+offset_top = 605.0
+offset_right = 1138.0
+offset_bottom = 645.0
+
+[node name="postpanel" type="HBoxContainer" parent="HUD/postcontainer"]
 layout_mode = 2
 
 [node name="surface" parent="." instance=ExtResource("3_3gtv8")]
@@ -74,7 +92,7 @@ process_mode = 1
 light_mask = 1
 visibility_layer = 1
 z_index = 2
-position = Vector2(-1, 55)
+position = Vector2(1, -1)
 rotation = 3.14159
 
 [node name="skip" parent="surface/boat" instance=ExtResource("5_jpoub")]

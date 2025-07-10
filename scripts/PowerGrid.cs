@@ -8,12 +8,14 @@ public partial class PowerGrid : TileMapLayer
 	public Dictionary<Vector2I, WeaponSlot> wpnSlots = new Dictionary<Vector2I, WeaponSlot>();
 	public Dictionary<Vector2I, GridItem> wireMap = new Dictionary<Vector2I, GridItem>();
 	[Export] private PackedScene wireScene;
+	[Export] private PackedScene engineScene;
 	[Export] private PackedScene postScene;
 	[Export] private PackedScene wpnSlotScene;
 	[Export] private PackedScene wpnScene;
-	
 	[Export] private CrewRoster crewRoster; // temp todo remove
-	private WireCtrl wireCtrl;	
+	//private WireCtrl wireCtrl;	
+
+
 	
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
@@ -34,7 +36,7 @@ public partial class PowerGrid : TileMapLayer
 		TileData adjTile = tileMap.GetCellTileData(adjTilePos);
 		if (adjTile != null) {
 			results.Add(adjTilePos);
-		}
+		} 
 		// right
 		adjTilePos = new Vector2I(tilePos.X + 1, tilePos.Y);
 		adjTile = tileMap.GetCellTileData(adjTilePos);
@@ -88,6 +90,16 @@ public partial class PowerGrid : TileMapLayer
 					addWpn(tilePos);
 				}
 			}
+			if (Input.IsActionJustPressed("6")) { 
+				Vector2I mousePos = (Vector2I) GetLocalMousePosition();
+				Vector2I tilePos = LocalToMap(mousePos);
+				Vector2 tileLPos = MapToLocal(tilePos);
+				TileData td = tileMap.GetCellTileData(tilePos);
+				
+				if (td != null && !isTileOccupied(tilePos)) {
+					addEngine(tilePos);
+				}
+			}			
 			if (inputEvent is InputEventMouseButton mouseButton && mouseButton.Pressed) {
 				if (mouseButton.ButtonIndex == MouseButton.Left)
 				{
@@ -106,6 +118,9 @@ public partial class PowerGrid : TileMapLayer
 		}
 	}
 	
+
+	
+	
 	public WireCtrl newWireGroup(GridItem item) {
 		WireCtrl wireCtrl = new WireCtrl();
 		AddChild(wireCtrl);
@@ -123,22 +138,32 @@ public partial class PowerGrid : TileMapLayer
 	
 	public void addWire(Vector2I tilePos) {
 		Wire wire = (Wire) wireScene.Instantiate();
-		wireMap[tilePos] = wire;
-		AddChild(wire);
+		addItem(wire, tilePos);
 		wire.init(this, tilePos, MapToLocal(tilePos));
 	}
 	
-	public void removeItem(Vector2I tilePos) {
-		// check couint, rm wirectrl if needed
-		wireMap[tilePos].removeSelf();
-		wireMap.Remove(tilePos);
+	public void addEngine(Vector2I tilePos) {
+		Engine engine = (Engine) engineScene.Instantiate();
+		addItem(engine, tilePos);
+		engine.setCrewRoster(this.crewRoster);
+		engine.init(this, tilePos, MapToLocal(tilePos));
 	}
 	
+	public void removeItem(Vector2I tilePos) {
+		// check count, rm wirectrl if needed
+		GridItem item = wireMap[tilePos];
+		if (item.getRelatives() != null) {
+			foreach (Vector2I i in item.getRelatives()) {
+				wireMap.Remove(item.getTilePos() + i);
+			}
+		}
+		item.removeSelf();
+		wireMap.Remove(item.getTilePos());
+	}
 	
 	public void addPost(Vector2I tilePos) {
 		Post post = (Post) postScene.Instantiate();
-		wireMap[tilePos] = post;
-		AddChild(post);
+		addItem(post, tilePos);
 		post.init(this, tilePos, MapToLocal(tilePos));
 	}
 	
@@ -159,12 +184,21 @@ public partial class PowerGrid : TileMapLayer
 	public void addWpn(Vector2I tilePos) {
 		if (wpnSlots.ContainsKey(tilePos)) {
 			Weapon wpn = (Weapon) wpnScene.Instantiate();
-			wireMap[tilePos] = wpn;
-			AddChild(wpn);
+			addItem(wpn, tilePos);
 			wpnSlots[tilePos].setWpn(wpn);
 			wpn.init(this, tilePos, MapToLocal(tilePos));
 			wpn.setCrewRoster(this.crewRoster);
 		}
+	}
+	
+	private void addItem(GridItem item, Vector2I tilePos) {
+		wireMap[tilePos] = item;
+		if (item.getRelatives() != null) {
+			foreach (Vector2I i in item.getRelatives()) {
+				wireMap[tilePos + i] = item;
+			}
+		}
+		AddChild(item);
 	}
 	
 	public List<GridItem> getNeighbors(GridItem item) {

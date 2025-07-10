@@ -4,9 +4,6 @@ using System.Collections.Generic;
 
 public partial class Wire : GridItem
 {
-	private PowerGrid grid;
-	//private WireCtrl wireCtrl;
-	private Vector2I tilePos;
 	private Sprite2D sprite;
 	
 	// Called when the node enters the scene tree for the first time.

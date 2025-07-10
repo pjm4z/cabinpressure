@@ -1,6 +1,7 @@
 using Godot;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 [GlobalClass]
 public partial class GridItem : Node2D
@@ -8,14 +9,21 @@ public partial class GridItem : Node2D
 	[Signal]
 	public delegate void RMSelfSignalEventHandler(GridItem gi);
 	
-	private PowerGrid grid;
-	private WireCtrl wireCtrl;
+	protected PowerGrid grid;
+	//protected WireCtrl wireCtrl;
+	//protected WireCtrl powerLine;
+	protected WireCtrl wireCtrl;
 	private Area2D area;
-	private Vector2I tilePos;
-	public List<GridItem> neighbors;
+	protected Vector2I tilePos;
+	protected List<GridItem> neighbors;
+	[Export] protected Godot.Collections.Array<Vector2I> relatives;
+	[Export] public float watts;
 	
-	// Called when the node enters the scene tree for the first time.
-	public override void _Ready() {
+	public List<Vector2I> getRelatives() {
+		if (relatives != null) {
+			return this.relatives.ToList();
+		}
+		return null;
 	}
 	
 	public virtual void init(PowerGrid grid, Vector2I tilePos, Vector2 localPos) { //WireCtrl wireCtrl, 
@@ -23,27 +31,27 @@ public partial class GridItem : Node2D
 		this.tilePos = tilePos;
 		this.Position = localPos;
 		
-		neighbors = getNeighbors();
-		if (neighbors.Count == 0) {
-			grid.newWireGroup(this);
-		} else {
+		this.neighbors = getNeighbors();
+		
+		if (this.neighbors.Count() > 0) {
 			GridItem maxCount = neighbors[0];
 			for (int i = 1; i < neighbors.Count; i++) {
 				if (neighbors[i].getCount() > maxCount.getCount()) {
 					maxCount = neighbors[i];
 				}
 			}
-			if (maxCount.getCount() < this.getCount()) {
-				this.absorb(maxCount);
-			} else {
-				maxCount.absorb(this);
+			if (maxCount.wireCtrl != this.wireCtrl) {
+				if (maxCount.getCount() < this.getCount()) {
+					this.absorb(maxCount);
+				} else {
+					maxCount.absorb(this);
+				}
 			}
 		}
 	}
 	
 	public virtual void absorb(GridItem item) {
 		this.wireCtrl.addItem(item);
-		
 		foreach (GridItem neighbor in item.getNeighbors()) {
 			if (neighbor.wireCtrl != item.wireCtrl) {
 				item.absorb(neighbor);
@@ -67,7 +75,9 @@ public partial class GridItem : Node2D
 	
 	public virtual void removeSelf() {
 		EmitSignal(nameof(SignalName.RMSelfSignal), this);
-		this.wireCtrl.decrement();
+		if (this.wireCtrl != null) {
+			this.wireCtrl.decrement();
+		}
 		List<GridItem> neighbors = getNeighbors();
 		HashSet<Vector2I> visited = new HashSet<Vector2I>();
 		visited.Add(this.tilePos);
@@ -76,7 +86,7 @@ public partial class GridItem : Node2D
 			if (i == 0) {
 				newParent = null;
 			} else {
-				newParent = grid.newEmptyWireGroup();
+				newParent = grid.newEmptyWireGroup();	// todo will be grid for GI, this for JT
 			}
 			
 			GridItem neighbor = neighbors[i];
@@ -87,14 +97,16 @@ public partial class GridItem : Node2D
 		QueueFree();
 	}
 	
-	public bool isConnected(GridItem item) {
-		return item.getWireCtrl() 
-			== 
-			this.getWireCtrl();
+	public virtual bool isConnected(GridItem item) {
+		return item.getWireCtrl() == this.getWireCtrl();
 	}
 	
 	public Vector2I getTilePos() {
 		return this.tilePos;
+	}
+	
+	public Vector2 getPosition() {
+		return this.GlobalPosition;
 	}
 	
 	public virtual void setWireCtrl(WireCtrl wireCtrl) {
@@ -118,15 +130,27 @@ public partial class GridItem : Node2D
 		return 0;
 	}
 	
-	/*public void charge(float watts) {
-		this.charge -= watts;
-		//if (this.charge < 0) do something?
-		foreach (n in this.neighbors) {
-			n.charge(this.charge);
-		}
-	}*/
-	
-	private List<GridItem> getNeighbors() {
+	protected List<GridItem> getNeighbors() {
 		return grid.getNeighbors(this);
+	}
+	
+	public virtual void requestPower() {
+		this.wireCtrl.requestPower(this);
+	}
+	
+	public virtual bool possible() {
+		return wireCtrl.possible(this.watts);
+	}
+	
+	public virtual bool ready() {
+		return !wireCtrl.overloaded();
+	}
+	
+	public virtual void addCharge() {
+		this.wireCtrl.addCharge(this.watts);
+	}
+	
+	public virtual void removeCharge() {
+		this.wireCtrl.removeCharge(this.watts);
 	}
 }

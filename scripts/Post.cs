@@ -4,14 +4,11 @@ using System.Threading.Tasks;
 
 public partial class Post : GridItem
 {
-	[Export] private PowerGrid grid;
-	private Vector2 tilePos;
 	public bool isOccupied = false;
 	[Export] public Crew assignedCrew;
 	private PackedScene torpedoScene;
 	private SubViewport underwater;
 	public int groupId;
-	//private WireCtrl wireCtrl;
 	private PostCtrl postCtrl;
 	private Sprite2D sprite;
 	private Area2D area;
@@ -72,28 +69,12 @@ public partial class Post : GridItem
 		if (this.assignedCrew != null) {
 			this.assignedCrew.kickbackOrders();
 		}
-		//EmitSignal(SignalName.RMSelfSignal);
 		base.removeSelf();
 	}
 	
 	public async Task doJob(JobTarget target) {
-		//GD.Print("trying to shoot");
-		await waitForGameTime(target.taskTime);
-		//GD.Print("EXEC");
 		if (isOccupied == true && isConnected(target)) {
-			target.execute();
+			await target.execute();
 		}
-	
-	}
-	
-	public async Task waitForGameTime(double seconds) {
-		Timer timer = new Timer();
-		timer.WaitTime = seconds;
-		timer.OneShot = true;
-		timer.ProcessMode = Node.ProcessModeEnum.Pausable;
-		AddChild(timer);
-		timer.Start();
-		await ToSignal(timer, "timeout");
-		timer.QueueFree();
 	}
 }

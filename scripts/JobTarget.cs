@@ -1,6 +1,8 @@
 using Godot;
 using System;
+using System.Threading.Tasks;
 
+[GlobalClass]
 public partial class JobTarget : GridItem
 {
 	[Export] protected Boat ship;
@@ -13,13 +15,13 @@ public partial class JobTarget : GridItem
 	protected int queuedOrders;
 	public Crew assignedCrew;
 	public double taskTime = 1;
+	protected HBoxContainer panel;
 	
 	protected Color red = new Color(1.0f,0.0f,0.0f,1.0f);
 	protected Color white = new Color(1.0f,1.0f,1.0f,1.0f);
 	
-	// Called when the node enters the scene tree for the first time.
-	public override void _Ready()
-	{
+	public override void _Ready() {
+		sprite = (Sprite2D) GetNode("sprite");
 	}
 	
 	public void setCrewRoster(CrewRoster crewRoster) {
@@ -50,22 +52,42 @@ public partial class JobTarget : GridItem
 		} else {
 			this.postCtrl.AddChild(this);
 		}
-		sprite.Modulate =  getWireCtrl().color; 
+		if (this.sprite != null) {
+			this.sprite.Modulate =  getWireCtrl().color; 
+		}
+		
 	}
 	
 	// move to jt + override
 	public virtual void setName(string name) {
 		this.Name = name;
 		this.label = new Label();
-		//weaponsPanel = (HBoxContainer) GetNode("/root/basescene/HUD/weaponscontainer/weaponspanel");
-		label.Text = this.Name;
-		//weaponsPanel.AddChild(label);
+		this.label.Text = this.Name;
+		this.panel.AddChild(this.label);
 	}
 	
 	public Post getPost() {
 		return this.postCtrl.givePost();
 	}
 
+	public override void init(PowerGrid grid, Vector2I tilePos, Vector2 localPos) { 
+		this.grid = grid;
+		this.tilePos = tilePos;
+		this.Position = localPos;
+		
+		int c = 0;
+		this.neighbors = getNeighbors();
+		foreach (GridItem i in neighbors) {
+			if (i != this) {
+				c += 1;
+			}
+		}
+		if (c == 0) {
+			grid.newWireGroup(this);
+		} else {
+			base.init(grid, tilePos, localPos);
+		}
+	}
 
 	// move to jt
 	public override void _Process(double delta) {
@@ -82,8 +104,6 @@ public partial class JobTarget : GridItem
 		}
 	}
 	
-	
-	
 	// move to jt
 	public void setActive(bool active) {
 		this.active = active;
@@ -94,12 +114,31 @@ public partial class JobTarget : GridItem
 		return this.active;
 	}	
 	
-	public void fire() {
+	public virtual void fire() {
 		if (this.posted == false && this.assignedCrew == null) {
+			wireCtrl.requestPower(this);
 			this.crewRoster.postJob(this);
 			this.posted = true;
-		}
+		} 
 		queuedOrders += 1;
+	}
+	
+	protected virtual void workCallback(double elapsedTime) {}
+	
+	public async Task waitForGameTime(double seconds, Action<double> callback) {
+		double elapsedTime = 0;
+		while (elapsedTime < seconds) {
+			callback?.Invoke(elapsedTime);
+			await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame); 
+			elapsedTime += GetProcessDeltaTime(); 
+		}
+	}
+	
+	public virtual async Task execute() {
+		await waitForGameTime(taskTime, (elapsedTime) => { workCallback(elapsedTime); });
+		if (queuedOrders > 0) {
+			queuedOrders -= 1;
+		}
 	}
 	
 	public override void removeSelf() {
@@ -113,12 +152,6 @@ public partial class JobTarget : GridItem
 		base.removeSelf();
 	}
 	
-
-	public virtual void execute() {
-		if (queuedOrders > 0) {
-			queuedOrders -= 1;
-		}
-	}
 	
 	public bool canActivate() {
 		return posted == false && ((crewRoster.jobBoard.Count == 0 && postCtrl.givePost() != null && crewRoster.maxReady != null) || assignedCrew != null);

@@ -83,7 +83,7 @@ public partial class SurfacePt : Sprite2D // ,make pt shader, takes surfacemap +
 			Position = new Vector2(Position.X, height);
 			SetupTimer();														//TODO only run timer if pt is in motion
 		} else {
-			GD.Print("TO");
+			//GD.Print("TO");
 			if (IsInstanceValid(curve) && curve != null) {
 				curve.RemoveSp(this);
 			}
