@@ -1,0 +1,163 @@
+[gd_scene load_steps=23 format=4 uid="uid://d0q4pux665fv6"]
+
+[ext_resource type="Script" path="res://ship/scripts/Ship.cs" id="1_he26f"]
+[ext_resource type="Script" path="res://game/camera/scripts/PlayerCamera.cs" id="3_e8qs2"]
+[ext_resource type="Texture2D" uid="uid://doi3ve3gnwth1" path="res://ship/grid/hull/assets/shipparts.png" id="4_bd732"]
+[ext_resource type="PackedScene" uid="uid://bklsfjrbdby0m" path="res://ship/grid/power/scenes/wire.tscn" id="5_rpxud"]
+[ext_resource type="Script" path="res://ship/grid/power/scripts/PowerGrid.cs" id="5_vitnn"]
+[ext_resource type="PackedScene" uid="uid://dl24gnkim6ke4" path="res://ship/grid/power/post/scenes/post.tscn" id="6_xd5mm"]
+[ext_resource type="PackedScene" uid="uid://84ry0sqcrixf" path="res://ship/grid/power/weapon/scenes/weapon.tscn" id="7_as43g"]
+[ext_resource type="PackedScene" uid="uid://de3xk52di0t0s" path="res://ship/grid/power/engine/scenes/engine.tscn" id="7_tsa4u"]
+[ext_resource type="PackedScene" uid="uid://pmlba6c4s0lm" path="res://ship/grid/power/weapon/scenes/weaponslot.tscn" id="7_xtxwm"]
+[ext_resource type="PackedScene" uid="uid://b2iy1ftso7uni" path="res://entity/npc/crew/scenes/crewroster.tscn" id="9_qqbgp"]
+[ext_resource type="PackedScene" uid="uid://cft1r7wppv5bq" path="res://entity/npc/crew/scenes/crew.tscn" id="10_rtian"]
+
+[sub_resource type="NavigationPolygon" id="NavigationPolygon_qeufb"]
+vertices = PackedVector2Array(8, 8, -8, 8, -8, -8, 8, -8)
+polygons = Array[PackedInt32Array]([PackedInt32Array(0, 1, 2, 3)])
+outlines = Array[PackedVector2Array]([PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)])
+agent_radius = 0.0
+
+[sub_resource type="NavigationPolygon" id="NavigationPolygon_i2rs5"]
+vertices = PackedVector2Array(8, 8, -8, 8, -8, -8, 8, -8)
+polygons = Array[PackedInt32Array]([PackedInt32Array(0, 1, 2, 3)])
+outlines = Array[PackedVector2Array]([PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)])
+agent_radius = 0.0
+
+[sub_resource type="NavigationPolygon" id="NavigationPolygon_1fcfc"]
+vertices = PackedVector2Array(8, 8, -8, 8, -8, -8, 8, -8)
+polygons = Array[PackedInt32Array]([PackedInt32Array(0, 1, 2, 3)])
+outlines = Array[PackedVector2Array]([PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)])
+agent_radius = 0.0
+
+[sub_resource type="NavigationPolygon" id="NavigationPolygon_s3oj3"]
+vertices = PackedVector2Array(8, 8, -8, 8, -8, -8, 8, -8)
+polygons = Array[PackedInt32Array]([PackedInt32Array(0, 1, 2, 3)])
+outlines = Array[PackedVector2Array]([PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)])
+agent_radius = 0.0
+
+[sub_resource type="NavigationPolygon" id="NavigationPolygon_ui6lm"]
+vertices = PackedVector2Array(8, 8, -8, 8, -8, -8, 8, -8)
+polygons = Array[PackedInt32Array]([PackedInt32Array(0, 1, 2, 3)])
+outlines = Array[PackedVector2Array]([PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)])
+agent_radius = 0.0
+
+[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_ve1v0"]
+load_path = "res://.godot/imported/icon.svg-362120c6e567ac9c5d0fe1eee13296aa.ctex"
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_1w0mf"]
+texture = SubResource("CompressedTexture2D_ve1v0")
+1:1/0 = 0
+1:1/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
+1:1/0/navigation_layer_0/polygon = SubResource("NavigationPolygon_qeufb")
+3:2/0 = 0
+3:2/0/navigation_layer_0/polygon = SubResource("NavigationPolygon_i2rs5")
+4:2/0 = 0
+4:2/0/navigation_layer_0/polygon = SubResource("NavigationPolygon_1fcfc")
+4:5/0 = 0
+4:5/0/navigation_layer_0/polygon = SubResource("NavigationPolygon_s3oj3")
+5:0/0 = 0
+5:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
+5:4/0 = 0
+5:4/0/navigation_layer_0/polygon = SubResource("NavigationPolygon_ui6lm")
+7:5/0 = 0
+
+[sub_resource type="NavigationPolygon" id="NavigationPolygon_m3810"]
+vertices = PackedVector2Array(8, 8, -8, 8, -8, -8, 8, -8)
+polygons = Array[PackedInt32Array]([PackedInt32Array(0, 1, 2, 3)])
+outlines = Array[PackedVector2Array]([PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)])
+agent_radius = 0.0
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_loyvr"]
+texture = ExtResource("4_bd732")
+0:0/0 = 0
+0:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
+0:2/0 = 0
+0:2/0/navigation_layer_0/polygon = SubResource("NavigationPolygon_m3810")
+3:0/0 = 0
+3:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(0.375, 0.375, 8, -8, 8, 8, -8, 8)
+
+[sub_resource type="TileSet" id="TileSet_o75px"]
+physics_layer_0/collision_layer = 3
+physics_layer_0/collision_mask = 3
+navigation_layer_0/layers = 1
+sources/0 = SubResource("TileSetAtlasSource_1w0mf")
+sources/3 = SubResource("TileSetAtlasSource_loyvr")
+
+[sub_resource type="TileSet" id="TileSet_tw6wy"]
+
+[node name="ship" type="CharacterBody2D" node_paths=PackedStringArray("camera", "hullMap", "powerGrid")]
+light_mask = 2
+visibility_layer = 2
+position = Vector2(-2.38419e-07, 50)
+collision_layer = 0
+collision_mask = 0
+script = ExtResource("1_he26f")
+camera = NodePath("playercamera")
+hullMap = NodePath("hullmap")
+powerGrid = NodePath("powergrid")
+
+[node name="collision" type="CollisionPolygon2D" parent="."]
+position = Vector2(-0.0224884, 6.99996)
+rotation = -3.13037
+polygon = PackedVector2Array(-3.16812, -20.9753, 2.83169, -21.0234, 7.87959, -15.0636, 9.94361, -7.07988, 10.1839, 22.9192, 6.20006, 24.9511, -4.79959, 25.0392, -9.81545, 23.0794, -10.0557, -6.91967, -8.11989, -14.9354)
+
+[node name="playercamera" type="Camera2D" parent="."]
+light_mask = 7
+visibility_layer = 7
+position = Vector2(-0.16063, 49.9997)
+script = ExtResource("3_e8qs2")
+
+[node name="hullmap" type="TileMapLayer" parent="."]
+modulate = Color(0.0823529, 1, 1, 1)
+self_modulate = Color(0.14902, 1, 1, 1)
+position = Vector2(2.38419e-07, 3.8147e-06)
+rotation = 3.14159
+tile_map_data = PackedByteArray("AAD9//v/AwAAAAAAAAD9//r/AwAAAAAAAAD+//r/AwAAAAAAAAD///r/AwAAAAAAAAAAAPr/AwAAAAAAAAABAPr/AwAAAAAAAAACAPr/AwAAAAAAAAADAPr/AwAAAAAAAAADAPv/AwAAAAAAAAADAPz/AwAAAAAAAAADAP3/AwAAAAAAAAACAP3/AwAAAAAAAAABAP3/AwAAAAAAAAAAAP3/AwAAAAAAAAADAP7/AwAAAAAAAAADAP//AwAAAAAAAAADAAAAAwAAAAAAAAACAAAAAwAAAAAAAAABAAAAAwAAAAAAAAAAAAAAAwAAAAAAAAD8/wAAAwAAAAAAAAD9/wAAAwAAAAAAAAD8////AwAAAAAAAAD8//7/AwAAAAAAAAD8//3/AwAAAAAAAAD8//z/AwAAAAAAAAD8//v/AwAAAAAAAAD8/wEAAwAAAAAAAAD8/wIAAwAAAAAAAAD8/wMAAwAAAAAAAAD9/wMAAwAAAAAAAAD8/wQAAwAAAAAAAAD8/wUAAwAAAAAAAAD8/wYAAwAAAAAAAAD9/wYAAwAAAAAAAAD+/wYAAwAAAAAAAAD//wYAAwAAAAAAAAAAAAYAAwAAAAAAAAABAAYAAwAAAAAAAAACAAYAAwAAAAAAAAADAAUAAwAAAAAAAAADAAQAAwAAAAAAAAADAAMAAwAAAAAAAAADAAIAAwAAAAAAAAADAAEAAwAAAAAAAAACAAMAAwAAAAAAAAABAAMAAwAAAAAAAAAAAAMAAwAAAAAAAAADAAYAAwAAAAAAAAD8//r/AwADAAAAAAACAAUAAwAAAAIAAAABAAUAAwAAAAIAAAAAAAUAAwAAAAIAAAD//wUAAwAAAAIAAAD+/wUAAwAAAAIAAAD9/wUAAwAAAAIAAAD9/wQAAwAAAAIAAAD+/wQAAwAAAAIAAAD//wQAAwAAAAIAAAAAAAQAAwAAAAIAAAABAAQAAwAAAAIAAAACAAQAAwAAAAIAAAD//wMAAwAAAAIAAAD+/wMAAwAAAAIAAAD9/wIAAwAAAAIAAAD+/wIAAwAAAAIAAAD//wIAAwAAAAIAAAAAAAIAAwAAAAIAAAABAAIAAwAAAAIAAAACAAIAAwAAAAIAAAACAAEAAwAAAAIAAAABAAEAAwAAAAIAAAAAAAEAAwAAAAIAAAD//wEAAwAAAAIAAAD+/wEAAwAAAAIAAAD9/wEAAwAAAAIAAAD+/wAAAwAAAAIAAAD//wAAAwAAAAIAAAD9////AwAAAAIAAAD+////AwAAAAIAAAD/////AwAAAAIAAAAAAP//AwAAAAIAAAABAP//AwAAAAIAAAACAP7/AwAAAAIAAAACAP//AwAAAAIAAAABAP7/AwAAAAIAAAAAAP7/AwAAAAIAAAD///7/AwAAAAIAAAD+//7/AwAAAAIAAAD9//7/AwAAAAIAAAD9//3/AwAAAAIAAAD+//3/AwAAAAIAAAD///3/AwAAAAIAAAACAPz/AwAAAAIAAAABAPz/AwAAAAIAAAAAAPz/AwAAAAIAAAD///z/AwAAAAIAAAD+//z/AwAAAAIAAAD9//z/AwAAAAIAAAD+//v/AwAAAAIAAAD///v/AwAAAAIAAAAAAPv/AwAAAAIAAAABAPv/AwAAAAIAAAACAPv/AwAAAAIAAAA=")
+tile_set = SubResource("TileSet_o75px")
+
+[node name="powergrid" type="TileMapLayer" parent="." node_paths=PackedStringArray("tileMap", "crewRoster")]
+position = Vector2(2.38419e-07, 3.8147e-06)
+rotation = -3.14159
+tile_set = SubResource("TileSet_tw6wy")
+script = ExtResource("5_vitnn")
+tileMap = NodePath("../hullmap")
+wireScene = ExtResource("5_rpxud")
+engineScene = ExtResource("7_tsa4u")
+postScene = ExtResource("6_xd5mm")
+wpnSlotScene = ExtResource("7_xtxwm")
+wpnScene = ExtResource("7_as43g")
+crewRoster = NodePath("../crewroster")
+
+[node name="crewroster" parent="." instance=ExtResource("9_qqbgp")]
+position = Vector2(3.00014, -54)
+
+[node name="crew" parent="crewroster" instance=ExtResource("10_rtian")]
+z_index = 2
+position = Vector2(-45.0001, -32)
+rotation = 3.14159
+
+[node name="crew2" parent="crewroster" instance=ExtResource("10_rtian")]
+z_index = 2
+position = Vector2(25.9999, 80)
+rotation = 3.14159
+
+[node name="crew3" parent="crewroster" instance=ExtResource("10_rtian")]
+z_index = 2
+position = Vector2(-29.0001, 70)
+rotation = 3.14159
+
+[node name="crew4" parent="crewroster" instance=ExtResource("10_rtian")]
+z_index = 2
+position = Vector2(-27.0001, 125)
+rotation = 3.14159
+
+[node name="crew5" parent="crewroster" instance=ExtResource("10_rtian")]
+z_index = 2
+position = Vector2(12.9999, 123)
+rotation = 3.14159
+
+[node name="crew6" parent="crewroster" instance=ExtResource("10_rtian")]
+z_index = 2
+position = Vector2(24.9999, -29)
+rotation = 3.14159

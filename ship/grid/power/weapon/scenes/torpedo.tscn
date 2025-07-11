@@ -1,0 +1,51 @@
+[gd_scene load_steps=4 format=3 uid="uid://b2aqm4r4cthby"]
+
+[ext_resource type="Script" path="res://ship/grid/power/weapon/scripts/Torpedo.cs" id="1_vxcvg"]
+[ext_resource type="Texture2D" uid="uid://c2nsdp0ykm3uc" path="res://ship/grid/power/weapon/assets/torpedo.png" id="2_bf20q"]
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_uwbhy"]
+gravity = Vector3(0, 100, 45)
+
+[node name="torpedo" type="Area2D" node_paths=PackedStringArray("wake", "explosion", "sprite", "polygon")]
+z_index = -2
+position = Vector2(-7.62939e-06, -2.98023e-08)
+rotation = -4.70617
+script = ExtResource("1_vxcvg")
+wake = NodePath("trail")
+explosion = NodePath("explosion")
+sprite = NodePath("sprite")
+polygon = NodePath("collision")
+
+[node name="sprite" type="Sprite2D" parent="."]
+position = Vector2(7.62893e-06, -5.96046e-08)
+rotation = -1.57024
+texture = ExtResource("2_bf20q")
+
+[node name="collision" type="CollisionPolygon2D" parent="."]
+position = Vector2(-0.99998, 0.0049805)
+rotation = 4.71225
+scale = Vector2(0.90783, 1.08848)
+polygon = PackedVector2Array(-2, 3, -2, -1, 0, -2, 2, -1, 2, 3)
+
+[node name="trail" type="GPUParticles2D" parent="."]
+z_index = -1
+position = Vector2(1.99998, -0.00996071)
+rotation = -5.50506
+process_material = SubResource("ParticleProcessMaterial_uwbhy")
+
+[node name="explosion" type="CPUParticles2D" parent="."]
+position = Vector2(0, -7.62939e-06)
+emitting = false
+amount = 100
+lifetime = 0.5
+one_shot = true
+explosiveness = 1.0
+lifetime_randomness = 1.0
+direction = Vector2(360, 360)
+spread = 180.0
+gravity = Vector2(0, 0)
+initial_velocity_min = 18.61
+initial_velocity_max = 106.98
+color = Color(0.992436, 0.309468, 0.0975384, 1)
+
+[connection signal="body_entered" from="." to="." method="_on_torpedo_body_entered"]

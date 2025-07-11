@@ -11,9 +11,9 @@ config_version=5
 [application]
 
 config/name="boats"
-run/main_scene="res://scenes/basescene.tscn"
+run/main_scene="res://game/base/scenes/basescene.tscn"
 config/features=PackedStringArray("4.3", "C#", "Forward Plus")
-config/icon="res://assets/icon.svg"
+config/icon="res://misc/assets/icon.svg"
 
 [aseprite_importers]
 
@@ -34,6 +34,55 @@ script/search_in_file_extensions=PackedStringArray("gd", "gdshader", "cs")
 [editor_plugins]
 
 enabled=PackedStringArray("res://addons/nklbdev.aseprite_importers/plugin.cfg")
+
+[file_customization]
+
+folder_colors={
+"res://entity/": "red",
+"res://entity/npc/crew/assets/": "teal",
+"res://entity/npc/crew/scenes/": "teal",
+"res://entity/npc/crew/scripts/": "teal",
+"res://entity/npc/enemy/assets/": "teal",
+"res://entity/npc/enemy/scenes/": "teal",
+"res://entity/npc/enemy/scripts/": "teal",
+"res://entity/player/assets/": "teal",
+"res://entity/player/scenes/": "teal",
+"res://entity/player/scripts/": "teal",
+"res://game/": "red",
+"res://game/base/scenes/": "teal",
+"res://game/base/scripts/": "teal",
+"res://game/camera/scripts/": "red",
+"res://game/state/entity/npc/crew/scripts/": "red",
+"res://game/state/scripts/": "red",
+"res://game/ui/entity/npc/crew/scripts/": "red",
+"res://game/ui/scripts/": "red",
+"res://misc/assets/": "teal",
+"res://object/": "red",
+"res://object/assets/": "teal",
+"res://object/scenes/": "teal",
+"res://object/scripts/": "teal",
+"res://ship/": "red",
+"res://ship/grid/hull/assets/": "teal",
+"res://ship/grid/power/assets/": "teal",
+"res://ship/grid/power/engine/assets/": "teal",
+"res://ship/grid/power/engine/scenes/": "teal",
+"res://ship/grid/power/engine/scripts/": "teal",
+"res://ship/grid/power/post/assets/": "teal",
+"res://ship/grid/power/post/scenes/": "teal",
+"res://ship/grid/power/post/scripts/": "teal",
+"res://ship/grid/power/scenes/": "teal",
+"res://ship/grid/power/scripts/": "teal",
+"res://ship/grid/power/weapon/assets/": "teal",
+"res://ship/grid/power/weapon/scenes/": "teal",
+"res://ship/grid/power/weapon/scripts/": "teal",
+"res://ship/scenes/": "teal",
+"res://ship/scripts/": "teal",
+"res://world/": "red",
+"res://world/surface/assets/": "teal",
+"res://world/surface/scenes/": "teal",
+"res://world/surface/scripts/": "teal",
+"res://world/underwater/scripts/": "teal"
+}
 
 [input]
 

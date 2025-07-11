@@ -1,0 +1,18 @@
+[gd_scene load_steps=3 format=3 uid="uid://ccg41jlynxfth"]
+
+[ext_resource type="Script" path="res://entity/player/scripts/Skip.cs" id="1_y0g3m"]
+[ext_resource type="Texture2D" uid="uid://ddwtu1x55b61i" path="res://entity/npc/crew/assets/crewsprite-1.png" id="2_dyvbg"]
+
+[node name="skip" type="CharacterBody2D"]
+z_index = 10
+position = Vector2(-5.35836e-11, -5.96038e-08)
+collision_layer = 2
+collision_mask = 3
+script = ExtResource("1_y0g3m")
+
+[node name="sprite" type="Sprite2D" parent="."]
+rotation = 1.5708
+texture = ExtResource("2_dyvbg")
+
+[node name="collision" type="CollisionPolygon2D" parent="."]
+polygon = PackedVector2Array(-4, -5, 3, -5, 3, 3, -4, 3)

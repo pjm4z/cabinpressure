@@ -1,0 +1,17 @@
+[gd_scene load_steps=4 format=3 uid="uid://pmlba6c4s0lm"]
+
+[ext_resource type="Script" path="res://ship/grid/power/weapon/scripts/WeaponSlot.cs" id="1_2lrx0"]
+[ext_resource type="Texture2D" uid="uid://15k7njjpansm" path="res://world/surface/assets/waterpt_2.png" id="2_j5csm"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_iv6ey"]
+size = Vector2(16, 16)
+
+[node name="weaponslot" type="Area2D"]
+script = ExtResource("1_2lrx0")
+
+[node name="sprite" type="Sprite2D" parent="."]
+scale = Vector2(16, 16)
+texture = ExtResource("2_j5csm")
+
+[node name="collision" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_iv6ey")
