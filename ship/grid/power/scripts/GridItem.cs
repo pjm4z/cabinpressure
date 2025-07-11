@@ -32,6 +32,8 @@ public partial class GridItem : Node2D
 		this.Position = localPos;
 		
 		initWireCtrl(); //network//circuit
+		//initNetwork();
+		//initCircuit();
 	}
 	//network//circuit
 	protected virtual void initWireCtrl() {
@@ -88,7 +90,7 @@ public partial class GridItem : Node2D
 	//		 if (!visited.Contains(this.tilePos + relative)) {		//TODO this why it cant find relatives
 	//			relative.checkConnections(visited, newParent);
 	//		}
-		}
+	//	}
 		return visited;
 	}
 	
