@@ -43,7 +43,7 @@ public partial class Work : State
 			//GD.Print("NEW STATE");
 			return newState;
 		}
-		if (!post.isConnected(job)) {
+		if (!post.sameNetwork(job)) {
 			crew.kickbackOrders();
 			//GD.Print("NOT CONNECTED");
 			return idle;

@@ -36,7 +36,7 @@ public partial class SeekJob : State
 	
 	private State seekJob() {
 		// if at job location, dequeue job
-		if (!post.isConnected(job)) {
+		if (!post.sameNetwork(job)) {
 			crew.kickbackOrders();
 			return idle;
 		} 

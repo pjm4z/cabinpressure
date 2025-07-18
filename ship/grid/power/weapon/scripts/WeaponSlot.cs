@@ -11,7 +11,6 @@ public partial class WeaponSlot : Area2D
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
-	//	wpn = (Weapon) GetNode("weapon");
 		ProcessMode = Node.ProcessModeEnum.Always;
 	}
 	
@@ -33,6 +32,8 @@ public partial class WeaponSlot : Area2D
 		this.wpn = null;
 		SetProcessInput(false);
 	}
+	
+	//4 TILES ADJACENT ERR
 
 	public override void _Input(InputEvent inputEvent) {
 		if ((Input.IsActionJustPressed("shift") && Input.IsActionPressed(key)) || 
@@ -64,7 +65,5 @@ public partial class WeaponSlot : Area2D
 		if (wpn != null) {
 			wpn.fire();
 		}
-		
 	}
-	
 }

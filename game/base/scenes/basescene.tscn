@@ -61,6 +61,7 @@ offset_bottom = 645.0
 
 [node name="enginepanel" type="HBoxContainer" parent="HUD/enginecontainer"]
 layout_mode = 2
+alignment = 1
 
 [node name="crewcontainer" type="PanelContainer" parent="HUD"]
 anchors_preset = 2
@@ -84,6 +85,7 @@ offset_bottom = 645.0
 
 [node name="postpanel" type="HBoxContainer" parent="HUD/postcontainer"]
 layout_mode = 2
+alignment = 2
 
 [node name="surface" parent="." instance=ExtResource("4_1tdr1")]
 process_mode = 1
@@ -107,14 +109,6 @@ script = null
 position = Vector2(-16, -72)
 script = null
 
-[node name="furniture3" parent="surface/ship" instance=ExtResource("7_shcty")]
-position = Vector2(-33, 57)
-script = null
-
-[node name="furniture4" parent="surface/ship" instance=ExtResource("7_shcty")]
-position = Vector2(-33, -39)
-script = null
-
 [node name="item" parent="surface/ship" instance=ExtResource("8_tndgh")]
 position = Vector2(23.9998, 69.049)
 
@@ -123,27 +117,3 @@ position = Vector2(22, 55)
 
 [node name="item3" parent="surface/ship" instance=ExtResource("8_tndgh")]
 position = Vector2(40, -25)
-
-[node name="item4" parent="surface/ship" instance=ExtResource("8_tndgh")]
-position = Vector2(4, -75)
-
-[node name="item5" parent="surface/ship" instance=ExtResource("8_tndgh")]
-position = Vector2(-27, 70)
-
-[node name="item6" parent="surface/ship" instance=ExtResource("8_tndgh")]
-position = Vector2(-7.00318, 69.949)
-
-[node name="item7" parent="surface/ship" instance=ExtResource("8_tndgh")]
-position = Vector2(7.99996, 68.997)
-
-[node name="item8" parent="surface/ship" instance=ExtResource("8_tndgh")]
-position = Vector2(-39.8488, 21.8433)
-
-[node name="item9" parent="surface/ship" instance=ExtResource("8_tndgh")]
-position = Vector2(8, -89)
-
-[node name="item10" parent="surface/ship" instance=ExtResource("8_tndgh")]
-position = Vector2(-13, -88)
-
-[node name="item11" parent="surface/ship" instance=ExtResource("8_tndgh")]
-position = Vector2(-35, -89)

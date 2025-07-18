@@ -1,6 +1,7 @@
 using Godot;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 public partial class PowerGrid : TileMapLayer
 {
@@ -13,7 +14,6 @@ public partial class PowerGrid : TileMapLayer
 	[Export] private PackedScene wpnSlotScene;
 	[Export] private PackedScene wpnScene;
 	[Export] private CrewRoster crewRoster; // temp todo remove
-	//private WireCtrl wireCtrl;	
 
 
 	
@@ -26,36 +26,6 @@ public partial class PowerGrid : TileMapLayer
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _Process(double delta)
 	{
-	}
-	
-	public List<Vector2I> getNeighbors(Vector2I tilePos) {
-		List<Vector2I> results = new List<Vector2I>();
-		
-		// top
-		Vector2I adjTilePos = new Vector2I(tilePos.X, tilePos.Y - 1);
-		TileData adjTile = tileMap.GetCellTileData(adjTilePos);
-		if (adjTile != null) {
-			results.Add(adjTilePos);
-		} 
-		// right
-		adjTilePos = new Vector2I(tilePos.X + 1, tilePos.Y);
-		adjTile = tileMap.GetCellTileData(adjTilePos);
-		if (adjTile != null) {
-			results.Add(adjTilePos);
-		}
-		// bottom
-		adjTilePos = new Vector2I(tilePos.X, tilePos.Y + 1);
-		adjTile = tileMap.GetCellTileData(adjTilePos);
-		if (adjTile != null) {
-			results.Add(adjTilePos);
-		}
-		// left
-		adjTilePos = new Vector2I(tilePos.X - 1, tilePos.Y);
-		adjTile = tileMap.GetCellTileData(adjTilePos);
-		if (adjTile != null) {
-			results.Add(adjTilePos);
-		}
-		return results;
 	}
 	
 	public override void _Input(InputEvent inputEvent) {
@@ -118,53 +88,91 @@ public partial class PowerGrid : TileMapLayer
 		}
 	}
 	
-
-	
-	
-	public WireCtrl newWireGroup(GridItem item) {
-		WireCtrl wireCtrl = new WireCtrl();
-		AddChild(wireCtrl);
-		wireCtrl.init();
-		wireCtrl.addItem(item);
-		return wireCtrl;
+	public void newWireGroup(GridItem item) {
+		newCircuit(item);
+		newNetwork(item);
 	}
 	
-	public WireCtrl newEmptyWireGroup() {
-		WireCtrl wireCtrl = new WireCtrl();
-		AddChild(wireCtrl);
-		wireCtrl.init();
-		return wireCtrl;
+	private int circuitSeq = 0;
+	public Circuit newCircuit(GridItem item) {
+		Circuit circuit = new Circuit();
+		AddChild(circuit);
+		circuit.init(this);
+		circuit.addItem(item);
+		circuit.Name = "circuit" + circuitSeq;
+		circuitSeq += 1;
+		return circuit;
 	}
 	
+	private int networkSeq = 0;
+	public Network newNetwork(GridItem item) {
+		Network network = new Network();
+		AddChild(network);
+		network.Name = "network" + networkSeq;
+		networkSeq += 1;
+		network.init(this);
+		network.addItem(item);
+		
+		return network;
+	}
+	
+	public Circuit newEmptyCircuit() {
+		Circuit circuit = new Circuit();
+		AddChild(circuit);
+		circuit.init(this);
+		circuit.Name = "circuit" + circuitSeq;
+		circuitSeq += 1;
+		return circuit;
+	}
+	
+	public Network newEmptyNetwork() {
+		Network network = new Network();
+		AddChild(network);
+		network.init(this);
+		network.Name = "network" + networkSeq;
+		networkSeq += 1;
+		return network;
+	}
+	
+	private int wireSeq = 0;
 	public void addWire(Vector2I tilePos) {
 		Wire wire = (Wire) wireScene.Instantiate();
 		addItem(wire, tilePos);
 		wire.init(this, tilePos, MapToLocal(tilePos));
+		wire.Name = "wire" + wireSeq;
+		wireSeq += 1;
 	}
 	
+	private int engineSeq = 0;
 	public void addEngine(Vector2I tilePos) {
 		Engine engine = (Engine) engineScene.Instantiate();
 		addItem(engine, tilePos);
 		engine.setCrewRoster(this.crewRoster);
 		engine.init(this, tilePos, MapToLocal(tilePos));
+		engine.Name = "engine" + engineSeq;
+		engineSeq += 1;
 	}
 	
 	public void removeItem(Vector2I tilePos) {
-		// check count, rm wirectrl if needed
+		GD.Print("REMOVING ITEm PG");
 		GridItem item = wireMap[tilePos];
 		if (item.getRelatives() != null) {
 			foreach (Vector2I i in item.getRelatives()) {
 				wireMap.Remove(item.getTilePos() + i);
 			}
 		}
-		item.removeSelf();
+		item.removeSelf(); 
 		wireMap.Remove(item.getTilePos());
 	}
 	
+	
+	private int postSeq = 0;
 	public void addPost(Vector2I tilePos) {
 		Post post = (Post) postScene.Instantiate();
 		addItem(post, tilePos);
 		post.init(this, tilePos, MapToLocal(tilePos));
+		post.Name = "post" + postSeq;
+		postSeq += 1;
 	}
 	
 	public void addWpnSlot(Vector2I tilePos) {
@@ -172,7 +180,6 @@ public partial class PowerGrid : TileMapLayer
 		wpnSlots[tilePos] = wpnSlot;
 		AddChild(wpnSlot);
 		wpnSlot.init(newWpnSlotKey(), tilePos, MapToLocal(tilePos));
-		//post.init(this, tilePos, MapToLocal(tilePos));
 	}
 	
 	private int wpnSlotKey = 0;
@@ -202,14 +209,50 @@ public partial class PowerGrid : TileMapLayer
 	}
 	
 	public List<GridItem> getNeighbors(GridItem item) {
-		List<Vector2I> neighborTiles = getNeighbors(item.getTilePos());
+		List<Vector2I> neighborTiles = getNeighbors(item.getTilePos(), item.getRelatives());
 		List<GridItem> results = new List<GridItem>();
 		foreach (Vector2I pos in neighborTiles) {
 			if (isTileOccupied(pos)) {
-				results.Add(wireMap[pos]);
+				if (wireMap[pos] != item) {
+					results.Add(wireMap[pos]);
+				}
 			}
 		}
 		return results;
+	}
+	
+	private List<Vector2I> getNeighbors(Vector2I tilePos, List<Vector2I> relatives) { 
+		HashSet<Vector2I> results = new HashSet<Vector2I>();
+		// top
+		Vector2I adjTilePos = new Vector2I(tilePos.X, tilePos.Y - 1);
+		checkDirection(adjTilePos, relatives, results);
+		// right
+		adjTilePos = new Vector2I(tilePos.X + 1, tilePos.Y);
+		checkDirection(adjTilePos, relatives, results);
+		// bottom
+		adjTilePos = new Vector2I(tilePos.X, tilePos.Y + 1);
+		checkDirection(adjTilePos, relatives, results);
+		// left
+		adjTilePos = new Vector2I(tilePos.X - 1, tilePos.Y);
+		checkDirection(adjTilePos, relatives, results);
+		return results.ToList();
+	}
+	
+	private void checkDirection(Vector2I tilePos, List<Vector2I> rels, HashSet<Vector2I> results) {
+		TileData td = tileMap.GetCellTileData(tilePos);
+		if (td != null) {
+			results.Add(tilePos);
+		}
+		if (rels != null) {
+			foreach (Vector2I rel in rels) {
+				if (!results.Contains(tilePos + rel)) {
+					td = tileMap.GetCellTileData(tilePos + rel);
+					if (td != null) {
+						results.Add(tilePos + rel);
+					}
+				}
+			}
+		}
 	}
 	
 	public bool isTileOccupied(Vector2I pos) {

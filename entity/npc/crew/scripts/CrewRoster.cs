@@ -47,22 +47,6 @@ public partial class CrewRoster : Node2D
 		
 		ProcessMode = Node.ProcessModeEnum.Always;
 	}
-	
-		// Called every frame. 'delta' is the elapsed time since the previous frame.
-	public void _ProcessNew(double delta)
-	{
-		// if avail try to assign post/crew
-		if (nextOrder != null) {
-			if (maxReady != null) {
-				Post post = nextOrder.getPost();
-				if (post != null) {
-					maxReady.receiveOrder(nextOrder, post);
-					maxReady = null;
-					nextOrder = null;
-				} 
-			}
-		}
-	}
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _Process(double delta)
@@ -89,9 +73,9 @@ public partial class CrewRoster : Node2D
 		// if avail try to assign post/crew
 		if (jobBoard.Count > 0) {
 			if (maxReady != null) {	
-				//Post post = jobBoard.Last.Value.postCtrl.givePost();
 				Post post = jobBoard.Last.Value.getPost();
 				if (post != null) {
+					GD.Print("!!");
 					maxReady.receiveOrder(jobBoard.Last.Value, post);
 					maxReady = null;
 					jobBoard.RemoveLast();
@@ -126,6 +110,7 @@ public partial class CrewRoster : Node2D
 	}
 	
 	public void postJob(JobTarget job) {
+		GD.Print("jopb posted");
 		jobBoard.AddFirst(job);
 		job.RMSelfSignal += rmSelfWpnEvent;
 		job.setPosted(true);

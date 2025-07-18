@@ -10,11 +10,7 @@ public partial class Post : GridItem
 	private SubViewport underwater;
 	public int groupId;
 	private PostCtrl postCtrl;
-	private Sprite2D sprite;
 	private Area2D area;
-	
-	//[Signal]
-	//public delegate void RMSelfSignalEventHandler();
 	
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready() {
@@ -40,7 +36,7 @@ public partial class Post : GridItem
 	}
 	
 	
-	public void reportReadiness() { // add connected check
+	public void reportReadiness() {
 		Post maxReady = postCtrl.getMaxReady();
 		if (maxReady != null) {
 			if (maxReady.assignedCrew != null) {
@@ -49,17 +45,21 @@ public partial class Post : GridItem
 		} else {
 			postCtrl.setMaxReady(this);
 		}
-	}	
+	}
 	
-	public override void setWireCtrl(WireCtrl wireCtrl) {
-		base.setWireCtrl(wireCtrl);
-		this.postCtrl = wireCtrl.getPostCtrl();
-		if (GetParent() != null) {
-			Reparent(wireCtrl.getPostCtrl());
-		} else {
-			wireCtrl.getPostCtrl().AddChild(this);
-		}
-		sprite.Modulate =  wireCtrl.color; 
+	public void setPostCtrl(PostCtrl postCtrl) {
+		this.postCtrl = postCtrl;
+		this.Reparent(postCtrl);
+	}
+	
+	protected override void reparentNetwork() {
+		base.reparentNetwork();
+		this.Reparent(this.postCtrl);
+	}
+	
+	public override void setNetwork(Network network) {
+		base.setNetwork(network);
+		setPostCtrl(network.getPostCtrl());
 	}
 	
 	public override void removeSelf() {
@@ -73,7 +73,7 @@ public partial class Post : GridItem
 	}
 	
 	public async Task doJob(JobTarget target) {
-		if (isOccupied == true && isConnected(target)) {
+		if (isOccupied == true && sameNetwork(target)) {
 			await target.execute();
 		}
 	}

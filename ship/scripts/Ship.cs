@@ -27,10 +27,8 @@ public partial class Ship : CharacterBody2D
 	
 	public Queue<Furniture> availableBeds = new Queue<Furniture>();  // TODO --> change to bed when i have bed class
 	private List<Furniture> takenBeds = new List<Furniture>();
-	//private List<WeaponSlot> weaponSlots = new List<WeaponSlot>();
-	//private WireCtrl wireCtrl;
 	[Export] public Camera2D camera;
-	[Export] private TileMapLayer hullMap;
+	//[Export] private TileMapLayer hullMap;
 	[Export] private PowerGrid powerGrid;
 	[Export] public CrewRoster defaultRoster;
 	public float rotationSpeed;

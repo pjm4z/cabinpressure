@@ -1,5 +1,6 @@
 using Godot;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 [GlobalClass]
@@ -8,7 +9,6 @@ public partial class JobTarget : GridItem
 	[Export] protected Ship ship;
 	[Export] protected PostCtrl postCtrl;
 	[Export] protected CrewRoster crewRoster;
-	protected Sprite2D sprite;
 	protected Label label;
 	protected bool active = false;
 	protected bool posted = false;
@@ -44,22 +44,11 @@ public partial class JobTarget : GridItem
 		this.posted = p;
 	}
 	
-	public override void setWireCtrl(WireCtrl wireCtrl) {
-		base.setWireCtrl(wireCtrl);
-		
-		this.postCtrl = getWireCtrl().getPostCtrl();
-		if (GetParent() != null) {
-			Reparent(this.postCtrl);
-		} else {
-			this.postCtrl.AddChild(this);
-		}
-		if (this.sprite != null) {
-			this.sprite.Modulate =  getWireCtrl().color; 
-		}
-		
+	public override void setNetwork(Network network) {
+		base.setNetwork(network);
+		setPostCtrl(network.getPostCtrl());
 	}
 	
-	// move to jt + override
 	public virtual void setName(string name) {
 		this.Name = name;
 		this.label = new Label();
@@ -71,7 +60,6 @@ public partial class JobTarget : GridItem
 		return this.postCtrl.givePost();
 	}
 
-	// move to jt
 	public override void _Process(double delta) {
 		if (this.label != null) {
 			label.Text = this.Name + " " + this.count();
@@ -86,19 +74,17 @@ public partial class JobTarget : GridItem
 		}
 	}
 	
-	// move to jt
 	public void setActive(bool active) {
 		this.active = active;
 	}
 	
-	// move to jt
 	public bool getActive() {
 		return this.active;
-	}	
+	}
 	
 	public virtual void fire() {
 		if (this.posted == false && this.assignedCrew == null) {
-			wireCtrl.requestPower(this);
+			this.circuit.requestPower(this);
 			this.crewRoster.postJob(this);
 			this.posted = true;
 		} 
@@ -123,6 +109,22 @@ public partial class JobTarget : GridItem
 		}
 	}
 	
+	protected override void reparentNetwork() {
+		base.reparentNetwork();
+		this.Reparent(this.postCtrl);
+	}
+	
+	public virtual void setPostCtrl(PostCtrl postCtrl) {
+		if (this.postCtrl != null) {
+			this.postCtrl.removeJob(this);
+		}
+		if (postCtrl != null) {
+			postCtrl.addJob(this);
+		}
+		this.postCtrl = postCtrl;
+		Reparent(postCtrl);
+	}
+	
 	public override void removeSelf() {
 		this.queuedOrders = 0;
 		if (this.assignedCrew != null) {
@@ -134,10 +136,20 @@ public partial class JobTarget : GridItem
 		base.removeSelf();
 	}
 	
+	public override bool hasCxnToJobs(ref HashSet<Vector2I> visited, ref List<Engine> foundEngines, Engine initiator) {
+		// add visited
+		visited.Add(this.tilePos);
+		if (this.relatives != null) {
+			foreach (Vector2I rel in this.relatives) {
+				visited.Add(this.tilePos + rel);
+			}
+		}
+		return true;
+	}
+	
 	
 	public bool canActivate() {
 		return posted == false && ((crewRoster.jobBoard.Count == 0 && postCtrl.givePost() != null && crewRoster.maxReady != null) || assignedCrew != null);
-		
 		// issue --> jobBoard.Count ;can be empty but still have active wpns already assigned to crew!
 	}
 }

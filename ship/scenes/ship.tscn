@@ -1,8 +1,9 @@
-[gd_scene load_steps=23 format=4 uid="uid://d0q4pux665fv6"]
+[gd_scene load_steps=29 format=4 uid="uid://d0q4pux665fv6"]
 
 [ext_resource type="Script" path="res://ship/scripts/Ship.cs" id="1_he26f"]
 [ext_resource type="Script" path="res://game/camera/scripts/PlayerCamera.cs" id="3_e8qs2"]
 [ext_resource type="Texture2D" uid="uid://doi3ve3gnwth1" path="res://ship/grid/hull/assets/shipparts.png" id="4_bd732"]
+[ext_resource type="Texture2D" uid="uid://sjd8erfjrhkc" path="res://ship/grid/hull/assets/shiptiles.png" id="4_dup1i"]
 [ext_resource type="PackedScene" uid="uid://bklsfjrbdby0m" path="res://ship/grid/power/scenes/wire.tscn" id="5_rpxud"]
 [ext_resource type="Script" path="res://ship/grid/power/scripts/PowerGrid.cs" id="5_vitnn"]
 [ext_resource type="PackedScene" uid="uid://dl24gnkim6ke4" path="res://ship/grid/power/post/scenes/post.tscn" id="6_xd5mm"]
@@ -77,16 +78,76 @@ texture = ExtResource("4_bd732")
 3:0/0 = 0
 3:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(0.375, 0.375, 8, -8, 8, 8, -8, 8)
 
+[sub_resource type="NavigationPolygon" id="NavigationPolygon_t3l60"]
+
+[sub_resource type="NavigationPolygon" id="NavigationPolygon_tg3mh"]
+vertices = PackedVector2Array(31, 32, -30.875, 32, -30.375, -32, 30.5, -32)
+polygons = Array[PackedInt32Array]([PackedInt32Array(0, 1, 2, 3)])
+outlines = Array[PackedVector2Array]([PackedVector2Array(-30.375, -32, 30.5, -32, 31, 32, -30.875, 32)])
+agent_radius = 0.0
+
+[sub_resource type="NavigationPolygon" id="NavigationPolygon_wh87a"]
+
+[sub_resource type="NavigationPolygon" id="NavigationPolygon_ole6w"]
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_u6jvx"]
+texture = ExtResource("4_dup1i")
+texture_region_size = Vector2i(64, 64)
+1:0/0 = 0
+1:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(-30.625, -32, 30.875, -32, 30.625, 32, -30.5, 32)
+2:0/0 = 0
+2:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(-30.625, -32, 30.875, -32, 30.625, 32, -30.5, 32)
+3:0/0 = 0
+3:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(-30.625, -32, 30.875, -32, 30.625, 32, -30.5, 32)
+0:2/0 = 0
+0:2/0/physics_layer_0/polygon_0/points = PackedVector2Array(-30.625, -32, 30.875, -32, 30.625, 32, -30.5, 32)
+0:2/0/navigation_layer_0/polygon = SubResource("NavigationPolygon_t3l60")
+2:1/0 = 0
+2:1/0/physics_layer_0/polygon_0/points = PackedVector2Array(-30.625, -32, 30.875, -32, 30.625, 32, -30.5, 32)
+2:1/0/navigation_layer_0/polygon = SubResource("NavigationPolygon_wh87a")
+3:1/0 = 0
+3:1/0/physics_layer_0/polygon_0/points = PackedVector2Array(-30.625, -32, 30.875, -32, 30.625, 32, -30.5, 32)
+3:2/0 = 0
+3:2/0/physics_layer_0/polygon_0/points = PackedVector2Array(-30.625, -32, 30.875, -32, 30.625, 32, -30.5, 32)
+1:3/0 = 0
+1:3/0/z_index = 2
+0:3/0 = 0
+0:3/0/z_index = 2
+0:3/0/physics_layer_0/polygon_0/points = PackedVector2Array(-30.625, -32, 30.875, -32, 30.625, 32, -30.5, 32)
+0:0/0 = 0
+0:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(-30.625, -32, 30.875, -32, 30.625, 32, -30.5, 32)
+0:1/0 = 0
+0:1/0/physics_layer_0/polygon_0/points = PackedVector2Array(-30.625, -32, 30.875, -32, 30.625, 32, -30.5, 32)
+1:1/0 = 0
+1:1/0/physics_layer_0/polygon_0/points = PackedVector2Array(-30.625, -32, 30.875, -32, 30.625, 32, -30.5, 32)
+1:2/0 = 0
+1:2/0/physics_layer_0/polygon_0/points = PackedVector2Array(-30.625, -32, 30.875, -32, 30.625, 32, -30.5, 32)
+2:2/0 = 0
+2:2/0/physics_layer_0/polygon_0/points = PackedVector2Array(-30.625, -32, 30.875, -32, 30.625, 32, -30.5, 32)
+3:3/0 = 0
+3:3/0/z_index = 2
+3:3/0/physics_layer_0/polygon_0/points = PackedVector2Array(-30.625, -32, 30.875, -32, 30.625, 32, -30.5, 32)
+3:3/0/navigation_layer_0/polygon = SubResource("NavigationPolygon_ole6w")
+4:3/0 = 0
+4:3/0/physics_layer_0/polygon_0/points = PackedVector2Array(-30.625, -32, 30.875, -32, 30.625, 32, -30.5, 32)
+0:4/0 = 0
+0:4/0/navigation_layer_0/polygon = SubResource("NavigationPolygon_tg3mh")
+2:3/0 = 0
+2:3/0/z_index = 2
+1:4/0 = 0
+
 [sub_resource type="TileSet" id="TileSet_o75px"]
+tile_size = Vector2i(64, 64)
 physics_layer_0/collision_layer = 3
 physics_layer_0/collision_mask = 3
 navigation_layer_0/layers = 1
 sources/0 = SubResource("TileSetAtlasSource_1w0mf")
 sources/3 = SubResource("TileSetAtlasSource_loyvr")
+sources/4 = SubResource("TileSetAtlasSource_u6jvx")
 
 [sub_resource type="TileSet" id="TileSet_tw6wy"]
 
-[node name="ship" type="CharacterBody2D" node_paths=PackedStringArray("camera", "hullMap", "powerGrid")]
+[node name="ship" type="CharacterBody2D" node_paths=PackedStringArray("camera", "powerGrid")]
 light_mask = 2
 visibility_layer = 2
 position = Vector2(-2.38419e-07, 50)
@@ -94,7 +155,6 @@ collision_layer = 0
 collision_mask = 0
 script = ExtResource("1_he26f")
 camera = NodePath("playercamera")
-hullMap = NodePath("hullmap")
 powerGrid = NodePath("powergrid")
 
 [node name="collision" type="CollisionPolygon2D" parent="."]
@@ -108,12 +168,22 @@ visibility_layer = 7
 position = Vector2(-0.16063, 49.9997)
 script = ExtResource("3_e8qs2")
 
+[node name="floormap" type="TileMapLayer" parent="."]
+modulate = Color(0.0823529, 1, 1, 1)
+self_modulate = Color(0.14902, 1, 1, 1)
+position = Vector2(2.38419e-07, 3.8147e-06)
+rotation = 3.14159
+scale = Vector2(0.25, 0.25)
+tile_map_data = PackedByteArray("AAACAAUABAAAAAQAAAABAAUABAAAAAQAAAAAAAUABAAAAAQAAAD//wUABAAAAAQAAAD+/wUABAAAAAQAAAD9/wUABAAAAAQAAAD9/wQABAAAAAQAAAD9/wMABAAAAAQAAAD9/wIABAAAAAQAAAD9/wEABAAAAAQAAAD+/wEABAAAAAQAAAD//wEABAAAAAQAAAAAAAEABAAAAAQAAAABAAEABAAAAAQAAAACAAEABAAAAAQAAAACAAIABAAAAAQAAAACAAMABAAAAAQAAAACAAQABAAAAAQAAAABAAQABAAAAAQAAAAAAAQABAAAAAQAAAD//wQABAAAAAQAAAD+/wQABAAAAAQAAAD+/wMABAAAAAQAAAD+/wIABAAAAAQAAAD//wIABAAAAAQAAAAAAAIABAAAAAQAAAABAAIABAAAAAQAAAABAAMABAAAAAQAAAAAAAMABAAAAAQAAAD//wMABAAAAAQAAAD//wAABAAAAAQAAAD+/wAABAAAAAQAAAD9////BAAAAAQAAAD+////BAAAAAQAAAD/////BAAAAAQAAAAAAP//BAAAAAQAAAABAP//BAAAAAQAAAACAP//BAAAAAQAAAACAP7/BAAAAAQAAAACAP3/BAAAAAQAAAACAPz/BAAAAAQAAAACAPv/BAAAAAQAAAABAPv/BAAAAAQAAAAAAPv/BAAAAAQAAAD///v/BAAAAAQAAAD+//v/BAAAAAQAAAD9//v/BAAAAAQAAAD9//z/BAAAAAQAAAD9//3/BAAAAAQAAAD9//7/BAAAAAQAAAD+//7/BAAAAAQAAAD///7/BAAAAAQAAAAAAP7/BAAAAAQAAAABAP7/BAAAAAQAAAABAP3/BAAAAAQAAAAAAP3/BAAAAAQAAAAAAPz/BAAAAAQAAAD///z/BAAAAAQAAAD+//z/BAAAAAQAAAD+//3/BAAAAAQAAAD///3/BAAAAAQAAAABAPz/BAAAAAQAAAAAAAAABAABAAQAAAABAAAABAABAAQAAAACAAAABAABAAQAAAADAAAABAABAAQAAAADAP//BAABAAQAAAADAP7/BAABAAQAAAADAP3/BAABAAQAAAADAPz/BAABAAQAAAADAPv/BAABAAQAAAADAPr/BAABAAQAAAACAPr/BAABAAQAAAABAPr/BAABAAQAAAAAAPr/BAABAAQAAAD///r/BAABAAQAAAD+//r/BAABAAQAAAD9//r/BAABAAQAAAD8//r/BAABAAQAAAD8//v/BAABAAQAAAD8//z/BAABAAQAAAD8//3/BAABAAQAAAD8//7/BAABAAQAAAD8////BAABAAQAAAD8/wAABAABAAQAAAD9/wAABAABAAQAAAD8/wEABAABAAQAAAD8/wIABAABAAQAAAD8/wMABAABAAQAAAD8/wQABAABAAQAAAD8/wUABAABAAQAAAD8/wYABAABAAQAAAD9/wYABAABAAQAAAD+/wYABAABAAQAAAD//wYABAABAAQAAAAAAAYABAABAAQAAAABAAYABAABAAQAAAACAAYABAABAAQAAAADAAYABAABAAQAAAADAAUABAABAAQAAAADAAQABAABAAQAAAADAAMABAABAAQAAAADAAIABAABAAQAAAADAAEABAABAAQAAAADAPn/BAABAAQAAAAEAAYABAABAAQAAAA=")
+tile_set = SubResource("TileSet_o75px")
+
 [node name="hullmap" type="TileMapLayer" parent="."]
 modulate = Color(0.0823529, 1, 1, 1)
 self_modulate = Color(0.14902, 1, 1, 1)
 position = Vector2(2.38419e-07, 3.8147e-06)
 rotation = 3.14159
-tile_map_data = PackedByteArray("AAD9//v/AwAAAAAAAAD9//r/AwAAAAAAAAD+//r/AwAAAAAAAAD///r/AwAAAAAAAAAAAPr/AwAAAAAAAAABAPr/AwAAAAAAAAACAPr/AwAAAAAAAAADAPr/AwAAAAAAAAADAPv/AwAAAAAAAAADAPz/AwAAAAAAAAADAP3/AwAAAAAAAAACAP3/AwAAAAAAAAABAP3/AwAAAAAAAAAAAP3/AwAAAAAAAAADAP7/AwAAAAAAAAADAP//AwAAAAAAAAADAAAAAwAAAAAAAAACAAAAAwAAAAAAAAABAAAAAwAAAAAAAAAAAAAAAwAAAAAAAAD8/wAAAwAAAAAAAAD9/wAAAwAAAAAAAAD8////AwAAAAAAAAD8//7/AwAAAAAAAAD8//3/AwAAAAAAAAD8//z/AwAAAAAAAAD8//v/AwAAAAAAAAD8/wEAAwAAAAAAAAD8/wIAAwAAAAAAAAD8/wMAAwAAAAAAAAD9/wMAAwAAAAAAAAD8/wQAAwAAAAAAAAD8/wUAAwAAAAAAAAD8/wYAAwAAAAAAAAD9/wYAAwAAAAAAAAD+/wYAAwAAAAAAAAD//wYAAwAAAAAAAAAAAAYAAwAAAAAAAAABAAYAAwAAAAAAAAACAAYAAwAAAAAAAAADAAUAAwAAAAAAAAADAAQAAwAAAAAAAAADAAMAAwAAAAAAAAADAAIAAwAAAAAAAAADAAEAAwAAAAAAAAACAAMAAwAAAAAAAAABAAMAAwAAAAAAAAAAAAMAAwAAAAAAAAADAAYAAwAAAAAAAAD8//r/AwADAAAAAAACAAUAAwAAAAIAAAABAAUAAwAAAAIAAAAAAAUAAwAAAAIAAAD//wUAAwAAAAIAAAD+/wUAAwAAAAIAAAD9/wUAAwAAAAIAAAD9/wQAAwAAAAIAAAD+/wQAAwAAAAIAAAD//wQAAwAAAAIAAAAAAAQAAwAAAAIAAAABAAQAAwAAAAIAAAACAAQAAwAAAAIAAAD//wMAAwAAAAIAAAD+/wMAAwAAAAIAAAD9/wIAAwAAAAIAAAD+/wIAAwAAAAIAAAD//wIAAwAAAAIAAAAAAAIAAwAAAAIAAAABAAIAAwAAAAIAAAACAAIAAwAAAAIAAAACAAEAAwAAAAIAAAABAAEAAwAAAAIAAAAAAAEAAwAAAAIAAAD//wEAAwAAAAIAAAD+/wEAAwAAAAIAAAD9/wEAAwAAAAIAAAD+/wAAAwAAAAIAAAD//wAAAwAAAAIAAAD9////AwAAAAIAAAD+////AwAAAAIAAAD/////AwAAAAIAAAAAAP//AwAAAAIAAAABAP//AwAAAAIAAAACAP7/AwAAAAIAAAACAP//AwAAAAIAAAABAP7/AwAAAAIAAAAAAP7/AwAAAAIAAAD///7/AwAAAAIAAAD+//7/AwAAAAIAAAD9//7/AwAAAAIAAAD9//3/AwAAAAIAAAD+//3/AwAAAAIAAAD///3/AwAAAAIAAAACAPz/AwAAAAIAAAABAPz/AwAAAAIAAAAAAPz/AwAAAAIAAAD///z/AwAAAAIAAAD+//z/AwAAAAIAAAD9//z/AwAAAAIAAAD+//v/AwAAAAIAAAD///v/AwAAAAIAAAAAAPv/AwAAAAIAAAABAPv/AwAAAAIAAAACAPv/AwAAAAIAAAA=")
+scale = Vector2(0.25, 0.25)
+tile_map_data = PackedByteArray("AAACAAAABAADAAMAAAABAAAABAADAAMAAAADAAYABAABAAIAAAD8/wYABAAAAAIAAAADAPr/BAABAAEAAAD8//r/BAAAAAEAAAACAPr/BAABAAAAAAABAPr/BAABAAAAAAAAAPr/BAABAAAAAAD///r/BAABAAAAAAD+//r/BAABAAAAAAD9//r/BAABAAAAAAACAAYABAADAAAAAAABAAYABAADAAAAAAAAAAYABAADAAAAAAD//wYABAADAAAAAAD+/wYABAADAAAAAAD9/wYABAADAAAAAAD8/wUABAAAAAAAAAD8/wQABAAAAAAAAAD8/wMABAAAAAAAAAD8/wIABAAAAAAAAAD8/wEABAAAAAAAAAD8////BAAAAAAAAAD8//7/BAAAAAAAAAD8//3/BAAAAAAAAAD8//z/BAAAAAAAAAD8//v/BAAAAAAAAAADAPv/BAACAAAAAAADAPz/BAACAAAAAAADAP3/BAACAAAAAAADAP7/BAACAAAAAAADAP//BAACAAAAAAADAAEABAACAAAAAAADAAIABAACAAAAAAADAAMABAACAAAAAAADAAQABAACAAAAAAADAAUABAACAAAAAAD8/wAABAACAAEAAAADAAAABAADAAEAAAAAAAAABAADAAMAAAD9/wAABAAAAAMAAAD+/wAABAABAAMAAAD//wAABAACAAMAAAA=")
 tile_set = SubResource("TileSet_o75px")
 
 [node name="powergrid" type="TileMapLayer" parent="." node_paths=PackedStringArray("tileMap", "crewRoster")]
@@ -121,7 +191,7 @@ position = Vector2(2.38419e-07, 3.8147e-06)
 rotation = -3.14159
 tile_set = SubResource("TileSet_tw6wy")
 script = ExtResource("5_vitnn")
-tileMap = NodePath("../hullmap")
+tileMap = NodePath("../floormap")
 wireScene = ExtResource("5_rpxud")
 engineScene = ExtResource("7_tsa4u")
 postScene = ExtResource("6_xd5mm")

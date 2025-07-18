@@ -6,22 +6,59 @@ using static System.Collections.Generic.Dictionary<string,object>;
 
 public partial class PostCtrl : Node2D
 {
-	private WireCtrl wireCtrl;
-	//private Dictionary<int, Post> postMap = new Dictionary<int, Post>();
+	private Network network;
 	public Post maxReady;
+	private int jobCount = 0;
 
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready() {
 		ProcessMode = Node.ProcessModeEnum.Always;
+		this.Name = "postCtrl";
 	}
 	
-	public void init(WireCtrl wireCtrl) {
-		this.wireCtrl = wireCtrl;
+	public void init(Network network) {
+		this.network = network;
+	}
+	
+	public void clearJobCount() {
+		this.jobCount = 0;
+	}
+	
+	public int getJobCount() {
+		return jobCount;
+	}
+	
+	private int engineCount = 0;
+	
+	public void addEngine(Engine engine) {
+		this.engineCount += 1;
+		this.network.addEngine(engine);
+	}
+	
+	public void removeEngine(Engine engine) {
+		this.engineCount -= 1;
+		this.network.removeEngine(engine);
+	}
+	
+	public int getEngineCount() {
+		return this.engineCount;
+	}
+	
+	public void addJob(JobTarget job) {
+		this.jobCount += 1;
+		if (this.engineCount > 0) {
+			GD.Print("REPORTING ");
+			HashSet<Vector2I> visited = new HashSet<Vector2I>();
+			this.network.reportToEngines(ref visited);
+		}
+	}
+	
+	public void removeJob(JobTarget job) {
+		this.jobCount -= 1;
 	}
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
-	public override void _Process(double delta)
-	{
+	public override void _Process(double delta) {
 		if (maxReady != null) {
 			if (maxReady.assignedCrew != null) {
 				maxReady = null;
@@ -29,38 +66,20 @@ public partial class PostCtrl : Node2D
 		}
 	}
 	
-	public Post givePost() { // TODO must track filled consoles + available consoles
+	public Post givePost() { 
 		if (maxReady != null) {
 			if (maxReady.assignedCrew == null) {
-				//GD.Print("Returning " + maxReady);
 				return maxReady;
 			}
 		}
-		//GD.Print("Returning null");
 		return null;
 	}
 	
-
-	
-/*	public Post givePost(int groupId) { // TODO must track filled consoles + available consoles
-		Post value;
-		if (postMap.TryGetValue(groupId, out value)) {
-			if (value != null) {
-				if (value.assignedCrew == null) {
-					return value;
-				}
-			}
-		}
-		//GD.Print("Returning null"); // todo --> dont call givePost if all posts are taken
-		return null;
-	}*/
-	
 	public int getCount() {
 		var consoleArray = GetChildren()
-			.Where(child => child is GridItem) // TODO --> change to bed when I have bed class
+			.Where(child => child is GridItem) 
 			.Select(child => child)          
-			.Cast<GridItem>(); // TODO --> change to bed when I have bed class                 
-		
+			.Cast<GridItem>(); 
 		return consoleArray.Count();
 	}
 	
@@ -77,6 +96,5 @@ public partial class PostCtrl : Node2D
 	
 	private void RMSelfMaxReady(GridItem mr) {
 		this.maxReady = null;
-	}	
-
+	}
 }

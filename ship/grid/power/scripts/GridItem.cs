@@ -12,12 +12,13 @@ public partial class GridItem : Node2D
 	protected Vector2I tilePos;
 	protected List<GridItem> neighbors;
 	[Export] protected Godot.Collections.Array<Vector2I> relatives;
-	
-	protected WireCtrl wireCtrl;
+	protected Sprite2D sprite;
 	protected Network network;
 	protected Circuit circuit;
 	protected bool powering = false;
 	[Export] public float watts;
+	
+	public bool networkLocked = false;
 	
 	public List<Vector2I> getRelatives() {
 		if (relatives != null) {
@@ -31,12 +32,38 @@ public partial class GridItem : Node2D
 		this.tilePos = tilePos;
 		this.Position = localPos;
 		
-		initWireCtrl(); //network//circuit
-		//initNetwork();
-		//initCircuit();
+		initCircuit();
+		initNetwork();
 	}
-	//network//circuit
-	protected virtual void initWireCtrl() {
+	
+	protected virtual void reparentNetwork() {
+		this.network.Reparent(this.circuit);
+	}
+	
+	protected virtual void initCircuit() {
+		int c = 0;
+		this.neighbors = getNeighbors(); 
+		foreach (GridItem i in neighbors) {
+			if (i != this) {
+				c += 1;
+			}
+		}
+		if (c == 0) {
+			grid.newCircuit(this); 
+		} else {
+			GridItem maxCount = neighbors[0];
+			for (int i = 1; i < neighbors.Count; i++) {
+				if (neighbors[i].circuitCount() > maxCount.circuitCount()) {//
+					maxCount = neighbors[i];
+				}
+			}
+			if (maxCount.circuit != this.circuit) {
+				maxCount.absorbCircuit(this);
+			}
+		}
+	}
+	
+	protected virtual void initNetwork() {
 		int c = 0;
 		this.neighbors = getNeighbors();
 		foreach (GridItem i in neighbors) {
@@ -45,86 +72,146 @@ public partial class GridItem : Node2D
 			}
 		}
 		if (c == 0) {
-			grid.newWireGroup(this);
+			grid.newNetwork(this);
+			reparentNetwork();
 		} else {
 			GridItem maxCount = neighbors[0];
+			GridItem maxJobs = neighbors[0];
 			for (int i = 1; i < neighbors.Count; i++) {
-				if (neighbors[i].getCount() > maxCount.getCount()) {
+				if (neighbors[i].networkCount() > maxCount.networkCount()) {
 					maxCount = neighbors[i];
 				}
+				if (neighbors[i].networkJobCount() > maxJobs.networkJobCount()) {
+					maxJobs = neighbors[i];
+				}
 			}
-			if (maxCount.wireCtrl != this.wireCtrl) {
-				if (maxCount.getCount() < this.getCount()) {
-					this.absorb(maxCount);
-				} else {
-					maxCount.absorb(this);
+			if (maxJobs.networkJobCount() > 0) {
+				maxJobs.absorbNetwork(this);
+			} else {
+				maxCount.absorbNetwork(this);
+			}
+		}
+		
+	}
+	
+	public virtual void absorbNetwork(GridItem item) {
+		if (!item.networkLocked && item.networkEngineCount() > 0) {
+			HashSet<Vector2I> visited = new HashSet<Vector2I>();
+			item.getNetwork().reportToEngines(ref visited);
+ 		}
+		if (!item.networkLocked || (item.networkLocked && this.networkJobCount() == 0)) {
+			this.network.addItem(item);
+			foreach (GridItem neighbor in item.getNeighbors()) {
+				if (!sameNetwork(item, neighbor)) {
+					item.absorbNetwork(neighbor);
 				}
 			}
 		}
 	}
 	
-	//network//circuit
-	public virtual void absorb(GridItem item) {
-		this.wireCtrl.addItem(item);
+	public bool sameNetwork(GridItem item1, GridItem item2) {
+		return item1.network == item2.network;
+	}
+	
+	public virtual void absorbCircuit(GridItem item) {
+		this.circuit.addItem(item);
+		if (item.network != null) {
+			item.reparentNetwork();
+		}
 		foreach (GridItem neighbor in item.getNeighbors()) {
-			if (neighbor.wireCtrl != item.wireCtrl) {
-				item.absorb(neighbor);
+			if (neighbor.circuit != item.circuit) {
+				item.absorbCircuit(neighbor);
 			}
 		}
 	}
 	
-	//network//circuit
-	public virtual HashSet<Vector2I> checkConnections(HashSet<Vector2I> visited, WireCtrl newParent) { // todo add logic here to check posts/wpns?
-		if (newParent != null) {
-			newParent.addItem(this);
+	protected void forfeitNetwork(Engine engine, Network network) {
+		engine.ItemReportSignal -= forfeitNetwork; 
+		if (network != null) {
+			setNetwork(network);
+			reparentNetwork();
 		}
+	}
+	
+	public virtual bool hasCxnToJobs(ref HashSet<Vector2I> visited, ref List<Engine> foundEngines, Engine initiator) {
+		initiator.ItemReportSignal += forfeitNetwork; 
+		// add visited
 		visited.Add(this.tilePos);
-		List<GridItem> neighbors = getNeighbors();
-		foreach (GridItem neighbor in neighbors) {
-			 if (!visited.Contains(neighbor.tilePos)) {		//TODO this why it cant find relatives
-				neighbor.checkConnections(visited, newParent);
+		if (this.relatives != null) {
+			foreach (Vector2I rel in this.relatives) {
+				visited.Add(this.tilePos + rel);
 			}
 		}
-		//TODO: need method get neighbors from relative
-	//	foreach (Vector2I relative in relatives) {
-	//		 if (!visited.Contains(this.tilePos + relative)) {		//TODO this why it cant find relatives
-	//			relative.checkConnections(visited, newParent);
-	//		}
-	//	}
+		List<GridItem> neighbors = getNeighbors();
+		foreach (GridItem neighbor in neighbors) {
+			if (!visited.Contains(neighbor.getTilePos())) {
+				if (neighbor.hasCxnToJobs(ref visited, ref foundEngines, initiator)) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
+	public virtual HashSet<Vector2I> checkConnections(HashSet<Vector2I> visited, Circuit newCircuit, Network newNetwork) {
+		// add visited
+		visited.Add(this.tilePos);
+		if (this.relatives != null) {
+			foreach (Vector2I rel in this.relatives) {
+				visited.Add(this.tilePos + rel);
+			}
+		}
+		newCircuit.addItem(this);
+		newNetwork.addItem(this);
+		reparentNetwork();
+		List<GridItem> neighbors = getNeighbors();
+		foreach (GridItem neighbor in neighbors) {
+			if (!visited.Contains(neighbor.getTilePos())) { 
+				neighbor.checkConnections(visited, newCircuit, newNetwork);
+			}
+		}
 		return visited;
 	}
 	
-	//network//circuit
 	public virtual void removeSelf() {
 		EmitSignal(nameof(SignalName.RMSelfSignal), this);
-		if (this.wireCtrl != null) {
-			this.wireCtrl.decrement();
+		if (this.network != null) {
+			this.network.decrement();
 		}
-		List<GridItem> neighbors = getNeighbors();
+		if (this.circuit != null) {
+			this.circuit.decrement();
+		}
+		
 		HashSet<Vector2I> visited = new HashSet<Vector2I>();
 		visited.Add(this.tilePos);
-		for (int i = 0; i < neighbors.Count; i++) {
-			WireCtrl newParent;
-			if (i == 0) {
-				newParent = null;
-			} else {
-				newParent = grid.newEmptyWireGroup();	// todo will be grid for GI, this for JT
+		if (this.relatives != null) {
+			foreach (Vector2I rel in this.relatives) {
+				visited.Add(this.tilePos + rel);
 			}
-			
+		}
+		if (this.networkEngineCount() > 0) {
+			this.network.reportToEngines(ref visited);
+		}
+		Circuit newCircuit;
+		Network newNetwork;
+		List<GridItem> neighbors = getNeighbors();
+		for (int i = 0; i < neighbors.Count; i++) {
 			GridItem neighbor = neighbors[i];
 			if (!visited.Contains(neighbor.getTilePos())) {
-				visited = neighbor.checkConnections(visited, newParent);
+				newCircuit = grid.newEmptyCircuit();
+				newNetwork = grid.newEmptyNetwork();
+				visited = neighbor.checkConnections(visited, newCircuit, newNetwork);
 			}
-			
-			// if newParent.cxns == 0  (not include posts)
-				// add all kids to grid, rm circuit?
 		}
 		QueueFree();
 	}
 	
-	//network//circuit
-	public virtual bool isConnected(GridItem item) {
-		return item.getWireCtrl() == this.getWireCtrl();
+	public virtual bool sameCircuit(GridItem item) {
+		return item.getCircuit() == this.circuit;
+	}
+	
+	public virtual bool sameNetwork(GridItem item) {
+		return item.getNetwork() == this.network;
 	}
 	
 	public Vector2I getTilePos() {
@@ -135,63 +222,93 @@ public partial class GridItem : Node2D
 		return this.GlobalPosition;
 	}
 	
-	//network//circuit
-	public virtual void setWireCtrl(WireCtrl wireCtrl) {
-		if (this.wireCtrl != null && this.wireCtrl != wireCtrl) {
-			this.wireCtrl.decrement();	
+	public virtual void setNetwork(Network network) {
+		if (this.network != null && this.network != network) {
+			this.network.decrement();
 		}
-		if (wireCtrl != null && wireCtrl != this.wireCtrl) {
-			wireCtrl.increment();
+		if (network != null && network != this.network) {
+			network.increment();
 		}
-		this.wireCtrl = wireCtrl;
+		this.network = network;
+		if (this.sprite != null) {
+			this.sprite.Modulate = network.color; 
+		}
 	}
 	
-	//network//circuit
-	public WireCtrl getWireCtrl() {
-		return this.wireCtrl;
+	public virtual void setCircuit(Circuit circuit) {
+		if (this.circuit != null && this.circuit != circuit) {
+			this.circuit.decrement();	
+		}
+		if (circuit != null && circuit != this.circuit) {
+			circuit.increment();
+		}
+		this.circuit = circuit;
+		Reparent(this.circuit);
 	}
 	
-	//network//circuit
-	public int getCount() {
-		if (this.wireCtrl != null) {
-			return this.wireCtrl.getCount();
+	public Network getNetwork() {
+		return this.network;
+	}
+	
+	public Circuit getCircuit() {
+		return this.circuit;
+	}
+	
+	public int circuitCount() {
+		if (this.circuit != null) {
+			return this.circuit.getCount();
 		}
 		return 0;
 	}
 	
-	//network//circuit
-	protected List<GridItem> getNeighbors() {
+	public int networkCount() {
+		if (this.network != null) {
+			return this.network.getCount();
+		}
+		return 0;
+	}
+	
+	public int networkJobCount() {
+		if (this.network != null) {
+			return this.network.jobCount();
+		}
+		return 0;
+	}
+	
+	public int networkEngineCount() {
+		if (this.network != null) {
+			return this.network.engineCount();
+		}
+		return 0;
+	}
+	
+	public List<GridItem> getNeighbors() {
 		return grid.getNeighbors(this);
 	}
 	
-	//circuit
 	public virtual void requestPower() {
-		this.wireCtrl.requestPower(this);
+		this.circuit.requestPower(this);
 	}
 	
-	//circuit
 	public virtual bool possible() {
-		return wireCtrl.possible(this.watts);
+		return circuit.possible(this.watts);
 	}
 	
-	//circuit
 	public virtual bool ready() {
-		return !wireCtrl.overloaded();
+		return !circuit.overloaded();
 	}
 	
-	//circuit
 	public virtual void addCharge() {
 		if (!this.powering) {
 			this.powering = true;
-			this.wireCtrl.addCharge(this.watts);
+			this.circuit.addCharge(this.watts);
 		}
 	}
 	
-	//circuit
 	public virtual void removeCharge() {
 		if (this.powering) {
 			this.powering = false;
-			this.wireCtrl.removeCharge(this.watts);
+			this.circuit.removeCharge(this.watts);
 		}
 	}
 }
