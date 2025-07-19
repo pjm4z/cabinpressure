@@ -9,6 +9,7 @@ public partial class PostCtrl : Node2D
 	private Network network;
 	public Post maxReady;
 	private int jobCount = 0;
+	private int engineCount = 0;
 
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready() {
@@ -28,8 +29,6 @@ public partial class PostCtrl : Node2D
 		return jobCount;
 	}
 	
-	private int engineCount = 0;
-	
 	public void addEngine(Engine engine) {
 		this.engineCount += 1;
 		this.network.addEngine(engine);
@@ -46,6 +45,7 @@ public partial class PostCtrl : Node2D
 	
 	public void addJob(JobTarget job) {
 		this.jobCount += 1;
+		this.network.addJob(job);
 		if (this.engineCount > 0) {
 			GD.Print("REPORTING ");
 			HashSet<Vector2I> visited = new HashSet<Vector2I>();
@@ -55,10 +55,17 @@ public partial class PostCtrl : Node2D
 	
 	public void removeJob(JobTarget job) {
 		this.jobCount -= 1;
+		this.network.removeJob(job);
+		if (this.jobCount < 0) {
+			GD.Print();
+			GD.Print("POSTCTRL NEGATIVE JOBCOUNT??");
+			GD.Print();
+		}
 	}
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
-	public override void _Process(double delta) {
+	public override void _Process(double delta)
+	{
 		if (maxReady != null) {
 			if (maxReady.assignedCrew != null) {
 				maxReady = null;

@@ -16,6 +16,7 @@ public partial class JobTarget : GridItem
 	public Crew assignedCrew;
 	public double taskTime = 1;
 	protected HBoxContainer panel;
+	protected Sprite2D sprite;
 	
 	protected Color red = new Color(1.0f,0.0f,0.0f,1.0f);
 	protected Color white = new Color(1.0f,1.0f,1.0f,1.0f);
@@ -47,6 +48,9 @@ public partial class JobTarget : GridItem
 	public override void setNetwork(Network network) {
 		base.setNetwork(network);
 		setPostCtrl(network.getPostCtrl());
+		if (this.sprite != null) {
+			this.sprite.Modulate = network.color; 
+		}
 	}
 	
 	public virtual void setName(string name) {
@@ -134,6 +138,69 @@ public partial class JobTarget : GridItem
 			this.label.QueueFree();
 		}
 		base.removeSelf();
+	}
+	
+	[Signal]
+	public delegate void ItemReportSignalEventHandler(JobTarget reporter, Network network);
+	
+	public void reportToItems(Network network) {
+		EmitSignal(nameof(SignalName.ItemReportSignal), this, network);
+	}
+	
+	public virtual void networkReportEvent(ref HashSet<Vector2I> covered, ref HashSet<Vector2I> visitedJobs, Network newNetwork) {
+		setNetwork(newNetwork);
+		visitedJobs.Add(getTilePos());
+		
+		HashSet<Vector2I> visitedNeighbors = new HashSet<Vector2I>();
+		visitedNeighbors.UnionWith(covered);
+		visitedNeighbors.Add(this.tilePos);
+		
+		if (this.relatives != null) {
+			foreach (Vector2I rel in this.relatives) {
+				visitedNeighbors.Add(this.tilePos + rel);
+			}
+		}
+		
+		HashSet<Vector2I> visited = new HashSet<Vector2I>();
+		List<GridItem> neighbors = getNeighbors();
+		List<JobTarget> foundJobs = new List<JobTarget>();
+		
+		for(int i = 0; i < neighbors.Count; i++) {
+			GridItem neighbor = neighbors[i];
+			visited = new HashSet<Vector2I>(visitedNeighbors);
+			if (!visited.Contains(neighbor.getTilePos())) {
+				List<JobTarget> curJobs = new List<JobTarget>();
+				neighbor.connectJobs(ref visited, ref curJobs, this); 
+				
+				foundJobs.AddRange(curJobs);
+				covered.UnionWith(visited);
+				reportToItems(this.network);
+				
+				visitedNeighbors.Add(neighbors[i].getTilePos());
+				while ((i+1 < neighbors.Count) && (visited.Contains(neighbors[i+1].getTilePos()))) {
+					i += 1;
+					visitedNeighbors.Add(neighbors[i].getTilePos());
+				}
+			}
+		}
+		
+		foreach (JobTarget job in foundJobs) {
+			if (job.network != this.network) {
+				job.networkReportEvent(ref covered, ref visitedJobs, newNetwork);
+			}
+		}
+		reparentNetwork();
+	}
+	
+	public override void connectJobs(ref HashSet<Vector2I> visited, ref List<JobTarget> foundJobs, JobTarget initiator) {
+		// add visited
+		visited.Add(this.tilePos);
+		if (this.relatives != null) {
+			foreach (Vector2I rel in this.relatives) {
+				visited.Add(this.tilePos + rel);
+			}
+		}
+		foundJobs.Add(this);
 	}
 	
 	public override bool hasCxnToJobs(ref HashSet<Vector2I> visited, ref List<Engine> foundEngines, Engine initiator) {

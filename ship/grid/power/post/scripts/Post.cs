@@ -11,7 +11,7 @@ public partial class Post : GridItem
 	public int groupId;
 	private PostCtrl postCtrl;
 	private Area2D area;
-	
+	protected Sprite2D sprite;
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready() {
 		ProcessMode = Node.ProcessModeEnum.Always;
@@ -60,6 +60,9 @@ public partial class Post : GridItem
 	public override void setNetwork(Network network) {
 		base.setNetwork(network);
 		setPostCtrl(network.getPostCtrl());
+		if (this.sprite != null) {
+			this.sprite.Modulate = network.color; 
+		}
 	}
 	
 	public override void removeSelf() {

@@ -161,8 +161,9 @@ public partial class PowerGrid : TileMapLayer
 				wireMap.Remove(item.getTilePos() + i);
 			}
 		}
-		item.removeSelf(); 
 		wireMap.Remove(item.getTilePos());
+		item.removeSelf(); 
+		
 	}
 	
 	
@@ -206,6 +207,22 @@ public partial class PowerGrid : TileMapLayer
 			}
 		}
 		AddChild(item);
+	}
+	
+	public GridItem getItem(Vector2I tilePos) {
+		if (wireMap.ContainsKey(tilePos)) {
+			return wireMap[tilePos];
+		}
+		return null;
+	}
+	
+	public Wire getWire(Vector2I tilePos) {
+		if (wireMap.ContainsKey(tilePos)) {
+			if (wireMap[tilePos] is Wire) {
+				return (Wire) wireMap[tilePos];
+			}
+		}
+		return null;
 	}
 	
 	public List<GridItem> getNeighbors(GridItem item) {

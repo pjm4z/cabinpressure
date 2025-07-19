@@ -1,14 +1,141 @@
-[gd_scene load_steps=3 format=3 uid="uid://bklsfjrbdby0m"]
+[gd_scene load_steps=21 format=3 uid="uid://bklsfjrbdby0m"]
 
 [ext_resource type="Script" path="res://ship/grid/power/scripts/Wire.cs" id="1_bh3gi"]
 [ext_resource type="Texture2D" uid="uid://d4ctfnbe1ttv7" path="res://ship/grid/hull/assets/floortile.png" id="2_25b6y"]
+[ext_resource type="Texture2D" uid="uid://dvj7d62dchsr0" path="res://ship/grid/power/assets/wires.png" id="3_6yha3"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_6nmfh"]
+atlas = ExtResource("3_6yha3")
+region = Rect2(0, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_bmqqi"]
+atlas = ExtResource("3_6yha3")
+region = Rect2(64, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_eo1sj"]
+atlas = ExtResource("3_6yha3")
+region = Rect2(128, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_v2wrq"]
+atlas = ExtResource("3_6yha3")
+region = Rect2(192, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_lw7ug"]
+atlas = ExtResource("3_6yha3")
+region = Rect2(256, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p1vjh"]
+atlas = ExtResource("3_6yha3")
+region = Rect2(320, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_1dpkc"]
+atlas = ExtResource("3_6yha3")
+region = Rect2(384, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_tpp3b"]
+atlas = ExtResource("3_6yha3")
+region = Rect2(448, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_8x7mg"]
+atlas = ExtResource("3_6yha3")
+region = Rect2(512, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_4v801"]
+atlas = ExtResource("3_6yha3")
+region = Rect2(576, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_fwjba"]
+atlas = ExtResource("3_6yha3")
+region = Rect2(640, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_1pj8u"]
+atlas = ExtResource("3_6yha3")
+region = Rect2(704, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_jqbtd"]
+atlas = ExtResource("3_6yha3")
+region = Rect2(768, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_q1lk3"]
+atlas = ExtResource("3_6yha3")
+region = Rect2(832, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_kw7jl"]
+atlas = ExtResource("3_6yha3")
+region = Rect2(896, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ptasb"]
+atlas = ExtResource("3_6yha3")
+region = Rect2(960, 0, 64, 64)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_i5ymy"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_6nmfh")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_bmqqi")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_eo1sj")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_v2wrq")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_lw7ug")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_p1vjh")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_1dpkc")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_tpp3b")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_8x7mg")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_4v801")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_fwjba")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_1pj8u")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_jqbtd")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_q1lk3")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_kw7jl")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ptasb")
+}],
+"loop": true,
+"name": &"new_animation",
+"speed": 5.0
+}]
 
 [node name="wire" type="Node2D"]
 z_index = 3
 scale = Vector2(0.5, 0.5)
 script = ExtResource("1_bh3gi")
 
-[node name="sprite" type="Sprite2D" parent="."]
+[node name="sprite-old" type="Sprite2D" parent="."]
+visible = false
 position = Vector2(0, -1.19209e-07)
 scale = Vector2(1.00069, 1)
 texture = ExtResource("2_25b6y")
+
+[node name="sprite" type="AnimatedSprite2D" parent="."]
+scale = Vector2(0.5, 0.5)
+sprite_frames = SubResource("SpriteFrames_i5ymy")
+animation = &"new_animation"

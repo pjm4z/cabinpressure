@@ -12,7 +12,7 @@ public partial class GridItem : Node2D
 	protected Vector2I tilePos;
 	protected List<GridItem> neighbors;
 	[Export] protected Godot.Collections.Array<Vector2I> relatives;
-	protected Sprite2D sprite;
+	
 	protected Network network;
 	protected Circuit circuit;
 	protected bool powering = false;
@@ -34,10 +34,13 @@ public partial class GridItem : Node2D
 		
 		initCircuit();
 		initNetwork();
+		
+		joinWires();
 	}
 	
 	protected virtual void reparentNetwork() {
 		this.network.Reparent(this.circuit);
+		//Reparent(this.network);
 	}
 	
 	protected virtual void initCircuit() {
@@ -125,11 +128,31 @@ public partial class GridItem : Node2D
 		}
 	}
 	
-	protected void forfeitNetwork(Engine engine, Network network) {
-		engine.ItemReportSignal -= forfeitNetwork; 
+	protected void forfeitNetwork(JobTarget reporter, Network network) {
+		reporter.ItemReportSignal -= forfeitNetwork; 
 		if (network != null) {
+			if (this.circuit != reporter.circuit) {
+				this.setCircuit(reporter.circuit);
+			}
 			setNetwork(network);
 			reparentNetwork();
+		}
+	}
+	
+	public virtual void connectJobs(ref HashSet<Vector2I> visited, ref List<JobTarget> foundJobs, JobTarget initiator) {
+		initiator.ItemReportSignal += forfeitNetwork; 
+		// add visited
+		visited.Add(this.tilePos);
+		if (this.relatives != null) {
+			foreach (Vector2I rel in this.relatives) {
+				visited.Add(this.tilePos + rel);
+			}
+		}
+		List<GridItem> neighbors = getNeighbors();
+		foreach (GridItem neighbor in neighbors) {
+			if (!visited.Contains(neighbor.getTilePos())) {
+				neighbor.connectJobs(ref visited, ref foundJobs, initiator);
+			}
 		}
 	}
 	
@@ -189,6 +212,9 @@ public partial class GridItem : Node2D
 				visited.Add(this.tilePos + rel);
 			}
 		}
+		if (this.networkJobCount() > 0) {
+			this.network.reportToJobs(ref visited);
+		}
 		if (this.networkEngineCount() > 0) {
 			this.network.reportToEngines(ref visited);
 		}
@@ -197,13 +223,43 @@ public partial class GridItem : Node2D
 		List<GridItem> neighbors = getNeighbors();
 		for (int i = 0; i < neighbors.Count; i++) {
 			GridItem neighbor = neighbors[i];
-			if (!visited.Contains(neighbor.getTilePos())) {
+			if (!visited.Contains(neighbor.getTilePos()) && neighbor.getNetwork() == this.network) { //
 				newCircuit = grid.newEmptyCircuit();
 				newNetwork = grid.newEmptyNetwork();
 				visited = neighbor.checkConnections(visited, newCircuit, newNetwork);
 			}
 		}
+		breakWires();
 		QueueFree();
+	}
+	
+	//public Dictionary<string, Wire> adjWires = new Dictionary<string, Wire>(); 
+	public List<Wire> adjWires = new List<Wire>();
+	
+	private void joinWires() {
+		getAdjWires();
+		foreach(Wire wire in this.adjWires) {
+			if (wire != null) {
+				wire.checkSprite();
+			}
+		}
+	}
+	
+	private void breakWires() {
+		getAdjWires();
+		foreach(Wire wire in this.adjWires) {
+			if (wire != null) {
+				wire.checkSprite(this.getTilePos());
+			}
+		}
+	}
+
+	private void getAdjWires() {
+		this.adjWires = new List<Wire>();
+		this.adjWires.Add(grid.getWire(this.tilePos + new Vector2I(0, -1)));
+		this.adjWires.Add(grid.getWire(this.tilePos + new Vector2I(1, 0)));
+		this.adjWires.Add(grid.getWire(this.tilePos + new Vector2I(0, 1)));
+		this.adjWires.Add(grid.getWire(this.tilePos + new Vector2I(-1, 0)));
 	}
 	
 	public virtual bool sameCircuit(GridItem item) {
@@ -230,9 +286,6 @@ public partial class GridItem : Node2D
 			network.increment();
 		}
 		this.network = network;
-		if (this.sprite != null) {
-			this.sprite.Modulate = network.color; 
-		}
 	}
 	
 	public virtual void setCircuit(Circuit circuit) {

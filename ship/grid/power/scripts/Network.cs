@@ -4,6 +4,7 @@ using System.Collections.Generic;
 
 public partial class Network : WireCtrl
 {
+	public Dictionary<Vector2I, JobTarget> jobs = new Dictionary<Vector2I, JobTarget>();
 	public Dictionary<Vector2I, Engine> engines = new Dictionary<Vector2I, Engine>();
 	private PostCtrl postCtrl;
 	public Color color;
@@ -52,6 +53,24 @@ public partial class Network : WireCtrl
 	
 	public void removeEngine(Engine engine) {
 		engines.Remove(engine.getTilePos());
+	}
+	
+	public void addJob(JobTarget job) {
+		jobs[job.getTilePos()] = job;
+	}
+	
+	public void removeJob(JobTarget job) {
+		jobs.Remove(job.getTilePos());
+	}
+	
+	public void reportToJobs(ref HashSet<Vector2I> visited) {
+		HashSet<Vector2I> visitedJobs = new HashSet<Vector2I>();
+		foreach (Vector2I key in this.jobs.Keys) {
+			if (!visitedJobs.Contains(key)) {
+				Network nw = this.grid.newEmptyNetwork();
+				jobs[key].networkReportEvent(ref visited, ref visitedJobs, nw);
+			}
+		}
 	}
 	
 	public void reportToEngines(ref HashSet<Vector2I> visited) {

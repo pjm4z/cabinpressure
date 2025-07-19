@@ -6,8 +6,6 @@ using System.Linq;
 
 public partial class Engine : JobTarget
 {
-	[Signal]
-	public delegate void ItemReportSignalEventHandler(Engine engine, Network network);
 	private double usedWatts = 0;
 	
 	public override void _Ready() {
@@ -82,11 +80,7 @@ public partial class Engine : JobTarget
 		}
 	}
 	
-	public void reportToItems(Network network) {
-		EmitSignal(nameof(SignalName.ItemReportSignal), this, network);
-	}
-	
-	public void networkReportEvent(ref HashSet<Vector2I> covered, ref HashSet<Vector2I> visitedEngines, Network newNetwork) {
+	public override void networkReportEvent(ref HashSet<Vector2I> covered, ref HashSet<Vector2I> visitedEngines, Network newNetwork) {
 		setNetwork(newNetwork);
 		visitedEngines.Add(getTilePos());
 		
@@ -131,6 +125,18 @@ public partial class Engine : JobTarget
 			}
 		}
 		reparentNetwork();
+	}
+	
+	public override void connectJobs(ref HashSet<Vector2I> visited, ref List<JobTarget> foundJobs, JobTarget initiator) {
+		/*if (!visited.Contains(getTilePos())) {
+			// add visited
+			visited.Add(this.tilePos);
+			if (this.relatives != null) {
+				foreach (Vector2I rel in this.relatives) {
+					visited.Add(this.tilePos + rel);
+				}
+			}
+		}*/
 	}
 		
 	public override bool hasCxnToJobs(ref HashSet<Vector2I> visited, ref List<Engine> foundEngines, Engine initiator) {
