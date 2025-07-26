@@ -63,11 +63,12 @@ public partial class Work : State
 			crewProgress.deltaElapsed = 0;
 		} else {
 			if (!job.ready()) {
-				//GD.Print("CANT SHOOT NO POWER");
+				GD.Print("CANT SHOOT NO POWER");
 				job.requestPower(); 
+				working = true;
+				await Task.Delay(1000);
+				working = false;
 			}
-		//	GD.Print("2");
-			await Task.Delay(1);
 		}
 	}
 	

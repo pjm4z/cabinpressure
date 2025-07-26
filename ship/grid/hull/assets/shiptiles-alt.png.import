@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dvj7d62dchsr0"
-path="res://.godot/imported/wires.png-9c8aa859ba20e8e7ba257f0e34f4d5e1.ctex"
+uid="uid://bod1hbl3gc6sw"
+path="res://.godot/imported/shiptiles-alt.png-38acb71a628c334434075f3ad5561d18.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://ship/grid/power/assets/wires.png"
-dest_files=["res://.godot/imported/wires.png-9c8aa859ba20e8e7ba257f0e34f4d5e1.ctex"]
+source_file="res://ship/grid/hull/assets/shiptiles-alt.png"
+dest_files=["res://.godot/imported/shiptiles-alt.png-38acb71a628c334434075f3ad5561d18.ctex"]
 
 [params]
 

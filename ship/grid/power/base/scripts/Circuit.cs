@@ -40,6 +40,7 @@ public partial class Circuit : WireCtrl
 	}
 	
 	public void requestPower(GridItem rq) {
+		GD.Print("REQ PWR");
 		EmitSignal(nameof(SignalName.PowerRQSignal), rq);
 	}
 	

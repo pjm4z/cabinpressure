@@ -10,13 +10,13 @@ public partial class Post : GridItem
 	private SubViewport underwater;
 	public int groupId;
 	private PostCtrl postCtrl;
-	private Area2D area;
+	//private Area2D area;
 	protected Sprite2D sprite;
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready() {
 		ProcessMode = Node.ProcessModeEnum.Always;
 		sprite = (Sprite2D) GetNode("sprite");
-		area = (Area2D) GetNode("area");
+		//area = (Area2D) GetNode("area");
 	}
 	
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -29,10 +29,6 @@ public partial class Post : GridItem
 		if (this.assignedCrew == null && this.postCtrl != null) {
 			reportReadiness();
 		}
-	}
-	
-	public bool HasOverlappingAreas() {
-		return area.HasOverlappingAreas();
 	}
 	
 	

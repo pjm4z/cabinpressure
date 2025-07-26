@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 [GlobalClass]
-public partial class GridItem : Node2D
+public partial class GridItem : Area2D
 {
 	[Signal]
 	public delegate void RMSelfSignalEventHandler(GridItem gi);
@@ -67,14 +67,8 @@ public partial class GridItem : Node2D
 	}
 	
 	protected virtual void initNetwork() {
-		int c = 0;
 		this.neighbors = getNeighbors();
-		foreach (GridItem i in neighbors) {
-			if (i != this) {
-				c += 1;
-			}
-		}
-		if (c == 0) {
+		if (neighbors.Count == 0) {
 			grid.newNetwork(this);
 			reparentNetwork();
 		} else {
@@ -100,6 +94,7 @@ public partial class GridItem : Node2D
 	public virtual void absorbNetwork(GridItem item) {
 		if (!item.networkLocked && item.networkEngineCount() > 0) {
 			HashSet<Vector2I> visited = new HashSet<Vector2I>();
+			//visited.Add(item.getTilePos());
 			item.getNetwork().reportToEngines(ref visited);
  		}
 		if (!item.networkLocked || (item.networkLocked && this.networkJobCount() == 0)) {

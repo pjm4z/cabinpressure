@@ -3,9 +3,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-public partial class PowerGrid : TileMapLayer
+public partial class PowerGrid : ShipLayer
 {
 	[Export] private TileMapLayer tileMap;
+	[Export] private CrewRoster crewRoster; // temp todo remove
 	public Dictionary<Vector2I, WeaponSlot> wpnSlots = new Dictionary<Vector2I, WeaponSlot>();
 	public Dictionary<Vector2I, GridItem> wireMap = new Dictionary<Vector2I, GridItem>();
 	[Export] private PackedScene wireScene;
@@ -13,19 +14,14 @@ public partial class PowerGrid : TileMapLayer
 	[Export] private PackedScene postScene;
 	[Export] private PackedScene wpnSlotScene;
 	[Export] private PackedScene wpnScene;
-	[Export] private CrewRoster crewRoster; // temp todo remove
-
+	
+	
 
 	
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
 		this.GlobalPosition = tileMap.GlobalPosition;
-	}
-
-	// Called every frame. 'delta' is the elapsed time since the previous frame.
-	public override void _Process(double delta)
-	{
 	}
 	
 	public override void _Input(InputEvent inputEvent) {
@@ -149,7 +145,7 @@ public partial class PowerGrid : TileMapLayer
 		addItem(engine, tilePos);
 		engine.setCrewRoster(this.crewRoster);
 		engine.init(this, tilePos, MapToLocal(tilePos));
-		engine.Name = "engine" + engineSeq;
+		engine.setName("engine" + engineSeq);
 		engineSeq += 1;
 	}
 	
@@ -272,7 +268,7 @@ public partial class PowerGrid : TileMapLayer
 		}
 	}
 	
-	public bool isTileOccupied(Vector2I pos) {
+	public override bool isTileOccupied(Vector2I pos) {
 		GridItem item;
 		if (wireMap.TryGetValue(pos, out item)) {
 			if (item != null) {

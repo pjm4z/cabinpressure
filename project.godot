@@ -39,48 +39,68 @@ enabled=PackedStringArray("res://addons/nklbdev.aseprite_importers/plugin.cfg")
 
 folder_colors={
 "res://entity/": "red",
+"res://entity/npc/": "orange",
+"res://entity/npc/crew/": "orange",
 "res://entity/npc/crew/assets/": "teal",
 "res://entity/npc/crew/scenes/": "teal",
 "res://entity/npc/crew/scripts/": "teal",
+"res://entity/npc/enemy/": "orange",
 "res://entity/npc/enemy/assets/": "teal",
 "res://entity/npc/enemy/scenes/": "teal",
 "res://entity/npc/enemy/scripts/": "teal",
+"res://entity/player/": "orange",
 "res://entity/player/assets/": "teal",
 "res://entity/player/scenes/": "teal",
 "res://entity/player/scripts/": "teal",
 "res://game/": "red",
+"res://game/base/": "orange",
 "res://game/base/scenes/": "teal",
 "res://game/base/scripts/": "teal",
-"res://game/camera/scripts/": "red",
-"res://game/state/entity/npc/crew/scripts/": "red",
-"res://game/state/scripts/": "red",
+"res://game/camera/": "orange",
+"res://game/camera/scripts/": "green",
+"res://game/state/": "orange",
+"res://game/state/entity/npc/crew/scripts/": "teal",
+"res://game/state/scripts/": "teal",
+"res://game/ui/": "orange",
 "res://game/ui/entity/npc/crew/scripts/": "red",
-"res://game/ui/scripts/": "red",
+"res://game/ui/scripts/": "green",
 "res://misc/assets/": "teal",
 "res://object/": "red",
 "res://object/assets/": "teal",
 "res://object/scenes/": "teal",
 "res://object/scripts/": "teal",
 "res://ship/": "red",
+"res://ship/base/": "teal",
+"res://ship/base/scenes/": "teal",
+"res://ship/base/scripts/": "teal",
+"res://ship/grid/": "orange",
+"res://ship/grid/base/": "teal",
+"res://ship/grid/hull/": "orange",
 "res://ship/grid/hull/assets/": "teal",
-"res://ship/grid/power/assets/": "teal",
+"res://ship/grid/hull/scripts/": "teal",
+"res://ship/grid/power/": "orange",
+"res://ship/grid/power/base/": "teal",
+"res://ship/grid/power/base/assets/": "teal",
+"res://ship/grid/power/base/scenes/": "teal",
+"res://ship/grid/power/base/scripts/": "teal",
+"res://ship/grid/power/engine/": "orange",
 "res://ship/grid/power/engine/assets/": "teal",
 "res://ship/grid/power/engine/scenes/": "teal",
 "res://ship/grid/power/engine/scripts/": "teal",
+"res://ship/grid/power/post/": "orange",
 "res://ship/grid/power/post/assets/": "teal",
 "res://ship/grid/power/post/scenes/": "teal",
 "res://ship/grid/power/post/scripts/": "teal",
-"res://ship/grid/power/scenes/": "teal",
-"res://ship/grid/power/scripts/": "teal",
+"res://ship/grid/power/weapon/": "orange",
 "res://ship/grid/power/weapon/assets/": "teal",
 "res://ship/grid/power/weapon/scenes/": "teal",
 "res://ship/grid/power/weapon/scripts/": "teal",
-"res://ship/scenes/": "teal",
-"res://ship/scripts/": "teal",
 "res://world/": "red",
+"res://world/surface/": "orange",
 "res://world/surface/assets/": "teal",
 "res://world/surface/scenes/": "teal",
 "res://world/surface/scripts/": "teal",
+"res://world/underwater/": "orange",
 "res://world/underwater/scripts/": "teal"
 }
 
@@ -196,3 +216,16 @@ rclick={
 "events": [Object(InputEventMouseButton,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"button_mask":0,"position":Vector2(0, 0),"global_position":Vector2(0, 0),"factor":1.0,"button_index":2,"canceled":false,"pressed":false,"double_click":false,"script":null)
 ]
 }
+c={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":0,"physical_keycode":67,"key_label":0,"unicode":99,"location":0,"echo":false,"script":null)
+]
+}
+
+[layer_names]
+
+2d_physics/layer_1="ship outer"
+2d_physics/layer_2="aboard ship"
+2d_physics/layer_3="ship ceiling"
+2d_physics/layer_4="above ship"
+2d_physics/layer_5="projectile"

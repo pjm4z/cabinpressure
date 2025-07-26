@@ -17,7 +17,8 @@ position = Vector2(313, 138)
 
 [node name="surfacemap" type="Node2D" parent="surfaceviewport"]
 script = ExtResource("2_h5rq6")
-GridPts = Vector2(10, 10)
+PointDist = 1000000
+GridPts = Vector2(1, 1)
 
 [node name="surfacecamera" type="Camera2D" parent="surfaceviewport"]
 

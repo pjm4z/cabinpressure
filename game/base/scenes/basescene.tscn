@@ -2,9 +2,9 @@
 
 [ext_resource type="Script" path="res://game/base/scripts/BaseScene.cs" id="1_h7qa5"]
 [ext_resource type="Script" path="res://world/underwater/scripts/Underwater.cs" id="2_b8rub"]
-[ext_resource type="Script" path="res://game/ui/scripts/HUD.cs" id="3_ht4br"]
 [ext_resource type="PackedScene" uid="uid://irdicxioylfl" path="res://world/surface/scenes/surface.tscn" id="4_1tdr1"]
-[ext_resource type="PackedScene" uid="uid://d0q4pux665fv6" path="res://ship/scenes/ship.tscn" id="5_8a8ed"]
+[ext_resource type="Theme" uid="uid://dsqrs5nyuojpy" path="res://game/ui/themes/basetheme.tres" id="4_unire"]
+[ext_resource type="PackedScene" uid="uid://d0q4pux665fv6" path="res://ship/base/scenes/ship.tscn" id="5_8a8ed"]
 [ext_resource type="PackedScene" uid="uid://ccg41jlynxfth" path="res://entity/player/scenes/skip.tscn" id="6_b2xmm"]
 [ext_resource type="PackedScene" uid="uid://nyjgnbrqeon0" path="res://object/scenes/furniture.tscn" id="7_shcty"]
 [ext_resource type="PackedScene" uid="uid://k70ygdkfq0pd" path="res://object/scenes/item.tscn" id="8_tndgh"]
@@ -26,6 +26,58 @@ noise = SubResource("FastNoiseLite_iu6tl")
 process_mode = 3
 script = ExtResource("1_h7qa5")
 
+[node name="hudcanvas" type="CanvasLayer" parent="."]
+process_mode = 3
+
+[node name="HUD" type="Control" parent="hudcanvas"]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+theme = ExtResource("4_unire")
+
+[node name="crew" type="PanelContainer" parent="hudcanvas/HUD"]
+custom_minimum_size = Vector2(50, 250)
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_top = 177.0
+offset_right = 50.0
+offset_bottom = 427.0
+grow_vertical = 2
+
+[node name="crewpanel" type="VBoxContainer" parent="hudcanvas/HUD/crew"]
+layout_mode = 2
+size_flags_horizontal = 0
+
+[node name="systems" type="PanelContainer" parent="hudcanvas/HUD"]
+custom_minimum_size = Vector2(200, 50)
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = 454.0
+offset_top = 558.0
+offset_right = 658.0
+offset_bottom = 608.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="systemspanel" type="HBoxContainer" parent="hudcanvas/HUD/systems"]
+layout_direction = 2
+layout_mode = 2
+
+[node name="weaponspanel" type="HBoxContainer" parent="hudcanvas/HUD/systems/systemspanel"]
+layout_mode = 2
+size_flags_horizontal = 0
+
+[node name="enginepanel" type="HBoxContainer" parent="hudcanvas/HUD/systems/systemspanel"]
+layout_mode = 2
+size_flags_horizontal = 4
+
 [node name="underwater" type="Node2D" parent="."]
 process_mode = 1
 script = ExtResource("2_b8rub")
@@ -39,54 +91,6 @@ offset_right = 2708.0
 offset_bottom = 1882.0
 texture = SubResource("NoiseTexture2D_b0b52")
 
-[node name="HUD" type="CanvasLayer" parent="."]
-script = ExtResource("3_ht4br")
-
-[node name="weaponscontainer" type="PanelContainer" parent="HUD"]
-anchors_preset = 2
-anchor_top = 1.0
-anchor_bottom = 1.0
-offset_top = -40.0
-offset_right = 92.0
-grow_vertical = 0
-
-[node name="weaponspanel" type="HBoxContainer" parent="HUD/weaponscontainer"]
-layout_mode = 2
-
-[node name="enginecontainer" type="PanelContainer" parent="HUD"]
-offset_left = 544.0
-offset_top = 605.0
-offset_right = 636.0
-offset_bottom = 645.0
-
-[node name="enginepanel" type="HBoxContainer" parent="HUD/enginecontainer"]
-layout_mode = 2
-alignment = 1
-
-[node name="crewcontainer" type="PanelContainer" parent="HUD"]
-anchors_preset = 2
-anchor_top = 1.0
-anchor_bottom = 1.0
-offset_left = 9.0
-offset_top = -646.0
-offset_right = 101.0
-offset_bottom = -606.0
-grow_vertical = 0
-scale = Vector2(0.76038, 0.908694)
-
-[node name="crewpanel" type="VBoxContainer" parent="HUD/crewcontainer"]
-layout_mode = 2
-
-[node name="postcontainer" type="PanelContainer" parent="HUD"]
-offset_left = 1046.0
-offset_top = 605.0
-offset_right = 1138.0
-offset_bottom = 645.0
-
-[node name="postpanel" type="HBoxContainer" parent="HUD/postcontainer"]
-layout_mode = 2
-alignment = 2
-
 [node name="surface" parent="." instance=ExtResource("4_1tdr1")]
 process_mode = 1
 
@@ -95,7 +99,6 @@ light_mask = 1
 visibility_layer = 1
 z_index = 2
 position = Vector2(1, -1)
-rotation = 3.14159
 
 [node name="skip" parent="surface/ship" instance=ExtResource("6_b2xmm")]
 position = Vector2(41, -83)
@@ -117,3 +120,66 @@ position = Vector2(22, 55)
 
 [node name="item3" parent="surface/ship" instance=ExtResource("8_tndgh")]
 position = Vector2(40, -25)
+
+[node name="item4" parent="surface/ship" instance=ExtResource("8_tndgh")]
+position = Vector2(4.99986, 69)
+
+[node name="item5" parent="surface/ship" instance=ExtResource("8_tndgh")]
+position = Vector2(3.00006, 54.951)
+
+[node name="item6" parent="surface/ship" instance=ExtResource("8_tndgh")]
+position = Vector2(21.0001, -25.049)
+
+[node name="item" parent="surface/ship/item6" instance=ExtResource("8_tndgh")]
+position = Vector2(-33.0002, 95.049)
+
+[node name="item2" parent="surface/ship/item6" instance=ExtResource("8_tndgh")]
+position = Vector2(-35, 81)
+
+[node name="item3" parent="surface/ship/item6" instance=ExtResource("8_tndgh")]
+position = Vector2(-17, 0.999954)
+
+[node name="ship2" parent="surface" instance=ExtResource("5_8a8ed")]
+light_mask = 1
+visibility_layer = 1
+z_index = 2
+position = Vector2(568, -1)
+
+[node name="skip" parent="surface/ship2" instance=ExtResource("6_b2xmm")]
+position = Vector2(41, -83)
+rotation = 3.14159
+
+[node name="furniture" parent="surface/ship2" instance=ExtResource("7_shcty")]
+position = Vector2(-16, -88)
+script = null
+
+[node name="furniture2" parent="surface/ship2" instance=ExtResource("7_shcty")]
+position = Vector2(-16, -72)
+script = null
+
+[node name="item" parent="surface/ship2" instance=ExtResource("8_tndgh")]
+position = Vector2(23.9998, 69.049)
+
+[node name="item2" parent="surface/ship2" instance=ExtResource("8_tndgh")]
+position = Vector2(22, 55)
+
+[node name="item3" parent="surface/ship2" instance=ExtResource("8_tndgh")]
+position = Vector2(40, -25)
+
+[node name="item4" parent="surface/ship2" instance=ExtResource("8_tndgh")]
+position = Vector2(4.99986, 69)
+
+[node name="item5" parent="surface/ship2" instance=ExtResource("8_tndgh")]
+position = Vector2(3.00006, 54.951)
+
+[node name="item6" parent="surface/ship2" instance=ExtResource("8_tndgh")]
+position = Vector2(21.0001, -25.049)
+
+[node name="item" parent="surface/ship2/item6" instance=ExtResource("8_tndgh")]
+position = Vector2(-33.0002, 95.049)
+
+[node name="item2" parent="surface/ship2/item6" instance=ExtResource("8_tndgh")]
+position = Vector2(-35, 81)
+
+[node name="item3" parent="surface/ship2/item6" instance=ExtResource("8_tndgh")]
+position = Vector2(-17, 0.999954)

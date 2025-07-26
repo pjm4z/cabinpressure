@@ -4,7 +4,6 @@
 [ext_resource type="Texture2D" uid="uid://ddwtu1x55b61i" path="res://entity/npc/crew/assets/crewsprite-1.png" id="2_dyvbg"]
 
 [node name="skip" type="CharacterBody2D"]
-z_index = 10
 position = Vector2(-5.35836e-11, -5.96038e-08)
 collision_layer = 2
 collision_mask = 3

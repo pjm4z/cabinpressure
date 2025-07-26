@@ -13,7 +13,7 @@ public partial class Ship : CharacterBody2D
 	public const float TurnAcceleration = 0.01f;  // Rotation speed (turning speed)
 	public const float TurnSpeed = 0.01f;
 	public const float Acceleration = 100.0f;  // Acceleration rate
-	public const float ReverseAcceleration = 10.0f;  // Reverse cceleration rate
+	public const float ReverseAcceleration = 100f;//10.0f;  // Reverse cceleration rate
 	private Vector2 velocity = Vector2.Zero;
 	 
 //	[Export] private GpuParticles2D wake;
@@ -28,9 +28,8 @@ public partial class Ship : CharacterBody2D
 	public Queue<Furniture> availableBeds = new Queue<Furniture>();  // TODO --> change to bed when i have bed class
 	private List<Furniture> takenBeds = new List<Furniture>();
 	[Export] public Camera2D camera;
-	//[Export] private TileMapLayer hullMap;
-	[Export] private PowerGrid powerGrid;
 	[Export] public CrewRoster defaultRoster;
+	[Export] private MapCtrl mapCtrl;
 	public float rotationSpeed;
 	
 	public override void _Ready() {
@@ -39,20 +38,9 @@ public partial class Ship : CharacterBody2D
 		
 		underwater = (SubViewport) GetNode("/root/basescene/surface/surfaceviewport");
 		surfaceMap = GetNode<SurfaceMap>("/root/basescene/surface/surfaceviewport/surfacemap");
-
-		//camera = (Camera2D) GetNode("playercamera");
-		//defaultRoster = (CrewRoster) GetNode("crewroster");
-		//hullMap = (TileMapLayer) GetNode("hullmap");
-		//skip = (Skip) GetNode("/root/basescene/surface/shipscene/skip");
-
 		InitialPosition = Position;
 		rotationSpeed = 0;
 		initBeds();
-		//initWeaponSlots();
-	}
-	
-	public PowerGrid getPowerGrid() {
-		return powerGrid;
 	}
 	
 	public void initBeds() {
@@ -159,6 +147,21 @@ public partial class Ship : CharacterBody2D
 		}
 	}
 
+	public void damageOuter(Vector2 gPos, double radius, int damage) {
+		mapCtrl.damageOuter(gPos, radius, damage);
+	}
+	
+	public void damageInner(Vector2 gPos, double radius, int damage) {
+		mapCtrl.damageInner(gPos, radius, damage);
+	}
+	
+	public int hp = 0;
+	public void changeHP(int hp) {
+		this.hp += hp;
+		if (this.hp < 0) {
+			QueueFree();
+		}
+	}
 	
 	
 	
@@ -179,7 +182,7 @@ public partial class Ship : CharacterBody2D
 	
 	
 	
-		
+		/*
 	private void _Track_Boat() {
 		int x = (int) GlobalPosition.X / surfaceMap.PointDist;
 		int y = (int) GlobalPosition.Y / surfaceMap.PointDist;
@@ -201,4 +204,5 @@ public partial class Ship : CharacterBody2D
 				//GD.Print(pm[xInd - 1][yInd + 1].velocity + "  " + pm[xInd][yInd + 1].velocity + "  " + pm[xInd + 1][yInd + 1].velocity);
 		}
 	}
+	*/
 }

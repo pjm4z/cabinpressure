@@ -75,7 +75,6 @@ public partial class CrewRoster : Node2D
 			if (maxReady != null) {	
 				Post post = jobBoard.Last.Value.getPost();
 				if (post != null) {
-					GD.Print("!!");
 					maxReady.receiveOrder(jobBoard.Last.Value, post);
 					maxReady = null;
 					jobBoard.RemoveLast();

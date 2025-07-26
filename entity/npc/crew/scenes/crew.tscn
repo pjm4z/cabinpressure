@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3 uid="uid://cft1r7wppv5bq"]
+[gd_scene load_steps=14 format=3 uid="uid://cft1r7wppv5bq"]
 
 [ext_resource type="Script" path="res://entity/npc/crew/scripts/Crew.cs" id="1_bsira"]
 [ext_resource type="Texture2D" uid="uid://ddwtu1x55b61i" path="res://entity/npc/crew/assets/crewsprite-1.png" id="2_w7eoi"]
@@ -15,12 +15,16 @@
 radius = 4.0
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_rhvp5"]
-radius = 6.08276
+radius = 8.0
+
+[sub_resource type="LabelSettings" id="LabelSettings_x2xeg"]
+font_size = 12
+font_color = Color(1, 0.0105254, 0.985649, 1)
 
 [node name="crew" type="CharacterBody2D"]
 z_as_relative = false
 collision_layer = 2
-collision_mask = 3
+collision_mask = 2
 motion_mode = 1
 wall_min_slide_angle = 0.0
 script = ExtResource("1_bsira")
@@ -35,42 +39,6 @@ texture = ExtResource("2_w7eoi")
 
 [node name="interactcollision" type="CollisionShape2D" parent="sprite/interactarea"]
 shape = SubResource("CircleShape2D_rhvp5")
-
-[node name="north" type="RayCast2D" parent="sprite"]
-visible = false
-target_position = Vector2(0, -25)
-collide_with_areas = true
-collide_with_bodies = false
-
-[node name="northeast" type="RayCast2D" parent="sprite"]
-visible = false
-target_position = Vector2(15, -15)
-
-[node name="east" type="RayCast2D" parent="sprite"]
-visible = false
-target_position = Vector2(25, 0)
-
-[node name="southeast" type="RayCast2D" parent="sprite"]
-visible = false
-target_position = Vector2(15, 15)
-
-[node name="south" type="RayCast2D" parent="sprite"]
-visible = false
-target_position = Vector2(0, 25)
-
-[node name="southwest" type="RayCast2D" parent="sprite"]
-visible = false
-target_position = Vector2(-15, 15)
-
-[node name="west" type="RayCast2D" parent="sprite"]
-visible = false
-target_position = Vector2(-25, 0)
-
-[node name="northwest" type="RayCast2D" parent="sprite"]
-visible = false
-target_position = Vector2(-15, -15)
-collide_with_areas = true
-collide_with_bodies = false
 
 [node name="nav" type="NavigationAgent2D" parent="."]
 path_desired_distance = 10.0
@@ -93,11 +61,13 @@ offset_bottom = 27.0
 script = ExtResource("3_ggrx5")
 
 [node name="nameplate" type="Label" parent="."]
-offset_left = -19.0
-offset_top = -32.0
-offset_right = 21.0
-offset_bottom = -9.0
+offset_left = -8.0
+offset_top = -11.0
+offset_right = 32.0
+offset_bottom = 12.0
+scale = Vector2(0.401454, 0.463959)
 theme_override_font_sizes/font_size = 0
+label_settings = SubResource("LabelSettings_x2xeg")
 
 [node name="brain" type="Node" parent="." node_paths=PackedStringArray("startState")]
 script = ExtResource("4_8uv5e")

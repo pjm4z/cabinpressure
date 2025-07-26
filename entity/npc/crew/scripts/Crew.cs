@@ -45,7 +45,7 @@ public partial class Crew : CharacterBody2D
 	public float sleep = MAX_SLEEP;
 	public float speed = MAX_SPEED;
 	
-	public float hunger_rate = 0.2f;
+	public float hunger_rate = 0.05f;
 	public float sleep_rate = 0f;
 	
 	public override void _Ready() {
@@ -61,7 +61,7 @@ public partial class Crew : CharacterBody2D
 		brain.parent = this;
 		brain.init();
 		
-		crewPanel = (VBoxContainer) GetNode("/root/basescene/HUD/crewcontainer/crewpanel");
+		crewPanel = (VBoxContainer) GetNode("/root/basescene/hudcanvas/HUD/crew/crewpanel");
 	}
 	
 	public bool seekingBed = false;
@@ -83,7 +83,7 @@ public partial class Crew : CharacterBody2D
 			label.Text += job.count();
 		} 
 		
-		if (working == true || seekingJob == true) {
+		if (this.post != null) {
 			nameplate.Set("theme_override_colors/font_color",red);
 			label.Set("theme_override_colors/font_color",red);
 		} else {
@@ -286,7 +286,7 @@ public partial class Crew : CharacterBody2D
 	}
 	
 	public void receiveOrder(JobTarget job, Post post) {
-		GD.Print("aye aye capn");
+		GD.Print("aye aye capn: " + job.Name + " " + post.Name);
 		detachOrders();
 		this.job = job;
 		this.job.setPosted(false);
@@ -343,13 +343,11 @@ public partial class Crew : CharacterBody2D
 	}
 	
 	private void rmSelfJobEvent(GridItem job) {
-		GD.Print("RM SELF JOB");
 		this.job = null;
 		detachOrders();
 	}
 
 	private void rmSelfPostEvent(GridItem post) {
-		GD.Print("RM SELF POST");
 		this.post = null;
 		kickbackOrders();
 	}

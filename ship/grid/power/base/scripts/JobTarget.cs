@@ -23,6 +23,7 @@ public partial class JobTarget : GridItem
 	
 	public override void _Ready() {
 		sprite = (Sprite2D) GetNode("sprite");
+		//setName(Name);
 	}
 	
 	public void setCrewRoster(CrewRoster crewRoster) {
@@ -55,9 +56,11 @@ public partial class JobTarget : GridItem
 	
 	public virtual void setName(string name) {
 		this.Name = name;
-		this.label = new Label();
+		if (this.label == null) {
+			this.label = new Label();
+			this.panel.AddChild(this.label);
+		}
 		this.label.Text = this.Name;
-		this.panel.AddChild(this.label);
 	}
 	
 	public Post getPost() {
@@ -151,36 +154,28 @@ public partial class JobTarget : GridItem
 		setNetwork(newNetwork);
 		visitedJobs.Add(getTilePos());
 		
-		HashSet<Vector2I> visitedNeighbors = new HashSet<Vector2I>();
-		visitedNeighbors.UnionWith(covered);
-		visitedNeighbors.Add(this.tilePos);
+		HashSet<Vector2I> visited = new HashSet<Vector2I>();
+		visited.UnionWith(covered);
+		visited.Add(this.tilePos);
 		
 		if (this.relatives != null) {
 			foreach (Vector2I rel in this.relatives) {
-				visitedNeighbors.Add(this.tilePos + rel);
+				visited.Add(this.tilePos + rel);
 			}
 		}
 		
-		HashSet<Vector2I> visited = new HashSet<Vector2I>();
 		List<GridItem> neighbors = getNeighbors();
 		List<JobTarget> foundJobs = new List<JobTarget>();
 		
 		for(int i = 0; i < neighbors.Count; i++) {
 			GridItem neighbor = neighbors[i];
-			visited = new HashSet<Vector2I>(visitedNeighbors);
 			if (!visited.Contains(neighbor.getTilePos())) {
 				List<JobTarget> curJobs = new List<JobTarget>();
 				neighbor.connectJobs(ref visited, ref curJobs, this); 
-				
+				visited.Add(neighbors[i].getTilePos());
 				foundJobs.AddRange(curJobs);
 				covered.UnionWith(visited);
 				reportToItems(this.network);
-				
-				visitedNeighbors.Add(neighbors[i].getTilePos());
-				while ((i+1 < neighbors.Count) && (visited.Contains(neighbors[i+1].getTilePos()))) {
-					i += 1;
-					visitedNeighbors.Add(neighbors[i].getTilePos());
-				}
 			}
 		}
 		
@@ -204,13 +199,6 @@ public partial class JobTarget : GridItem
 	}
 	
 	public override bool hasCxnToJobs(ref HashSet<Vector2I> visited, ref List<Engine> foundEngines, Engine initiator) {
-		// add visited
-		visited.Add(this.tilePos);
-		if (this.relatives != null) {
-			foreach (Vector2I rel in this.relatives) {
-				visited.Add(this.tilePos + rel);
-			}
-		}
 		return true;
 	}
 	
