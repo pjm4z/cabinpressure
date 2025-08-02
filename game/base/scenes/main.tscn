@@ -1,0 +1,19 @@
+[gd_scene load_steps=2 format=3 uid="uid://ddfsu0knb01"]
+
+[ext_resource type="PackedScene" uid="uid://dsxnf6bp5eun6" path="res://game/base/scenes/basescene.tscn" id="1_n2fnc"]
+
+[node name="main" type="Node2D"]
+texture_filter = 1
+
+[node name="svc" type="SubViewportContainer" parent="."]
+offset_left = -4.0
+offset_right = 636.0
+offset_bottom = 360.0
+scale = Vector2(3, 3)
+
+[node name="sv" type="SubViewport" parent="svc"]
+handle_input_locally = false
+size = Vector2i(640, 360)
+render_target_update_mode = 4
+
+[node name="basescene" parent="svc/sv" instance=ExtResource("1_n2fnc")]

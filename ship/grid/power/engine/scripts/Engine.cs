@@ -25,9 +25,9 @@ public partial class Engine : JobTarget
 	}	
 	
 	public override async Task execute() { 
-		while (queuedOrders > 0) {
+		while (queuedOrders > 0 || this.active == true) {
 			await base.execute();
-			if (circuit.needsPower(this.watts) && this.powering == true) {
+			if ((circuit.needsPower(this.watts) && this.powering == true) || this.active == true) {
 				queuedOrders = 1;
 			}
 		}
@@ -105,14 +105,17 @@ public partial class Engine : JobTarget
 			GridItem neighbor = neighbors[i];
 			if (!visited.Contains(neighbor.getTilePos())) {
 				List<Engine> curEngines = new List<Engine>();
-				bool jobFound = neighbor.hasCxnToJobs(ref visited, ref curEngines, this); 
+				HashSet<Vector2I> curVisited = new HashSet<Vector2I>(visited);
+				bool jobFound = neighbor.hasCxnToJobs(ref curVisited, ref curEngines, this); //**
 				if (jobFound) {
 					reportToItems(null);
+					GD.Print("!!!1");
 				} else {
 					foundEngines.AddRange(curEngines);
 					visited.Add(neighbors[i].getTilePos());
 					covered.UnionWith(visited);
 					reportToItems(this.network);
+					GD.Print("!!!2");
 				}
 			}
 		}

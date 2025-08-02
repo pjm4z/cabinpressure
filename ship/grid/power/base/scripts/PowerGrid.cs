@@ -147,6 +147,7 @@ public partial class PowerGrid : ShipLayer
 		engine.init(this, tilePos, MapToLocal(tilePos));
 		engine.setName("engine" + engineSeq);
 		engineSeq += 1;
+		engine.key = newWpnSlotKey();
 	}
 	
 	public void removeItem(Vector2I tilePos) {
@@ -176,7 +177,7 @@ public partial class PowerGrid : ShipLayer
 		WeaponSlot wpnSlot = (WeaponSlot) wpnSlotScene.Instantiate();
 		wpnSlots[tilePos] = wpnSlot;
 		AddChild(wpnSlot);
-		wpnSlot.init(newWpnSlotKey(), tilePos, MapToLocal(tilePos));
+		wpnSlot.init(tilePos, MapToLocal(tilePos)); //newWpnSlotKey(), 
 	}
 	
 	private int wpnSlotKey = 0;
@@ -192,6 +193,8 @@ public partial class PowerGrid : ShipLayer
 			wpnSlots[tilePos].setWpn(wpn);
 			wpn.init(this, tilePos, MapToLocal(tilePos));
 			wpn.setCrewRoster(this.crewRoster);
+			wpn.key = newWpnSlotKey();
+			wpn.setName("wpn-" + wpn.key);
 		}
 	}
 	

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://ddwtu1x55b61i"
-path="res://.godot/imported/crewsprite-1.png-c8211900366ff71853f6625e7c82183e.ctex"
+uid="uid://cpca3nex1fp1i"
+path="res://.godot/imported/weapon-old.png-9ce0a235e0d1061a3bd4c7b629b0a390.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://entity/npc/crew/assets/crewsprite-1.png"
-dest_files=["res://.godot/imported/crewsprite-1.png-c8211900366ff71853f6625e7c82183e.ctex"]
+source_file="res://ship/grid/power/weapon/assets/weapon-old.png"
+dest_files=["res://.godot/imported/weapon-old.png-9ce0a235e0d1061a3bd4c7b629b0a390.ctex"]
 
 [params]
 

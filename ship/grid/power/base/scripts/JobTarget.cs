@@ -71,6 +71,7 @@ public partial class JobTarget : GridItem
 		if (this.label != null) {
 			label.Text = this.Name + " " + this.count();
 		if (active == true) {
+			//GD.Print("ACTIVE " + Name);
 				label.Set("theme_override_colors/font_color",red);
 			} else {
 				label.Set("theme_override_colors/font_color",white);
@@ -78,6 +79,27 @@ public partial class JobTarget : GridItem
 		}
 		if ((queuedOrders > 0 || active == true) && (posted == false && assignedCrew == null)) {
 			crewRoster.postJob(this);
+		}
+	}
+	
+	[Export] public string key;
+	
+	public override void _Input(InputEvent inputEvent) {
+		if ((Input.IsActionJustPressed("shift") && Input.IsActionPressed(key)) || 
+				(Input.IsActionPressed("shift") && Input.IsActionJustPressed(key))) {
+			if ((active == false && canActivate()) || (active == true)) {
+				GD.Print("!! " + active);
+				active = !active;
+				GD.Print(active);
+				GD.Print();
+			} 
+		} else {
+			if ((Input.IsActionJustPressed("ctrl") && Input.IsActionPressed(key)) || 
+					(Input.IsActionPressed("ctrl") && Input.IsActionJustPressed(key))) {
+				clear();
+			} else if (Input.IsActionJustPressed(key)) {
+				fire();
+			}
 		}
 	}
 	
@@ -204,7 +226,7 @@ public partial class JobTarget : GridItem
 	
 	
 	public bool canActivate() {
-		return posted == false && ((crewRoster.jobBoard.Count == 0 && postCtrl.givePost() != null && crewRoster.maxReady != null) || assignedCrew != null);
+		return ((crewRoster.jobBoard.Count == 0 && postCtrl.givePost() != null && crewRoster.maxReady != null) || assignedCrew != null);
 		// issue --> jobBoard.Count ;can be empty but still have active wpns already assigned to crew!
 	}
 }

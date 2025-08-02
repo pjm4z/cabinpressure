@@ -1,9 +1,9 @@
 [gd_scene load_steps=14 format=3 uid="uid://cft1r7wppv5bq"]
 
 [ext_resource type="Script" path="res://entity/npc/crew/scripts/Crew.cs" id="1_bsira"]
-[ext_resource type="Texture2D" uid="uid://ddwtu1x55b61i" path="res://entity/npc/crew/assets/crewsprite-1.png" id="2_w7eoi"]
+[ext_resource type="Texture2D" uid="uid://cc61y54rymkw5" path="res://entity/npc/crew/assets/crew.png" id="2_8bgx2"]
 [ext_resource type="Script" path="res://game/ui/entity/npc/crew/scripts/CrewProgress.cs" id="3_ggrx5"]
-[ext_resource type="Script" path="res://game/state/scripts/StateMachine.cs" id="4_8uv5e"]
+[ext_resource type="Script" path="res://game/state/base/scripts/StateMachine.cs" id="4_8uv5e"]
 [ext_resource type="Script" path="res://game/state/entity/npc/crew/scripts/Idle.cs" id="5_5wbiy"]
 [ext_resource type="Script" path="res://game/state/entity/npc/crew/scripts/Work.cs" id="6_b3i41"]
 [ext_resource type="Script" path="res://game/state/entity/npc/crew/scripts/Sleep.cs" id="7_k2djx"]
@@ -23,6 +23,7 @@ font_color = Color(1, 0.0105254, 0.985649, 1)
 
 [node name="crew" type="CharacterBody2D"]
 z_as_relative = false
+texture_filter = 1
 collision_layer = 2
 collision_mask = 2
 motion_mode = 1
@@ -33,7 +34,8 @@ script = ExtResource("1_bsira")
 shape = SubResource("CircleShape2D_knyyy")
 
 [node name="sprite" type="Sprite2D" parent="."]
-texture = ExtResource("2_w7eoi")
+scale = Vector2(0.05, 0.05)
+texture = ExtResource("2_8bgx2")
 
 [node name="interactarea" type="Area2D" parent="sprite"]
 

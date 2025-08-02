@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://d4c47ew4c34dh"
-path="res://.godot/imported/console64.png-fcb3e107a054abcb18dbaa0131bd5e5b.ctex"
+uid="uid://d18xiwcv6smrg"
+path="res://.godot/imported/pixel.png-5fd5f2727b2210c36f485c903cd0a0d4.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://ship/grid/power/post/assets/console64.png"
-dest_files=["res://.godot/imported/console64.png-fcb3e107a054abcb18dbaa0131bd5e5b.ctex"]
+source_file="res://pixel.png"
+dest_files=["res://.godot/imported/pixel.png-5fd5f2727b2210c36f485c903cd0a0d4.ctex"]
 
 [params]
 

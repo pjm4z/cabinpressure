@@ -131,7 +131,10 @@ public partial class GridItem : Area2D
 			}
 			setNetwork(network);
 			reparentNetwork();
+			GD.Print("::::: " + Name + " " + network.Name + " " + reporter.Name);
 		}
+		else {GD.Print("::::: " + Name + " " + reporter.Name);}
+		
 	}
 	
 	public virtual void connectJobs(ref HashSet<Vector2I> visited, ref List<JobTarget> foundJobs, JobTarget initiator) {

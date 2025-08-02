@@ -77,6 +77,7 @@ public partial class Network : WireCtrl
 		HashSet<Vector2I> visitedEngines = new HashSet<Vector2I>();
 		foreach (Vector2I key in this.engines.Keys) {
 			if (!visitedEngines.Contains(key)) {
+				//visitedEngines.Add(key);
 				Network nw = this.grid.newEmptyNetwork();
 				engines[key].networkReportEvent(ref visited, ref visitedEngines, nw);
 			}

@@ -1,7 +1,7 @@
 using Godot;
 using System;
 
-public partial class BaseScene : Node
+public partial class BaseScene : Node2D
 {
   	[Export] private CharacterBody2D ship;  // Reference to the ship node
 	Camera2D mainCamera;

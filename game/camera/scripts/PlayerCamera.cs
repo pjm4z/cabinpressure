@@ -23,21 +23,27 @@ public partial class PlayerCamera : Camera2D
 		
 	}
 	
+	[Export] private Vector2 zoomSpeed = new Vector2(0.2f,0.2f);
 	public override void _Input(InputEvent inputEvent) {
 				// Check for zoom input actions.
+				
 		if (Input.IsActionPressed("scrollup"))
 		{
-			GD.Print("^^^^^^");
-			Zoom = Zoom + new Vector2(0.2f,0.2f);
+			
+			//if (Zoom + zoomSpeed < new Vector2(4f,4f)) {
+				Zoom = Zoom + zoomSpeed;
+			//} else {
+			//	Zoom = new Vector2(4f,4f);
+			//}
+			GD.Print("^^^^^^ " + Zoom);
 		}
-		if (Input.IsActionPressed("scrolldown"))
-		{
-			if (Zoom > new Vector2(0.75f,0.75f)) {
-				Zoom = Zoom - new Vector2(0.2f,0.2f);
+		if (Input.IsActionPressed("scrolldown")) {
+			if (Zoom - zoomSpeed > new Vector2(0.75f,0.75f)) {
+				Zoom = Zoom - zoomSpeed;
 			} else {
 				Zoom = new Vector2(0.75f,0.75f);
 			}
-			GD.Print("vvvvvv");
+			GD.Print("vvvvvv " + Zoom);
 		}
 	}
 }

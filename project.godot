@@ -23,6 +23,11 @@ aseprite_executable_path="/run/media/deck/SN01T/steamapps/common/Aseprite/Asepri
 
 settings/stdout/print_fps=true
 
+[display]
+
+window/stretch/scale_mode="integer"
+window/snap/snap_2d_vertices_to_pixel=false
+
 [dotnet]
 
 project/assembly_name="boats"
@@ -53,17 +58,19 @@ folder_colors={
 "res://entity/player/scenes/": "teal",
 "res://entity/player/scripts/": "teal",
 "res://game/": "red",
-"res://game/base/": "orange",
+"res://game/base/": "teal",
 "res://game/base/scenes/": "teal",
 "res://game/base/scripts/": "teal",
 "res://game/camera/": "orange",
-"res://game/camera/scripts/": "green",
+"res://game/camera/scripts/": "teal",
 "res://game/state/": "orange",
+"res://game/state/base/": "teal",
+"res://game/state/base/scripts/": "teal",
 "res://game/state/entity/npc/crew/scripts/": "teal",
-"res://game/state/scripts/": "teal",
 "res://game/ui/": "orange",
+"res://game/ui/base/": "teal",
+"res://game/ui/base/scripts/": "teal",
 "res://game/ui/entity/npc/crew/scripts/": "red",
-"res://game/ui/scripts/": "green",
 "res://misc/assets/": "teal",
 "res://object/": "red",
 "res://object/assets/": "teal",
@@ -229,3 +236,8 @@ c={
 2d_physics/layer_3="ship ceiling"
 2d_physics/layer_4="above ship"
 2d_physics/layer_5="projectile"
+
+[rendering]
+
+textures/default_filters/use_nearest_mipmap_filter=true
+2d/main_scene="res://game/base/scenes/basescene.tscn"

@@ -27,7 +27,7 @@ public partial class Fish : CharacterBody2D
 	
 	public override void _Ready() {
 		ZIndex = 1;
-		ship = (CharacterBody2D) GetTree().Root.GetNode("basescene/surface/ship");
+		ship = (CharacterBody2D) GetTree().Root.GetNode("basescene/surface/ship"); //main/svc/sv/
 	}
 
 	public override void _PhysicsProcess(double delta)
