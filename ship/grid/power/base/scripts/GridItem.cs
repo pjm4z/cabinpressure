@@ -32,9 +32,10 @@ public partial class GridItem : Area2D
 		this.tilePos = tilePos;
 		this.Position = localPos;
 		
+		//gridAdapter/init(this, grid)
+		
 		initCircuit();
 		initNetwork();
-		
 		joinWires();
 	}
 	
@@ -88,27 +89,21 @@ public partial class GridItem : Area2D
 				maxCount.absorbNetwork(this);
 			}
 		}
-		
 	}
 	
 	public virtual void absorbNetwork(GridItem item) {
 		if (!item.networkLocked && item.networkEngineCount() > 0) {
 			HashSet<Vector2I> visited = new HashSet<Vector2I>();
-			//visited.Add(item.getTilePos());
 			item.getNetwork().reportToEngines(ref visited);
  		}
 		if (!item.networkLocked || (item.networkLocked && this.networkJobCount() == 0)) {
 			this.network.addItem(item);
 			foreach (GridItem neighbor in item.getNeighbors()) {
-				if (!sameNetwork(item, neighbor)) {
+				if (!item.sameNetwork(neighbor)) {
 					item.absorbNetwork(neighbor);
 				}
 			}
 		}
-	}
-	
-	public bool sameNetwork(GridItem item1, GridItem item2) {
-		return item1.network == item2.network;
 	}
 	
 	public virtual void absorbCircuit(GridItem item) {
@@ -131,9 +126,7 @@ public partial class GridItem : Area2D
 			}
 			setNetwork(network);
 			reparentNetwork();
-			GD.Print("::::: " + Name + " " + network.Name + " " + reporter.Name);
 		}
-		else {GD.Print("::::: " + Name + " " + reporter.Name);}
 		
 	}
 	

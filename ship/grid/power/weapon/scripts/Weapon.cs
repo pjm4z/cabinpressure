@@ -32,25 +32,6 @@ public partial class Weapon : JobTarget
 		this.GlobalPosition = wpnSlot.GlobalPosition;
 	}
 	
-	protected override void reparentNetwork() {
-		base.reparentNetwork();
-		this.wpnSlot.Reparent(this.postCtrl);
-		Reparent(this.wpnSlot);
-	}
-	
-	public override void setNetwork(Network network) {
-		base.setNetwork(network);
-		this.wpnSlot.Reparent(this.postCtrl);
-		Reparent(this.wpnSlot);
-	}
-	
-	public override void setPostCtrl(PostCtrl postCtrl) {
-		base.setPostCtrl(postCtrl);
-		this.postCtrl = postCtrl;
-		this.wpnSlot.Reparent(this.postCtrl);
-		Reparent(this.wpnSlot);
-	}
-	
 	public override void removeSelf() {
 		if (this.wpnSlot != null) {
 			this.wpnSlot.removeWpn();

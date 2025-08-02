@@ -88,10 +88,7 @@ public partial class JobTarget : GridItem
 		if ((Input.IsActionJustPressed("shift") && Input.IsActionPressed(key)) || 
 				(Input.IsActionPressed("shift") && Input.IsActionJustPressed(key))) {
 			if ((active == false && canActivate()) || (active == true)) {
-				GD.Print("!! " + active);
 				active = !active;
-				GD.Print(active);
-				GD.Print();
 			} 
 		} else {
 			if ((Input.IsActionJustPressed("ctrl") && Input.IsActionPressed(key)) || 
@@ -154,6 +151,12 @@ public partial class JobTarget : GridItem
 		Reparent(postCtrl);
 	}
 	
+	protected virtual void leavePostCtrl() {
+		if (this.postCtrl != null) {
+			this.postCtrl.removeJob(this);
+		}
+	}
+	
 	public override void removeSelf() {
 		this.queuedOrders = 0;
 		if (this.assignedCrew != null) {
@@ -162,6 +165,8 @@ public partial class JobTarget : GridItem
 		if (this.label != null) {
 			this.label.QueueFree();
 		}
+		leavePostCtrl();
+		removeCharge();
 		base.removeSelf();
 	}
 	
@@ -223,7 +228,6 @@ public partial class JobTarget : GridItem
 	public override bool hasCxnToJobs(ref HashSet<Vector2I> visited, ref List<Engine> foundEngines, Engine initiator) {
 		return true;
 	}
-	
 	
 	public bool canActivate() {
 		return ((crewRoster.jobBoard.Count == 0 && postCtrl.givePost() != null && crewRoster.maxReady != null) || assignedCrew != null);

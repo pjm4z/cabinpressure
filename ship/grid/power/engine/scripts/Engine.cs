@@ -25,7 +25,9 @@ public partial class Engine : JobTarget
 	}	
 	
 	public override async Task execute() { 
+		GD.Print("EXEC");
 		while (queuedOrders > 0 || this.active == true) {
+			GD.Print("DEEP EXEC");
 			await base.execute();
 			if ((circuit.needsPower(this.watts) && this.powering == true) || this.active == true) {
 				queuedOrders = 1;
@@ -48,9 +50,8 @@ public partial class Engine : JobTarget
 	
 	public override void removeSelf() {
 		this.circuit.PowerRQSignal -= powerRQEvent;
-		GD.Print("RM CIRC");
-		this.postCtrl.removeEngine(this);
-		removeCharge();
+		//leavePostCtrl();
+		circuit.removeMaxPower(this.watts);
 		base.removeSelf();
 	}
 	
@@ -61,17 +62,21 @@ public partial class Engine : JobTarget
 	private void powerRQEvent(GridItem target) {
 		GD.Print("POWER RQ");
 		if (!overloaded()) {
-			fire();
+			//fire();
 		}
 	}
 	
 	public override void setPostCtrl(PostCtrl postCtrl) {
-		if (this.postCtrl != null) {
-			this.postCtrl.removeEngine(this);
-		}
+		leavePostCtrl();
 		this.postCtrl = postCtrl;
 		Reparent(this.postCtrl);
 		this.postCtrl.addEngine(this);
+	}
+	
+	protected override void leavePostCtrl() {
+		if (this.postCtrl != null) {
+			this.postCtrl.removeEngine(this);
+		}
 	}
 	
 	protected override void initNetwork() {

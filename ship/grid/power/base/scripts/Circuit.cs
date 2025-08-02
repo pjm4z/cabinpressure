@@ -50,6 +50,7 @@ public partial class Circuit : WireCtrl
 		} else {
 			this.power += watts;
 		}
+		GD.Print("ADD: power "  + this.power + " load " + this.load);
 	}
 	
 	public void removeCharge(float watts) {
@@ -58,10 +59,12 @@ public partial class Circuit : WireCtrl
 		} else {
 			this.power -= watts;
 		}
+		GD.Print("REMOVE: power "  + this.power + " load " + this.load);
 	}
 	
 	public void addMaxPower(float watts) {
 		this.maxPower += watts;
+		GD.Print("MP ADD: " + this.maxPower);
 	}
 	
 	public void removeMaxPower(float watts) {
@@ -69,6 +72,7 @@ public partial class Circuit : WireCtrl
 		if (this.maxPower < 0) {
 			this.maxPower = 0;
 		}
+		GD.Print("MP RM: " + this.maxPower);
 	}
 	
 	public void addItem(GridItem item) {
