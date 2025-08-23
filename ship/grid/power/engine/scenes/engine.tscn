@@ -1,7 +1,12 @@
-[gd_scene load_steps=4 format=3 uid="uid://de3xk52di0t0s"]
+[gd_scene load_steps=9 format=3 uid="uid://de3xk52di0t0s"]
 
 [ext_resource type="Script" path="res://ship/grid/power/engine/scripts/Engine.cs" id="1_g6r8l"]
 [ext_resource type="Texture2D" uid="uid://d2hgy28i2w1m4" path="res://ship/grid/power/engine/assets/engine.png" id="2_p1sil"]
+[ext_resource type="Script" path="res://game/state/base/scripts/StateMachine.cs" id="3_d7q68"]
+[ext_resource type="Script" path="res://game/state/systems/base/scripts/SysIdle.cs" id="4_632fs"]
+[ext_resource type="Script" path="res://game/state/systems/base/scripts/Occupied.cs" id="5_c5jd8"]
+[ext_resource type="Script" path="res://game/state/systems/base/scripts/Queued.cs" id="6_81qp1"]
+[ext_resource type="Script" path="res://game/state/systems/engine/scripts/Powering.cs" id="7_nghdj"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_w2xbg"]
 size = Vector2(31, 31)
@@ -19,3 +24,29 @@ shape = SubResource("RectangleShape2D_w2xbg")
 position = Vector2(8.5, 8.5)
 scale = Vector2(0.05, 0.05)
 texture = ExtResource("2_p1sil")
+
+[node name="brain" type="Node" parent="." node_paths=PackedStringArray("startState", "parent")]
+script = ExtResource("3_d7q68")
+startState = NodePath("idle")
+parent = NodePath("..")
+
+[node name="idle" type="Node" parent="brain" node_paths=PackedStringArray("queued", "occupied", "executing")]
+script = ExtResource("4_632fs")
+queued = NodePath("../queued")
+occupied = NodePath("../occupied")
+executing = NodePath("../executing")
+
+[node name="occupied" type="Node" parent="brain" node_paths=PackedStringArray("idle", "executing")]
+script = ExtResource("5_c5jd8")
+idle = NodePath("../idle")
+executing = NodePath("../executing")
+
+[node name="queued" type="Node" parent="brain" node_paths=PackedStringArray("idle", "occupied")]
+script = ExtResource("6_81qp1")
+idle = NodePath("../idle")
+occupied = NodePath("../occupied")
+
+[node name="executing" type="Node" parent="brain" node_paths=PackedStringArray("idle", "occupied")]
+script = ExtResource("7_nghdj")
+idle = NodePath("../idle")
+occupied = NodePath("../occupied")

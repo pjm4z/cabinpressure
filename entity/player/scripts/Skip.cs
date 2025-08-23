@@ -11,7 +11,7 @@ public partial class Skip : CharacterBody2D
 	public Sprite2D sprite;
 	
 	public override void _Ready() {
-		ship = (Ship) GetNode("/root/basescene/surface/ship");
+		ship = (Ship) GetParent();
 		camera = (Camera2D) GetNode("/root/basescene/surface/ship/playercamera");
 		sprite = (Sprite2D) GetNode("sprite"); 
 		
@@ -26,7 +26,7 @@ public partial class Skip : CharacterBody2D
 				this.active = false;
 				ship.active = true;
 				GlobalPosition = new Vector2(ship.Position.X - 40, ship.Position.Y + 20);
-			} else if (camera.GetParent() == ship) {
+			} else if (camera.GetParent() == this.GetParent()) {
 				ship.RemoveChild(camera);
 				AddChild(camera);
 				this.active = true;

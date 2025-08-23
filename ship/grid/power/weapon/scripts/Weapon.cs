@@ -3,7 +3,7 @@ using System;
 using static System.Math;
 using System.Threading.Tasks;
 
-public partial class Weapon : JobTarget
+public partial class Weapon : ShipSystem
 {
 	[Export] private PackedScene torpedoScene;
 	public WeaponSlot wpnSlot;
@@ -42,25 +42,27 @@ public partial class Weapon : JobTarget
 		base.removeSelf();
 	}
 	
-	public override async Task execute() {
-		await base.execute();
-		if (circuit.overloaded()) {
-			GD.Print("BLACKOUT");
-		} else {
-			_Shoot_Torpedo();
-		}
+	public override void execute() { //async Task
+		
+		_Shoot_Torpedo();
+		base.execute(); //await
+		//if (circuit.overloaded()) {
+		//	GD.Print("BLACKOUT");
+	//	} else {
+	//	_Shoot_Torpedo();
+	//	}
 	}
 	
 	public override void _Process(double delta) {
 		base._Process(delta);
-		if (this.powering) {
-			LookAt(GetGlobalMousePosition());
-		}
+		//if (this.powering) {
+		//	LookAt(GetGlobalMousePosition());
+		//}
 	}
 	
 	public void _Shoot_Torpedo() {
 		Torpedo torpedo = (Torpedo)torpedoScene.Instantiate();
-		torpedo.init(this.ship.Velocity, GetGlobalMousePosition());
+		torpedo.init(this.ship.LinearVelocity, GetGlobalMousePosition());
 		torpedo.GlobalPosition = shotPt.GlobalPosition;
 		torpedo.GlobalRotation = shotPt.GlobalRotation;
 		surface.AddChild(torpedo);

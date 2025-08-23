@@ -213,9 +213,10 @@ public partial class SurfaceMap : Node2D
 			if (IsInstanceValid(sp.curveY)) {
 				sp.curveY._Drop_Line();
 			}
-			RemoveChild(sp);
+			if (IsInstanceValid(sp)) {
+				sp.QueueFree();
+			}
 			PointsMap[i].RemoveAt(PointsMap[i].Count-1);
-			sp.QueueFree();
 		}
 		for (int i = 0; i < PointsMap[PointsMap.Count-1].Count; i++) {
 			SurfacePt sp = PointsMap[PointsMap.Count - 1][i];
@@ -225,8 +226,9 @@ public partial class SurfaceMap : Node2D
 			if (IsInstanceValid(sp.curveY)) {
 				sp.curveY._Drop_Line();
 			}
-			RemoveChild(sp);
-			sp.QueueFree();
+			if (IsInstanceValid(sp)) {
+				sp.QueueFree();
+			}
 		}
 		PointsMap.RemoveAt(PointsMap.Count - 1);
 	}
@@ -240,14 +242,16 @@ public partial class SurfaceMap : Node2D
 			if (IsInstanceValid(sp.curveY)) {
 				sp.curveY._Drop_Line();
 			}
-			RemoveChild(sp);
-			sp.QueueFree();
+			if (IsInstanceValid(sp)) {
+				sp.QueueFree();
+			}
 		}
 		PointsMap.RemoveAt(0);		
 		for (int i = 0; i < PointsMap.Count; i++) {
 			SurfacePt sp = PointsMap[i][0];
-			RemoveChild(sp);
-			sp.QueueFree();
+			if (IsInstanceValid(sp)) {
+				sp.QueueFree();
+			}
 			PointsMap[i].RemoveAt(0);
 		}
 	}
@@ -296,6 +300,9 @@ public partial class SurfaceMap : Node2D
 		bottomBarrier = (int) (camera.GlobalPosition.Y + camera.GetViewport().GetVisibleRect().Size.Y/2);
 		
 		if (PointsMap.Count > 0) {
+			if (PointsMap[0].Count <= 0) {
+				PointsMap[0].Add(new SurfacePt());
+			}
 			topLeft = PointsMap[0][0];
 			topRight = PointsMap[PointsMap.Count - 1][0];
 			bottomLeft = PointsMap[0][PointsMap[0].Count - 1];
@@ -486,6 +493,9 @@ public partial class SurfaceMap : Node2D
 		for (int i = 0; i < PointsMap.Count; i++) {
 			leftDeltas.Add(0);
 			rightDeltas.Add(0);
+		}
+		if (PointsMap.Count == 0) {
+			PointsMap.Add(new List<SurfacePt>());
 		}
 		for (int i = 0; i < PointsMap[0].Count; i++) {
 			topDeltas.Add(0);

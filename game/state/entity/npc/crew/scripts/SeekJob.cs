@@ -1,22 +1,16 @@
 using Godot;
 using System;
 
-public partial class SeekJob : State
+public partial class SeekJob : CrewState
 {
-	private Crew crew;
 	private Post post;
-	private JobTarget job;
+	private ShipSystem job;
 	
-	[Export] private State seekFood;
-	[Export] private State seekBed;
-	[Export] private State idle;
-	[Export] private State work;
-	[Export] private State sleep;
-	
-	public override void ready() {
-		base.ready();
-		crew = (Crew) base.parent;
-	}
+	[Export] private CrewState seekFood;
+	[Export] private CrewState seekBed;
+	[Export] private CrewState idle;
+	[Export] private CrewState work;
+	[Export] private CrewState sleep;
 	
 	public override void enter() {
 		job = crew.job;
@@ -24,8 +18,8 @@ public partial class SeekJob : State
 	}
 		
 	public override State process(double delta) {
-		//GD.Print("SEEK JOB " + crew.lastName);
-		State newState = checkPriorities();
+		GD.Print("SEEK JOB " + crew.lastName);
+		CrewState newState = checkPriorities();
 		if (newState != null) {
 			crew.kickbackOrders();
 			return newState;
@@ -34,7 +28,7 @@ public partial class SeekJob : State
 		return seekJob();
 	}
 	
-	private State seekJob() {
+	private CrewState seekJob() {
 		// if at job location, dequeue job
 		if (!post.sameNetwork(job)) {
 			crew.kickbackOrders();
@@ -48,7 +42,7 @@ public partial class SeekJob : State
 		return null;
 	}
 	
-	public override State checkPriorities() {
+	public override CrewState checkPriorities() {
 		if (crew.checkSleep()) {
 			return sleep;
 		}

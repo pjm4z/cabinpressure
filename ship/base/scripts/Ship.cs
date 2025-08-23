@@ -3,15 +3,15 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-public partial class Ship : CharacterBody2D
+public partial class Ship : RigidBody2D
 {
 	[Signal]
 	public delegate void JobCompletedEventHandler();
 	
-	public const float MaxSpeed = 1000.0f;  // Max forward speed
-	public const float MaxReverseSpeed = 20.0f;  // Max reverse speed
+	public const float MaxSpeed = 100.0f;  // Max forward speed
+	public const float MaxReverseSpeed = 100.0f;  // Max reverse speed
 	public const float TurnAcceleration = 0.01f;  // Rotation speed (turning speed)
-	public const float TurnSpeed = 0.01f;
+	public const float TurnSpeed = 100f;
 	public const float Acceleration = 100.0f;  // Acceleration rate
 	public const float ReverseAcceleration = 100f;//10.0f;  // Reverse cceleration rate
 	private Vector2 velocity = Vector2.Zero;
@@ -31,11 +31,11 @@ public partial class Ship : CharacterBody2D
 	[Export] public CrewRoster defaultRoster;
 	[Export] private MapCtrl mapCtrl;
 	public float rotationSpeed;
+	[Export] private Skip skip;
 	
 	public override void _Ready() {
 		ZIndex = 1;
 		surface = (Node2D)GetParent();
-		
 		underwater = (SubViewport) GetNode("/root/basescene/surface/surfaceviewport");
 		surfaceMap = GetNode<SurfaceMap>("/root/basescene/surface/surfaceviewport/surfacemap");
 		InitialPosition = Position;
@@ -99,52 +99,121 @@ public partial class Ship : CharacterBody2D
 		}
 	}
 	
+	public void _on_area_body_entered(Node body) {
+		//GD.Print(body.Name);
+	}
+	
+	public Vector2 inputMap = new Vector2(0,0);
+	
 	public override void _PhysicsProcess(double delta) {
-		velocity = Velocity;
-		float speed = Velocity.Length();
+		//GD.Print(Name + " " + GlobalPosition);
+		velocity = inputMap;//new Vector2(0f,0f);//LinearVelocity; //
+		rotationSpeed = AngularVelocity;
+		float speed = LinearVelocity.Length();
 		
 		if (!active) {
+			
 			//RemoveChild(camera);
 			//skip.AddChild(camera);
 		}
-		else { // Handle rotation (turning the ship)
+		//else 
+		if (skip != null) { // Handle rotation (turning the ship)
 			if (Input.IsActionPressed("ui_left") || Input.IsActionPressed("a")) {
-
-				rotationSpeed -= TurnAcceleration * (float)(delta);
-				if (Math.Abs(rotationSpeed) > TurnSpeed) {
-					rotationSpeed = -1 * TurnSpeed;
+				if (Input.IsActionPressed("shift")) {
+					if (MaxSpeed > LinearVelocity.Length()) {
+						speed = MaxSpeed;
+					}
+					GD.Print(LinearVelocity.Normalized());
+					velocity = velocity.MoveToward(
+						//new Vector2(0, speed).Rotated(Rotation - (float)(Math.PI/2)), 
+						new Vector2(velocity.X, speed).Rotated(GlobalRotation - (float)Math.PI/2.0f), 
+						Acceleration * (float)delta);
+				} else {
+					//rotationSpeed -= TurnAcceleration * (float)(delta);
+					//if (Math.Abs(rotationSpeed) > TurnSpeed) {
+						rotationSpeed = -1 * TurnSpeed;
+					//}
 				}
 			}
 			if (Input.IsActionPressed("ui_right") || Input.IsActionPressed("d")) {
-				rotationSpeed += TurnAcceleration * (float)delta;
-				if (rotationSpeed > TurnSpeed) {
-					rotationSpeed = TurnSpeed;
+				if (Input.IsActionPressed("shift")) {
+					if (MaxSpeed > LinearVelocity.Length()) {
+						speed = MaxSpeed;
+					}
+					velocity = velocity.MoveToward(
+						new Vector2(velocity.X, speed).Rotated(GlobalRotation + (float)Math.PI/2.0f), 
+						Acceleration * (float)delta);
+				} else {
+					//rotationSpeed += TurnAcceleration * (float)delta;
+					//if (rotationSpeed > TurnSpeed) {
+						rotationSpeed = TurnSpeed;
+					//}
 				}
 			}
-			Rotation += rotationSpeed;
+			ApplyTorque(rotationSpeed * 100); //
+			//Rotation += rotationSpeed;
 			// Handle forward and reverse movement with acceleration
 			if (Input.IsActionPressed("ui_up") || Input.IsActionPressed("w")) {
 				// Accelerate forward based on the ship's rotation
-				if (MaxSpeed > Velocity.Length()) {
+				if (MaxSpeed > LinearVelocity.Length()) {
 					speed = MaxSpeed;
 				}
+				/*Position += velocity.MoveToward(
+					new Vector2(LinearVelocity.X, speed).Rotated(Rotation), 
+					Acceleration * (float)delta);*/
 				velocity = velocity.MoveToward(
-					new Vector2(0, speed).Rotated(Rotation), 
+					new Vector2(LinearVelocity.X, speed).Rotated(GlobalRotation), 
 					Acceleration * (float)delta);
 			}
 			else if (Input.IsActionPressed("ui_down") || Input.IsActionPressed("s")) {
 				// Accelerate in reverse based on the ship's rotation
-				if (MaxReverseSpeed > Velocity.Length()) {
+				if (MaxReverseSpeed > LinearVelocity.Length()) {
 					speed = MaxReverseSpeed;
 				}
 				velocity = velocity.MoveToward(
-					new Vector2(0, speed).Rotated(Rotation + (float)Math.PI), 
+					new Vector2(LinearVelocity.X, speed).Rotated(GlobalRotation + (float)Math.PI), 
 					ReverseAcceleration * (float)delta);
 			}
-			
-			Velocity = velocity;
-			MoveAndSlide();
 		}
+		
+		
+		/*if (GetSlideCollisionCount() > 0) {
+			KinematicCollision2D collision = GetLastSlideCollision();
+			Object obj = collision.GetCollider();
+			if (obj is Crew) {
+				GD.Print("ROADKILL");
+				Crew crew = (Crew) obj;
+				Vector2 pushDirection = collision.GetNormal(); 
+				
+				// Apply push to the other character
+				crew.Velocity += (pushDirection * 50f);
+				crew.MoveAndSlide();
+			} else if (obj is Ship) {
+				Ship ship = (Ship) obj;
+				int m2 = ship.mass;
+				
+				float rat = mass / m2;
+				Vector2 ratio = new Vector2(rat, rat);
+				
+				Vector2 pushDirection = collision.GetNormal(); 
+				
+				// Apply push to the other character
+				ship.LinearVelocity += (pushDirection * 50f);
+				
+				//velocity = ship.Velocity;
+				//ship.Velocity += collision.GetColliderVelocity();//velocity;
+				//new Vector2(-50, 0);
+				//Velocity = (Velocity * ratio) + (ship.Velocity * (new Vector2I(1,1)/ratio)); 
+				//ship.Velocity = new Vector2(10, 10);
+				//ship.MoveAndSlide();
+				GD.Print("!!!!!! COLLIDED " + Name + " " +  collision.GetPosition() + " " + (collision.GetColliderVelocity()  + " " + velocity +  " " + ship.LinearVelocity) + " " + obj);
+			}
+		}*/
+		//GD.Print(velocity);
+		ApplyCentralForce(velocity * new Vector2(100f,100f)); //
+		//ApplyCentralImpulse(velocity );//* new Vector2(0.01f,0.01f)
+		//LinearVelocity = velocity;
+		//MoveAndSlide();
 	}
 
 	public void damageOuter(Vector2 gPos, double radius, int damage) {
@@ -155,7 +224,7 @@ public partial class Ship : CharacterBody2D
 		mapCtrl.damageInner(gPos, radius, damage);
 	}
 	
-	public int hp = 0;
+	public int hp = 1000;
 	public void changeHP(int hp) {
 		this.hp += hp;
 		if (this.hp < 0) {

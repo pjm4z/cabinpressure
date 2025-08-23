@@ -43,7 +43,7 @@ public partial class PostCtrl : Node2D
 		return this.engineCount;
 	}
 	
-	public void addJob(JobTarget job) {
+	public void addJob(ShipSystem job) {
 		this.jobCount += 1;
 		this.network.addJob(job);
 		if (this.engineCount > 0) {
@@ -53,7 +53,7 @@ public partial class PostCtrl : Node2D
 		}
 	}
 	
-	public void removeJob(JobTarget job) {
+	public void removeJob(ShipSystem job) {
 		this.jobCount -= 1;
 		this.network.removeJob(job);
 		if (this.jobCount < 0) {

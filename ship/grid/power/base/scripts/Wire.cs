@@ -5,10 +5,11 @@ using System.Collections.Generic;
 public partial class Wire : GridItem
 {
 	private AnimatedSprite2D sprite;
+	private AnimatedSprite2D spriteSub;
 	public Dictionary<string, GridItem> adjItems = new Dictionary<string, GridItem>(); 
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready() {
-		
+		//spriteSub = (AnimatedSprite2D) GetNode("sprite/sprite");
 	}
 	
 	private Dictionary<string, int> spriteDict = new Dictionary<string, int>();
@@ -85,6 +86,7 @@ public partial class Wire : GridItem
 			spriteKey += left;
 		}
 		sprite.Frame = spriteDict[spriteKey];
+		//spriteSub.Frame = spriteDict[spriteKey];
 	}
 	
 	public void checkSprite(Vector2I tilePos) {
@@ -103,6 +105,7 @@ public partial class Wire : GridItem
 			spriteKey += left;
 		}
 		sprite.Frame = spriteDict[spriteKey];
+		//spriteSub.Frame = spriteDict[spriteKey];
 	}
 	
 	private void getAdjItems() {

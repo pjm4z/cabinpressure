@@ -1,19 +1,12 @@
 using Godot;
 using System;
 
-public partial class Sleep : State
+public partial class Sleep : CrewState
 {
-	
-	private Crew crew;
 	private Furniture bed;
 	private Sprite2D sprite;
 	
-	[Export] private State idle;
-	
-	public override void ready() {
-		base.ready();
-		crew = (Crew) base.parent;
-	}
+	[Export] private CrewState idle;
 	
 	public override void enter() {
 		bed = crew.bed;
@@ -25,15 +18,15 @@ public partial class Sleep : State
 		crew.sleeping = false;
 	}
 		
-	public override State process(double delta) {
-		State newState = checkPriorities();
+	public override CrewState process(double delta) {
+		CrewState newState = checkPriorities();
 		if (newState != null) {
 			return newState;
 		}
 		return rest();
 	}
 	
-	private State rest() {
+	private CrewState rest() {
 		Vector2 sleepSpot = crew.GlobalPosition;
 		if (bed != null) {
 			sleepSpot = bed.GlobalPosition;
@@ -43,7 +36,7 @@ public partial class Sleep : State
 		return null;
 	}
 	
-	public override State checkPriorities() {
+	public override CrewState checkPriorities() {
 		if (!crew.checkSleep()) {
 			return idle;
 		}

@@ -5,7 +5,8 @@ using System.Linq;
 
 public partial class PowerGrid : ShipLayer
 {
-	[Export] private TileMapLayer tileMap;
+	//[Export] private TileMapLayer tileMap;
+	[Export] private MapCtrl mapCtrl;
 	[Export] private CrewRoster crewRoster; // temp todo remove
 	public Dictionary<Vector2I, WeaponSlot> wpnSlots = new Dictionary<Vector2I, WeaponSlot>();
 	public Dictionary<Vector2I, GridItem> wireMap = new Dictionary<Vector2I, GridItem>();
@@ -21,7 +22,44 @@ public partial class PowerGrid : ShipLayer
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
-		this.GlobalPosition = tileMap.GlobalPosition;
+		
+		//this.GlobalPosition = this.mapCtrl.getMap(new Vector2I(0,0)).GlobalPosition;
+	}
+	
+	public void initItems() {
+		var wpnSlots = GetChildren()
+			.Where(child => child is WeaponSlot) // TODO --> change to bed when I have bed class
+			.Select(child => child)          
+			.Cast<WeaponSlot>(); // TODO --> change to bed when I have bed class    
+		
+		foreach(WeaponSlot slot in wpnSlots) {
+			addWpnSlot(slot);
+		}
+		
+		var gridItems = GetChildren()
+			.Where(child => child is GridItem) // TODO --> change to bed when I have bed class
+			.Select(child => child)          
+			.Cast<GridItem>(); // TODO --> change to bed when I have bed class                 
+		GD.Print("0-0");
+		foreach(var item in gridItems) {
+			GD.Print("0-1");
+			if (item is Wire) {
+				GD.Print("1-wire");
+				addWire((Wire) item);
+			}
+			else if (item is Post) {
+				GD.Print("1-post");
+				addPost((Post) item);
+			}
+			else if (item is Engine) {
+				GD.Print("1-eng");
+				addEngine((Engine) item);
+			}
+			else if (item is Weapon) {
+				GD.Print("1-wpn");
+				addWpn((Weapon) item);
+			}
+		}
 	}
 	
 	public override void _Input(InputEvent inputEvent) {
@@ -30,40 +68,49 @@ public partial class PowerGrid : ShipLayer
 				Vector2I mousePos = (Vector2I) GetLocalMousePosition();
 				Vector2I tilePos = LocalToMap(mousePos);
 				Vector2 tileLPos = MapToLocal(tilePos);
-				TileData td = tileMap.GetCellTileData(tilePos);
+				ShipLayer tileMap = mapCtrl.getMap(tilePos);
+				if (tileMap != null) {
+					TileData td = tileMap.GetCellTileData(tilePos);
+					if (td != null && !isTileOccupied(tilePos)) {
+						addPost(tilePos);
+					} 
+				}
 				
-				if (td != null && !isTileOccupied(tilePos)) {
-					addPost(tilePos);
-				} 
 			}
 			if (Input.IsActionJustPressed("4")) { 
 				Vector2I mousePos = (Vector2I) GetLocalMousePosition();
 				Vector2I tilePos = LocalToMap(mousePos);
 				Vector2 tileLPos = MapToLocal(tilePos);
-				TileData td = tileMap.GetCellTileData(tilePos);
-				
-				if (td != null && !isTileOccupied(tilePos)) {
-					addWpnSlot(tilePos);
+				ShipLayer tileMap = mapCtrl.getMap(tilePos);
+				if (tileMap != null) {
+					TileData td = tileMap.GetCellTileData(tilePos);
+					if (td != null && !isTileOccupied(tilePos)) {
+						addWpnSlot(tilePos);
+					} 
 				}
 			}
 			if (Input.IsActionJustPressed("5")) { 
 				Vector2I mousePos = (Vector2I) GetLocalMousePosition();
 				Vector2I tilePos = LocalToMap(mousePos);
 				Vector2 tileLPos = MapToLocal(tilePos);
-				TileData td = tileMap.GetCellTileData(tilePos);
-				
-				if (td != null && !isTileOccupied(tilePos)) {
-					addWpn(tilePos);
+				ShipLayer tileMap = mapCtrl.getMap(tilePos);
+				if (tileMap != null) {
+					TileData td = tileMap.GetCellTileData(tilePos);
+					if (td != null && !isTileOccupied(tilePos)) {
+						addWpn(tilePos);
+					}
 				}
 			}
 			if (Input.IsActionJustPressed("6")) { 
 				Vector2I mousePos = (Vector2I) GetLocalMousePosition();
 				Vector2I tilePos = LocalToMap(mousePos);
 				Vector2 tileLPos = MapToLocal(tilePos);
-				TileData td = tileMap.GetCellTileData(tilePos);
-				
-				if (td != null && !isTileOccupied(tilePos)) {
-					addEngine(tilePos);
+				ShipLayer tileMap = mapCtrl.getMap(tilePos);
+				if (tileMap != null) {
+					TileData td = tileMap.GetCellTileData(tilePos);
+					if (td != null && !isTileOccupied(tilePos)) {
+						addEngine(tilePos);
+					}
 				}
 			}			
 			if (inputEvent is InputEventMouseButton mouseButton && mouseButton.Pressed) {
@@ -72,12 +119,15 @@ public partial class PowerGrid : ShipLayer
 					Vector2I mousePos = (Vector2I) GetLocalMousePosition();
 					Vector2I tilePos = LocalToMap(mousePos);
 					Vector2 tileLPos = MapToLocal(tilePos);
-					TileData td = tileMap.GetCellTileData(tilePos);
-					
-					if (td != null && !isTileOccupied(tilePos)) {
-						addWire(tilePos);
-					} else {
-						removeItem(tilePos);
+					ShipLayer tileMap = mapCtrl.getMap(tilePos);
+					if (tileMap != null) {
+						TileData td = tileMap.GetCellTileData(tilePos);
+						GD.Print(tileMap.Name);
+						if (td != null && !isTileOccupied(tilePos)) {
+							addWire(tilePos);
+						} else {
+							removeItem(tilePos);
+						}
 					}
 				}
 			}
@@ -139,6 +189,21 @@ public partial class PowerGrid : ShipLayer
 		wireSeq += 1;
 	}
 	
+	public void addWire(Wire item) {
+		Vector2 lPos = item.Position;
+		Vector2I tilePos = LocalToMap(lPos);
+		ShipLayer map = mapCtrl.getMap(tilePos);
+		if (map != null) {
+			addItem(item, tilePos);
+			item.init(this, tilePos, MapToLocal(tilePos));
+			item.Name = "wire" + wireSeq;
+			wireSeq += 1;
+		} else {
+			GD.Print("2-wire");
+			item.QueueFree();
+		}
+	}
+	
 	private int engineSeq = 0;
 	public void addEngine(Vector2I tilePos) {
 		Engine engine = (Engine) engineScene.Instantiate();
@@ -149,6 +214,24 @@ public partial class PowerGrid : ShipLayer
 		engineSeq += 1;
 		engine.key = newWpnSlotKey();
 	}
+	
+	public void addEngine(Engine item) {
+		Vector2 lPos = item.Position;
+		Vector2I tilePos = LocalToMap(lPos);
+		ShipLayer map = mapCtrl.getMap(tilePos);
+		if (map != null) {
+			addItem(item, tilePos);
+			item.setCrewRoster(this.crewRoster);
+			item.init(this, tilePos, MapToLocal(tilePos));
+			item.setName("engine" + engineSeq);
+			engineSeq += 1;
+			item.key = newWpnSlotKey();
+		} else {
+			GD.Print("2-eng");
+			item.QueueFree();
+		}
+	}
+	
 	
 	public void removeItem(Vector2I tilePos) {
 		GD.Print("REMOVING ITEm PG");
@@ -173,11 +256,39 @@ public partial class PowerGrid : ShipLayer
 		postSeq += 1;
 	}
 	
+	public void addPost(Post item) {
+		Vector2 lPos = item.Position;
+		Vector2I tilePos = LocalToMap(lPos);
+		ShipLayer map = mapCtrl.getMap(tilePos);
+		if (map != null) {
+			addItem(item, tilePos);
+			item.init(this, tilePos, MapToLocal(tilePos)); 
+			item.Name = "post" + postSeq;
+			postSeq += 1;
+		} else {
+			GD.Print("2-post");
+			item.QueueFree();
+		}
+	}
+	
 	public void addWpnSlot(Vector2I tilePos) {
 		WeaponSlot wpnSlot = (WeaponSlot) wpnSlotScene.Instantiate();
 		wpnSlots[tilePos] = wpnSlot;
 		AddChild(wpnSlot);
 		wpnSlot.init(tilePos, MapToLocal(tilePos)); //newWpnSlotKey(), 
+	}
+	
+	public void addWpnSlot(WeaponSlot wpnSlot) {
+		Vector2 lPos = wpnSlot.Position;
+		Vector2I tilePos = LocalToMap(lPos);
+		ShipLayer map = mapCtrl.getMap(tilePos);
+		if (map != null) {
+			wpnSlot.Position = MapToLocal(tilePos);
+			wpnSlots[tilePos] = wpnSlot;
+			wpnSlot.init(tilePos, MapToLocal(tilePos)); //newWpnSlotKey(), 
+		} else {
+			wpnSlot.QueueFree();
+		}
 	}
 	
 	private int wpnSlotKey = 0;
@@ -198,6 +309,23 @@ public partial class PowerGrid : ShipLayer
 		}
 	}
 	
+	public void addWpn(Weapon item) {
+		Vector2 lPos = item.Position;
+		Vector2I tilePos = LocalToMap(lPos);
+		ShipLayer map = mapCtrl.getMap(tilePos);
+		if (map != null && wpnSlots.ContainsKey(tilePos)) {
+			addItem(item, tilePos);
+			wpnSlots[tilePos].setWpn(item);
+			item.init(this, tilePos, MapToLocal(tilePos)); 
+			item.setCrewRoster(this.crewRoster);
+			item.key = newWpnSlotKey();
+			item.setName("wpn-" + item.key);
+		} else {
+			GD.Print("2-wpn");
+			item.QueueFree();
+		}
+	}
+	
 	private void addItem(GridItem item, Vector2I tilePos) {
 		wireMap[tilePos] = item;
 		if (item.getRelatives() != null) {
@@ -205,7 +333,12 @@ public partial class PowerGrid : ShipLayer
 				wireMap[tilePos + i] = item;
 			}
 		}
-		AddChild(item);
+		if (item.GetParent() == null) {
+			AddChild(item);
+		} else if (item.GetParent() != this) {
+			Reparent(item);
+		}
+		
 	}
 	
 	public GridItem getItem(Vector2I tilePos) {
@@ -255,9 +388,13 @@ public partial class PowerGrid : ShipLayer
 	}
 	
 	private void checkDirection(Vector2I tilePos, List<Vector2I> rels, HashSet<Vector2I> results) {
-		TileData td = tileMap.GetCellTileData(tilePos);
-		if (td != null) {
-			results.Add(tilePos);
+		ShipLayer tileMap = mapCtrl.getMap(tilePos);
+		TileData td = null;
+		if (tileMap != null) {
+			td = tileMap.GetCellTileData(tilePos);
+			if (td != null) {
+				results.Add(tilePos);
+			}
 		}
 		if (rels != null) {
 			foreach (Vector2I rel in rels) {

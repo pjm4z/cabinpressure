@@ -8,7 +8,7 @@ public partial class StateMachine : Node
 {
 	[Export] State startState;
 	public State state;
-	public CharacterBody2D parent;
+	[Export] public Node parent;
 	
 	// Called when the node enters the scene tree for the first time.
 	public void init() {

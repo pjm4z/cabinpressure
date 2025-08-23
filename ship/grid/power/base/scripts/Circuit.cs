@@ -28,8 +28,15 @@ public partial class Circuit : WireCtrl
 		return false;
 	}
 	
+	public bool canPower(float watts) {
+		if ((watts > 0) || (this.load - watts <= this.power)) {
+			return true;
+		}
+		return false;
+	}
+	
 	public bool possible(float watts) {
-		if ((watts > 0) || (this.load - watts < this.maxPower)) {
+		if ((watts > 0) || (this.load - watts <= this.maxPower)) {
 			return true;
 		}
 		return false;

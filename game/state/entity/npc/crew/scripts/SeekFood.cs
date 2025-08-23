@@ -1,37 +1,32 @@
 using Godot;
 using System;
 
-public partial class SeekFood : State
+public partial class SeekFood : CrewState
 {
-	private Crew crew;
 	private Item food;
 	
-	[Export] private State seekBed;
-	[Export] private State idle;
-	[Export] private State sleep;
+	[Export] private CrewState seekBed;
+	[Export] private CrewState idle;
+	[Export] private CrewState sleep;
 	
-	public override void ready() {
-		base.ready();
-		crew = (Crew) base.parent;
-	}
 	
 	public override void enter() {
 		food = crew.soughtFood;
 	}
 		
-	public override State process(double delta) {
+	public override CrewState process(double delta) {
 		if (crew.inventory != null) {
 			crew.inventory.use(crew);
 			crew.soughtFood = null;
 		}
-		State newState = checkPriorities();
+		CrewState newState = checkPriorities();
 		if (newState != null) {
 			return newState;
 		}
 		return seekFood();
 	}
 	
-	private State seekFood() {		// handle case of no food
+	private CrewState seekFood() {		// handle case of no food
 		crew.move(food.GlobalPosition);
 		if (crew.atLocation(food)) {			// if at job location, dequeue job
 			food.pickUp(crew);
@@ -39,7 +34,7 @@ public partial class SeekFood : State
 		return null;
 	}
 	
-	public override State checkPriorities() {
+	public override CrewState checkPriorities() {
 		if (crew.checkSleep()) {
 			return sleep;
 		}

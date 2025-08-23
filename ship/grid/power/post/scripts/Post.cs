@@ -43,7 +43,7 @@ public partial class Post : GridItem
 		} else if (postCtrl.GlobalRotationDegrees < -90 && postCtrl.GlobalRotationDegrees >= -180) { 
 			GlobalRotationDegrees = 90;
 		}*/
-		int section =  ((int) (Math.Abs(postCtrl.GlobalRotationDegrees) % 90) / 15);
+		int section = ((int) (Math.Abs(postCtrl.GlobalRotationDegrees) % 90) / 15);
 		if (postCtrl.GlobalRotationDegrees < 0) {
 			section = 5 - section; // todo how to get frame count?
 		}
@@ -133,9 +133,9 @@ public partial class Post : GridItem
 		base.removeSelf();
 	}
 	
-	public async Task doJob(JobTarget target) {
+	public void doJob(ShipSystem target) { //async Task
 		if (isOccupied == true && sameNetwork(target)) {
-			await target.execute();
+			 target.execute(); //await
 		}
 	}
 }

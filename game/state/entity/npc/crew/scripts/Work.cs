@@ -2,24 +2,17 @@ using Godot;
 using System;
 using System.Threading.Tasks;
 
-public partial class Work : State
-{
-	private Crew crew;
+public partial class Work : CrewState {
 	private Post post;
-	private JobTarget job;
+	private ShipSystem job;
 	private CrewProgress crewProgress;
 	
-	[Export] private State seekFood;
-	[Export] private State seekBed;
-	[Export] private State idle;
-	[Export] private State sleep;
+	[Export] private CrewState seekFood;
+	[Export] private CrewState seekBed;
+	[Export] private CrewState idle;
+	[Export] private CrewState sleep;
 	
 	private bool working;
-	
-	public override void ready() {
-		base.ready();
-		crew = (Crew) base.parent;
-	}
 	
 	public override void enter() {
 		job = crew.job;
@@ -27,36 +20,33 @@ public partial class Work : State
 		crewProgress = crew.crewProgress;
 		working = false;
 		//crew.GlobalPosition = post.GlobalPosition;
-		job.addCharge();
+		
+		job.setOccupied(true);
+		//job.addCharge();
 	}
 	
 	public override void exit() {
-		job.removeCharge(); // how to terminate async task execute?
+		job.setOccupied(false);
+		//job.removeCharge(); // how to terminate async task execute?
 	}
 		
-	public override State process(double delta) {
-		State newState = checkPriorities();
+	public override CrewState process(double delta) {
+		CrewState newState = checkPriorities();
 		if (newState != null) {
 			if (crew.job != null) {
 				crew.kickbackOrders();
 			}
-			//GD.Print("NEW STATE");
 			return newState;
 		}
-		if (!post.sameNetwork(job)) {
-			crew.kickbackOrders();
-			//GD.Print("NOT CONNECTED");
-			return idle;
-		}
 		crew.move(post.GlobalPosition);
-		if (!working) {
+		/*if (!working) {
 			work();
-		}
+		}*/
 		return null;
 	}
 	
-	private async void work() {
-		if (job.count() > 0 && job.ready()) {
+	private void work() { //async
+		/*if (job.shouldQueue()) {
 			working = true;
 			await post.doJob(job);
 			working = false;
@@ -69,10 +59,10 @@ public partial class Work : State
 				await Task.Delay(1000);
 				working = false;
 			}
-		}
+		}*/
 	}
 	
-	public override State checkPriorities() {
+	public override CrewState checkPriorities() {
 		if (crew.checkSleep()) {
 			return sleep;
 		}

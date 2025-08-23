@@ -118,7 +118,7 @@ public partial class GridItem : Area2D
 		}
 	}
 	
-	protected void forfeitNetwork(JobTarget reporter, Network network) {
+	protected void forfeitNetwork(ShipSystem reporter, Network network) {
 		reporter.ItemReportSignal -= forfeitNetwork; 
 		if (network != null) {
 			if (this.circuit != reporter.circuit) {
@@ -130,7 +130,7 @@ public partial class GridItem : Area2D
 		
 	}
 	
-	public virtual void connectJobs(ref HashSet<Vector2I> visited, ref List<JobTarget> foundJobs, JobTarget initiator) {
+	public virtual void connectJobs(ref HashSet<Vector2I> visited, ref List<ShipSystem> foundJobs, ShipSystem initiator) {
 		initiator.ItemReportSignal += forfeitNetwork; 
 		// add visited
 		visited.Add(this.tilePos);
@@ -334,11 +334,15 @@ public partial class GridItem : Area2D
 		this.circuit.requestPower(this);
 	}
 	
+	public virtual bool canPower() {
+		return circuit.canPower(this.watts);
+	}
+	
 	public virtual bool possible() {
 		return circuit.possible(this.watts);
 	}
 	
-	public virtual bool ready() {
+	public virtual bool powered() {
 		return !circuit.overloaded();
 	}
 	

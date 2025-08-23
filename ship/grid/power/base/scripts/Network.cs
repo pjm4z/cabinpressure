@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 public partial class Network : WireCtrl
 {
-	public Dictionary<Vector2I, JobTarget> jobs = new Dictionary<Vector2I, JobTarget>();
+	public Dictionary<Vector2I, ShipSystem> jobs = new Dictionary<Vector2I, ShipSystem>();
 	public Dictionary<Vector2I, Engine> engines = new Dictionary<Vector2I, Engine>();
 	private PostCtrl postCtrl;
 	public Color color;
@@ -55,11 +55,11 @@ public partial class Network : WireCtrl
 		engines.Remove(engine.getTilePos());
 	}
 	
-	public void addJob(JobTarget job) {
+	public void addJob(ShipSystem job) {
 		jobs[job.getTilePos()] = job;
 	}
 	
-	public void removeJob(JobTarget job) {
+	public void removeJob(ShipSystem job) {
 		jobs.Remove(job.getTilePos());
 	}
 	

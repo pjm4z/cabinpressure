@@ -5,7 +5,7 @@ using System;
 public partial class State : Node
 {
 	
-	public CharacterBody2D parent;
+	public Node parent;
 	
 	public virtual void ready() {
 		

@@ -10,7 +10,7 @@ public partial class CrewRoster : Node2D
 	private Ship parent;
 	public Dictionary<int,string> firstNameDict = new Dictionary<int,string>();
 	public Dictionary<int,string> lastNameDict = new Dictionary<int,string>();
-	public LinkedList<JobTarget> jobBoard = new LinkedList<JobTarget>();
+	public LinkedList<ShipSystem> jobBoard = new LinkedList<ShipSystem>();
 	
 	public Weapon nextOrder = null;
 	public Crew maxReady = null;
@@ -92,8 +92,9 @@ public partial class CrewRoster : Node2D
 			  
 		foreach(var crew in crewArray) {
 			crew.ship = parent;
-			crew.rank = rank;
-			rank += 1;
+			crew.roster = this;
+			//crew.rank = rank;
+			//rank += 1;
 			//generate name
 			nameCrew(crew);
 		//	Random rnd = new Random();
@@ -108,14 +109,14 @@ public partial class CrewRoster : Node2D
 		crew.setName(crew.firstName, crew.lastName);
 	}
 	
-	public void postJob(JobTarget job) {
+	public void postJob(ShipSystem job) {
 		GD.Print("jopb posted");
 		jobBoard.AddFirst(job);
 		job.RMSelfSignal += rmSelfWpnEvent;
 		job.setPosted(true);
 	}
 	
-	public void kickbackJob(JobTarget job) {
+	public void kickbackJob(ShipSystem job) {
 		jobBoard.AddLast(job);
 		job.RMSelfSignal += rmSelfWpnEvent;
 		job.setPosted(true);

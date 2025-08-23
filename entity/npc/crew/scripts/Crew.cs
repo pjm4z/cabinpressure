@@ -9,13 +9,13 @@ public partial class Crew : CharacterBody2D
 	// Nodes
 	// parents
 	public Ship ship;
-	private CrewRoster roster;
+	public CrewRoster roster;
 
 	// siblings
 	private Post lastPost;
 	public Post post;
 	public Weapon wpn;
-	public JobTarget job;
+	public ShipSystem job;
 	public Furniture bed;
 	
 	// children
@@ -51,14 +51,13 @@ public partial class Crew : CharacterBody2D
 	public override void _Ready() {
 		brain = (StateMachine) GetNode("brain");
 		sprite = (Sprite2D) GetNode("sprite");
-		roster = (CrewRoster) GetParent();
+		//roster = (CrewRoster) GetParent();
 		nav = (NavigationAgent2D) GetNode("nav");
 		crewProgress = (CrewProgress) GetNode("progress");
 		nameplate = (Label) GetNode("nameplate");
 		
 		ProcessMode = Node.ProcessModeEnum.Always;
 		
-		brain.parent = this;
 		brain.init();
 		
 		crewPanel = (VBoxContainer) GetNode("/root/basescene/hudcanvas/HUD/crew/crewpanel");
@@ -78,6 +77,10 @@ public partial class Crew : CharacterBody2D
 	Color white = new Color(1.0f,1.0f,1.0f,1.0f);
 	
 	private void updateLabels() {
+		if (label == null) {
+			this.nameplate = new Label();
+			setName("John", "Doe");
+		}
 		label.Text = nameplate.Text;
 		if (job != null) {
 			label.Text += job.count();
@@ -107,7 +110,11 @@ public partial class Crew : CharacterBody2D
 	public void move(Vector2 target) {
 		nav.TargetPosition = target;
 		target = nav.GetNextPathPosition();
-		float rotation = (float) ship.GlobalRotation;
+		float rotation = 0;
+		if (this.ship != null) {
+			rotation = (float) ship.GlobalRotation;
+		}
+		
 		sprite.Rotation = GetAngleTo(target) + 1.5708f;
 		target = adjustRotation(target, rotation) * speed;
 		if (nav.AvoidanceEnabled == true) {
@@ -118,13 +125,15 @@ public partial class Crew : CharacterBody2D
 	}
 	
 	public void reportReadiness() {
-		readiness = hunger + sleep;
-		if (roster.maxReady != null) {
-			if (readiness > roster.maxReady.readiness) {
+		if (this.roster != null) {
+			readiness = hunger + sleep;
+			if (roster.maxReady != null) {
+				if (readiness > roster.maxReady.readiness) {
+					roster.maxReady = this;
+				}
+			} else {
 				roster.maxReady = this;
 			}
-		} else {
-			roster.maxReady = this;
 		}
 	}
 	
@@ -285,7 +294,7 @@ public partial class Crew : CharacterBody2D
 		return dir;
 	}
 	
-	public void receiveOrder(JobTarget job, Post post) {
+	public void receiveOrder(ShipSystem job, Post post) {
 		GD.Print("aye aye capn: " + job.Name + " " + post.Name);
 		detachOrders();
 		this.job = job;

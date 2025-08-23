@@ -1,8 +1,18 @@
-[gd_scene load_steps=4 format=3 uid="uid://84ry0sqcrixf"]
+[gd_scene load_steps=11 format=3 uid="uid://84ry0sqcrixf"]
 
 [ext_resource type="Script" path="res://ship/grid/power/weapon/scripts/Weapon.cs" id="1_edn4v"]
 [ext_resource type="Texture2D" uid="uid://d118u2lw5h1i3" path="res://ship/grid/power/weapon/assets/weapon.png" id="2_4jixg"]
 [ext_resource type="PackedScene" uid="uid://b2aqm4r4cthby" path="res://ship/grid/power/weapon/scenes/torpedo.tscn" id="2_wrrk3"]
+[ext_resource type="Shader" path="res://t3ssel8r.gdshader" id="3_feog2"]
+[ext_resource type="Script" path="res://game/state/base/scripts/StateMachine.cs" id="4_awq8g"]
+[ext_resource type="Script" path="res://game/state/systems/base/scripts/SysIdle.cs" id="5_nppkf"]
+[ext_resource type="Script" path="res://game/state/systems/base/scripts/Queued.cs" id="6_51xqc"]
+[ext_resource type="Script" path="res://game/state/systems/base/scripts/Occupied.cs" id="7_hgk53"]
+[ext_resource type="Script" path="res://game/state/systems/weapon/scripts/Firing.cs" id="8_ejaax"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_8yhcm"]
+shader = ExtResource("3_feog2")
+shader_parameter/main_tex = ExtResource("2_4jixg")
 
 [node name="weapon" type="Area2D"]
 z_index = 1
@@ -11,8 +21,9 @@ torpedoScene = ExtResource("2_wrrk3")
 
 [node name="sprite" type="Sprite2D" parent="."]
 texture_filter = 1
+material = SubResource("ShaderMaterial_8yhcm")
 position = Vector2(8, 0)
-scale = Vector2(0.05, 0.05)
+scale = Vector2(0.5, 0.5)
 texture = ExtResource("2_4jixg")
 
 [node name="polygon" type="CollisionPolygon2D" parent="."]
@@ -23,3 +34,34 @@ polygon = PackedVector2Array(7, -7, 27, -7, 27, 7, 7, 7, 6, 6, 6, 4, -37, 4, -37
 
 [node name="shotpt" type="Node2D" parent="."]
 position = Vector2(30, 0)
+
+[node name="brain" type="Node" parent="." node_paths=PackedStringArray("startState", "parent")]
+script = ExtResource("4_awq8g")
+startState = NodePath("idle")
+parent = NodePath("..")
+
+[node name="idle" type="Node" parent="brain" node_paths=PackedStringArray("queued", "occupied", "executing")]
+script = ExtResource("5_nppkf")
+queued = NodePath("../queued")
+occupied = NodePath("../occupied")
+executing = NodePath("../executing")
+
+[node name="posted" type="Node" parent="brain" node_paths=PackedStringArray("idle", "occupied")]
+script = ExtResource("6_51xqc")
+idle = NodePath("../idle")
+occupied = NodePath("../occupied")
+
+[node name="occupied" type="Node" parent="brain" node_paths=PackedStringArray("idle", "executing")]
+script = ExtResource("7_hgk53")
+idle = NodePath("../idle")
+executing = NodePath("../executing")
+
+[node name="queued" type="Node" parent="brain" node_paths=PackedStringArray("idle", "occupied")]
+script = ExtResource("6_51xqc")
+idle = NodePath("../idle")
+occupied = NodePath("../occupied")
+
+[node name="executing" type="Node" parent="brain" node_paths=PackedStringArray("idle", "occupied")]
+script = ExtResource("8_ejaax")
+idle = NodePath("../idle")
+occupied = NodePath("../occupied")
