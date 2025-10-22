@@ -11,14 +11,16 @@ public partial class SysIdle : SysState
 	private CrewRoster roster;
 	
 		
-	public override SysState process(double delta) {
+	public override State process(double delta) {
+	//	GD.Print("idle " + sys.Name);
 		SysState newState = checkPriorities();
+		
 		if (newState != null) {
 			return newState;
 		}
 		idle();
 		
-		return null;
+		return base.process(delta);
 	}
 	
 	private void idle() {}
@@ -27,7 +29,7 @@ public partial class SysIdle : SysState
 		if (sys.shouldQueue()) {
 			roster = sys.crewRoster;
 			roster.postJob(sys);
-			GD.Print("IDLES");
+		//	GD.Print("QUEUING" + sys.Name);
 			return queued;
 		}
 		return null;

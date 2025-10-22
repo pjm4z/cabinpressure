@@ -1,0 +1,68 @@
+[gd_scene load_steps=13 format=3 uid="uid://dl24gnkim6ke4"]
+
+[ext_resource type="Script" path="res://ship/grid/systems/post/scripts/Post.cs" id="1_u2n4s"]
+[ext_resource type="Shader" path="res://t3ssel8r.gdshader" id="2_i3di7"]
+[ext_resource type="Texture2D" uid="uid://dst16ha06edc5" path="res://ship/grid/systems/post/assets/console-test.png" id="4_1hkq4"]
+[ext_resource type="Texture2D" uid="uid://b00811mhqaeqt" path="res://ship/grid/systems/post/assets/console.png" id="4_r4an8"]
+[ext_resource type="Script" path="res://animrot.cs" id="5_dlemi"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_cvpi7"]
+shader = ExtResource("2_i3di7")
+shader_parameter/main_tex = ExtResource("4_1hkq4")
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_inoql"]
+atlas = ExtResource("4_1hkq4")
+region = Rect2(0, 96, 48, 48)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_r15bm"]
+atlas = ExtResource("4_1hkq4")
+region = Rect2(0, 48, 48, 48)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_cw3xp"]
+atlas = ExtResource("4_1hkq4")
+region = Rect2(0, 0, 48, 48)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_5bs2a"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_inoql")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_r15bm")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_cw3xp")
+}],
+"loop": true,
+"name": &"default",
+"speed": 5.0
+}]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_a588w"]
+shader = ExtResource("2_i3di7")
+shader_parameter/main_tex = ExtResource("4_r4an8")
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_r24kp"]
+
+[node name="post" type="Area2D"]
+z_index = 1
+script = ExtResource("1_u2n4s")
+watts = 50.0
+
+[node name="sprite" type="AnimatedSprite2D" parent="."]
+z_index = 3
+material = SubResource("ShaderMaterial_cvpi7")
+scale = Vector2(0.5, 0.5)
+sprite_frames = SubResource("SpriteFrames_5bs2a")
+script = ExtResource("5_dlemi")
+
+[node name="sprite-old" type="Sprite2D" parent="."]
+visible = false
+material = SubResource("ShaderMaterial_a588w")
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("4_r4an8")
+region_rect = Rect2(0, 0, 645.179, 638.667)
+
+[node name="collision" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_r24kp")

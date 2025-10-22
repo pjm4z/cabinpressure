@@ -34,13 +34,13 @@ public partial class Crew : CharacterBody2D
 	public int rank;
 	public double readiness = 0;
 	
-	public static float MAX_HEALTH = 10f;
 	public static float MAX_HUNGER = 10f;
 	public static float MAX_SLEEP = 10f;
 	public static float MIN_SLEEP = 5f;
 	public static float MAX_SPEED = 100f;
 	
-	public float health = MAX_HEALTH;
+	[Export] protected float hp;
+	private Health health;
 	public float hunger = MAX_HUNGER;
 	public float sleep = MAX_SLEEP;
 	public float speed = MAX_SPEED;
@@ -50,6 +50,8 @@ public partial class Crew : CharacterBody2D
 	
 	public override void _Ready() {
 		brain = (StateMachine) GetNode("brain");
+		health = (Health) GetNode("health");
+		health.init(hp);
 		sprite = (Sprite2D) GetNode("sprite");
 		//roster = (CrewRoster) GetParent();
 		nav = (NavigationAgent2D) GetNode("nav");
@@ -57,6 +59,7 @@ public partial class Crew : CharacterBody2D
 		nameplate = (Label) GetNode("nameplate");
 		
 		ProcessMode = Node.ProcessModeEnum.Always;
+		
 		
 		brain.init();
 		
@@ -95,28 +98,56 @@ public partial class Crew : CharacterBody2D
 		}
 	}
 	
+	private double delta = 0;
+	private Vector2 PhysicsVelocity;
+	
 	public override void _PhysicsProcess(double delta) {
 		updateLabels();
-		
-		if (health <= 0) {
-			QueueFree();
-		}
-	
+		//this.Sleeping = true;
+		//GD.Print(Sleeping);
 		if (!GetTree().Paused) {
 			brain.process(delta);
+			//this.delta = delta;
 		}
+		
+		/*for (int i = 0; i < GetSlideCollisionCount(); i++) {
+		//if (GetSlideCollisionCount() > 0) {
+			KinematicCollision2D collision = GetSlideCollision(i);
+			//KinematicCollision2D collision = GetLastSlideCollision();
+			Object obj = collision.GetCollider();
+			
+			if (obj is Ship) {
+				Vector2 normal = collision.GetNormal();
+				GD.Print(Velocity + " " + normal + " " + ((Ship)obj).LinearVelocity);
+				PhysicsVelocity = ((Ship)obj).LinearVelocity; //(normal * 50); //
+				
+			}
+		}*/
 	}
+	/*
+	public override void _IntegrateForces(PhysicsDirectBodyState2D state) {
+		if (!GetTree().Paused) {
+			brain.process(this.delta);
+		}
+	//	GlobalPosition += LinearVelocity;
+		Transform2D transform = state.Transform;
+		transform.Origin = GlobalPosition;
+		state.SetTransform(transform);
+	}*/
+	
 	
 	public void move(Vector2 target) {
 		nav.TargetPosition = target;
+		//this.target = target;
 		target = nav.GetNextPathPosition();
 		float rotation = 0;
 		if (this.ship != null) {
 			rotation = (float) ship.GlobalRotation;
 		}
 		
-		sprite.Rotation = GetAngleTo(target) + 1.5708f;
+		//sprite.Rotation = Velocity.Angle() - 1.5708f;//GetAngleTo(target) + 1.5708f;
 		target = adjustRotation(target, rotation) * speed;
+		sprite.Rotation = target.Angle() - 1.5708f;
 		if (nav.AvoidanceEnabled == true) {
 			nav.SetVelocity(target);
 		} else {
@@ -373,7 +404,7 @@ public partial class Crew : CharacterBody2D
 			sleep -= sleep_rate;
 			if (sleep < 0) {
 				sleep = 0;
-				health -= sleep_rate;
+				health.damage(sleep_rate);
 			}
 		}
 		else {
@@ -383,16 +414,41 @@ public partial class Crew : CharacterBody2D
 		hunger -= hunger_rate;
 		if (hunger < 0) {
 			hunger = 0;
-			health -= hunger_rate;
+			health.damage(hunger_rate);
 		}
 	}
 	
+	//private Vector2 target;
 	public void _on_navtimer_timeout() {
 		navReady = true;
+		/*nav.TargetPosition = target;
+		target = nav.GetNextPathPosition();
+		float rotation = 0;
+		if (this.ship != null) {
+			rotation = (float) ship.GlobalRotation;
+		}
+		
+		//sprite.Rotation = Velocity.Angle() - 1.5708f;//GetAngleTo(target) + 1.5708f;
+		target = adjustRotation(target, rotation) * speed;
+		sprite.Rotation = target.Angle() - 1.5708f;
+		if (nav.AvoidanceEnabled == true) {
+			nav.SetVelocity(target);
+		} else {
+			_on_nav_velocity_computed(target);
+		}*/
 	}
 	
+	//public Vector2 Velocity;
 	public void _on_nav_velocity_computed(Vector2 velocity) {
-		Velocity = velocity;
+		Velocity = velocity;//PhysicsVelocity;// + 
+		//GD.Print(velocity);
+		//GD.Print(LinearVelocity);
 		MoveAndSlide();
 	}
+	
+	/*public override void _IntegrateForces(PhysicsDirectBodyState2D state) {
+		state.LinearVelocity = Velocity;
+		GD.Print("IF");
+		//base._IntegrateForces(state);
+	}*/
 }

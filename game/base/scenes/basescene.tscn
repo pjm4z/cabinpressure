@@ -1,7 +1,9 @@
-[gd_scene load_steps=18 format=3 uid="uid://dsxnf6bp5eun6"]
+[gd_scene load_steps=28 format=3 uid="uid://dsxnf6bp5eun6"]
 
 [ext_resource type="Script" path="res://game/base/scripts/BaseScene.cs" id="1_h7qa5"]
+[ext_resource type="Texture2D" uid="uid://bn76f5j7bgg6e" path="res://misc/assets/icon.svg" id="2_4yjq3"]
 [ext_resource type="Script" path="res://world/underwater/scripts/Underwater.cs" id="2_b8rub"]
+[ext_resource type="Script" path="res://game/ui/base/scripts/Map.cs" id="3_1rurq"]
 [ext_resource type="PackedScene" uid="uid://irdicxioylfl" path="res://world/surface/scenes/surface.tscn" id="4_1tdr1"]
 [ext_resource type="Theme" uid="uid://dsqrs5nyuojpy" path="res://game/ui/themes/basetheme.tres" id="4_unire"]
 [ext_resource type="PackedScene" uid="uid://d0q4pux665fv6" path="res://ship/base/scenes/ship.tscn" id="5_8a8ed"]
@@ -11,8 +13,10 @@
 [ext_resource type="Script" path="res://game/camera/scripts/PlayerCamera.cs" id="9_1l30t"]
 [ext_resource type="PackedScene" uid="uid://cft1r7wppv5bq" path="res://entity/npc/crew/scenes/crew.tscn" id="9_j0bkd"]
 [ext_resource type="Script" path="res://rot.cs" id="10_tcrck"]
+[ext_resource type="Texture2D" uid="uid://dst16ha06edc5" path="res://ship/grid/systems/post/assets/console-test.png" id="11_562p4"]
 [ext_resource type="Shader" path="res://t3ssel8r.gdshader" id="11_ni6ny"]
-[ext_resource type="Texture2D" uid="uid://c6j425x56ajbj" path="res://ship/grid/power/post/assets/console-16.png" id="13_66dhd"]
+[ext_resource type="Texture2D" uid="uid://c6j425x56ajbj" path="res://ship/grid/systems/post/assets/console-16.png" id="13_66dhd"]
+[ext_resource type="Script" path="res://animrot.cs" id="15_qt6pc"]
 
 [sub_resource type="Gradient" id="Gradient_f2up5"]
 offsets = PackedFloat32Array(0, 0.94832)
@@ -27,9 +31,44 @@ height = 2048
 color_ramp = SubResource("Gradient_f2up5")
 noise = SubResource("FastNoiseLite_iu6tl")
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_s2ej4"]
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_q1twc"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_krsxe"]
 shader = ExtResource("11_ni6ny")
 shader_parameter/main_tex = ExtResource("13_66dhd")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_saxmx"]
+shader = ExtResource("11_ni6ny")
+shader_parameter/main_tex = ExtResource("11_562p4")
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_11h0c"]
+atlas = ExtResource("11_562p4")
+region = Rect2(0, 96, 48, 48)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_uh7at"]
+atlas = ExtResource("11_562p4")
+region = Rect2(0, 48, 48, 48)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_jda01"]
+atlas = ExtResource("11_562p4")
+region = Rect2(0, 0, 48, 48)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_m1bgk"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_11h0c")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_uh7at")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_jda01")
+}],
+"loop": true,
+"name": &"default",
+"speed": 5.0
+}]
 
 [node name="basescene" type="Node2D"]
 texture_filter = 1
@@ -40,53 +79,99 @@ process_mode = 3
 
 [node name="HUD" type="Control" parent="hudcanvas"]
 layout_mode = 3
-anchors_preset = 0
-offset_right = 40.0
-offset_bottom = 40.0
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 theme = ExtResource("4_unire")
 
 [node name="crew" type="PanelContainer" parent="hudcanvas/HUD"]
 custom_minimum_size = Vector2(50, 250)
 layout_mode = 1
-anchors_preset = 4
-anchor_top = 0.5
-anchor_bottom = 0.5
-offset_top = 177.0
 offset_right = 50.0
-offset_bottom = 427.0
-grow_vertical = 2
+offset_bottom = 250.0
 
 [node name="crewpanel" type="VBoxContainer" parent="hudcanvas/HUD/crew"]
 layout_mode = 2
 size_flags_horizontal = 0
+size_flags_vertical = 8
 
 [node name="systems" type="PanelContainer" parent="hudcanvas/HUD"]
 custom_minimum_size = Vector2(200, 50)
 layout_direction = 2
 layout_mode = 1
-anchors_preset = 7
-anchor_left = 0.5
+anchors_preset = 2
 anchor_top = 1.0
-anchor_right = 0.5
 anchor_bottom = 1.0
-offset_left = -20.0
-offset_top = -40.0
-offset_right = 180.0
-offset_bottom = 10.0
-grow_horizontal = 2
+offset_top = -50.0
+offset_right = 200.0
 grow_vertical = 0
 
 [node name="systemspanel" type="HBoxContainer" parent="hudcanvas/HUD/systems"]
 layout_direction = 2
 layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 8
 
 [node name="weaponspanel" type="HBoxContainer" parent="hudcanvas/HUD/systems/systemspanel"]
 layout_mode = 2
 size_flags_horizontal = 0
+size_flags_vertical = 8
 
 [node name="enginepanel" type="HBoxContainer" parent="hudcanvas/HUD/systems/systemspanel"]
 layout_mode = 2
 size_flags_horizontal = 4
+size_flags_vertical = 8
+
+[node name="map" type="Panel" parent="hudcanvas"]
+visible = false
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("3_1rurq")
+
+[node name="GraphEdit" type="GraphEdit" parent="hudcanvas/map"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+minimap_enabled = false
+
+[node name="GraphFrame" type="GraphFrame" parent="hudcanvas/map/GraphEdit"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+
+[node name="GraphNode" type="GraphNode" parent="hudcanvas/map/GraphEdit/GraphFrame"]
+layout_mode = 2
+offset_left = 544.0
+offset_top = 316.0
+offset_right = 607.0
+offset_bottom = 371.0
+size_flags_horizontal = 4
+size_flags_vertical = 4
+mouse_filter = 1
+title = "Node 1"
+
+[node name="GraphNode2" type="GraphNode" parent="hudcanvas/map/GraphEdit/GraphFrame"]
+layout_mode = 2
+offset_left = 1071.0
+offset_top = 316.0
+offset_right = 1134.0
+offset_bottom = 371.0
+size_flags_horizontal = 8
+size_flags_vertical = 4
+mouse_filter = 1
+title = "Node 2"
 
 [node name="underwater" type="Node2D" parent="."]
 process_mode = 1
@@ -104,6 +189,45 @@ texture = SubResource("NoiseTexture2D_b0b52")
 [node name="surface" parent="." instance=ExtResource("4_1tdr1")]
 process_mode = 1
 texture_filter = 1
+
+[node name="ship2" parent="surface" instance=ExtResource("5_8a8ed")]
+z_index = 2
+position = Vector2(-1020, -11)
+
+[node name="furniture" parent="surface/ship2" instance=ExtResource("7_shcty")]
+position = Vector2(-16, -88)
+script = null
+
+[node name="furniture2" parent="surface/ship2" instance=ExtResource("7_shcty")]
+position = Vector2(-16, -72)
+script = null
+
+[node name="item" parent="surface/ship2" instance=ExtResource("8_tndgh")]
+position = Vector2(23.9998, 69.049)
+
+[node name="item2" parent="surface/ship2" instance=ExtResource("8_tndgh")]
+position = Vector2(22, 55)
+
+[node name="item3" parent="surface/ship2" instance=ExtResource("8_tndgh")]
+position = Vector2(40, -25)
+
+[node name="item4" parent="surface/ship2" instance=ExtResource("8_tndgh")]
+position = Vector2(4.99986, 69)
+
+[node name="item5" parent="surface/ship2" instance=ExtResource("8_tndgh")]
+position = Vector2(3.00006, 54.951)
+
+[node name="item6" parent="surface/ship2" instance=ExtResource("8_tndgh")]
+position = Vector2(21.0001, -25.049)
+
+[node name="item7" parent="surface/ship2" instance=ExtResource("8_tndgh")]
+position = Vector2(-12.0001, 70)
+
+[node name="item8" parent="surface/ship2" instance=ExtResource("8_tndgh")]
+position = Vector2(-13.9999, 55.951)
+
+[node name="item9" parent="surface/ship2" instance=ExtResource("8_tndgh")]
+position = Vector2(4.0001, -24.049)
 
 [node name="ship" parent="surface" node_paths=PackedStringArray("skip") instance=ExtResource("5_8a8ed")]
 z_index = 2
@@ -145,71 +269,51 @@ position = Vector2(-13.9999, 55.951)
 [node name="item9" parent="surface/ship" instance=ExtResource("8_tndgh")]
 position = Vector2(4.0001, -24.049)
 
-[node name="playercamera" type="Camera2D" parent="surface/ship"]
+[node name="playercamera" type="Camera2D" parent="surface/ship" node_paths=PackedStringArray("ship")]
 light_mask = 7
 visibility_layer = 7
-position = Vector2(-0.16063, 49.9997)
 script = ExtResource("9_1l30t")
+ship = NodePath("..")
 
 [node name="skip" parent="surface/ship" instance=ExtResource("6_b2xmm")]
 position = Vector2(41, -83)
 rotation = 3.14159
 
-[node name="ship2" parent="surface" instance=ExtResource("5_8a8ed")]
+[node name="RigidBody2D" type="RigidBody2D" parent="surface"]
+position = Vector2(-665, -188)
+collision_mask = 33
+mass = 0.001
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="surface/RigidBody2D"]
+position = Vector2(0, -4.76837e-07)
+scale = Vector2(0.646618, 0.171642)
+shape = SubResource("RectangleShape2D_q1twc")
+
+[node name="crew6" parent="surface/RigidBody2D" instance=ExtResource("9_j0bkd")]
 z_index = 2
-position = Vector2(-493, -2)
-
-[node name="furniture" parent="surface/ship2" instance=ExtResource("7_shcty")]
-position = Vector2(-16, -88)
-script = null
-
-[node name="furniture2" parent="surface/ship2" instance=ExtResource("7_shcty")]
-position = Vector2(-16, -72)
-script = null
-
-[node name="item" parent="surface/ship2" instance=ExtResource("8_tndgh")]
-position = Vector2(23.9998, 69.049)
-
-[node name="item2" parent="surface/ship2" instance=ExtResource("8_tndgh")]
-position = Vector2(22, 55)
-
-[node name="item3" parent="surface/ship2" instance=ExtResource("8_tndgh")]
-position = Vector2(40, -25)
-
-[node name="item4" parent="surface/ship2" instance=ExtResource("8_tndgh")]
-position = Vector2(4.99986, 69)
-
-[node name="item5" parent="surface/ship2" instance=ExtResource("8_tndgh")]
-position = Vector2(3.00006, 54.951)
-
-[node name="item6" parent="surface/ship2" instance=ExtResource("8_tndgh")]
-position = Vector2(21.0001, -25.049)
-
-[node name="item7" parent="surface/ship2" instance=ExtResource("8_tndgh")]
-position = Vector2(-12.0001, 70)
-
-[node name="item8" parent="surface/ship2" instance=ExtResource("8_tndgh")]
-position = Vector2(-13.9999, 55.951)
-
-[node name="item9" parent="surface/ship2" instance=ExtResource("8_tndgh")]
-position = Vector2(4.00012, -24.049)
-
-[node name="crew6" parent="surface" instance=ExtResource("9_j0bkd")]
-z_index = 2
-position = Vector2(-189, -166)
 rotation = 3.14159
-collision_layer = 1
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 z_index = 10
-position = Vector2(-104, -52)
+material = SubResource("ShaderMaterial_krsxe")
+position = Vector2(-266, -18)
 rotation = -0.80034
 texture = ExtResource("13_66dhd")
 script = ExtResource("10_tcrck")
 
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+z_index = 3
+texture_filter = 1
+material = SubResource("ShaderMaterial_saxmx")
+position = Vector2(-261, 19)
+scale = Vector2(0.5, 0.5)
+sprite_frames = SubResource("SpriteFrames_m1bgk")
+script = ExtResource("15_qt6pc")
+
+[node name="CPUParticles2D" type="CPUParticles2D" parent="."]
+visible = false
+position = Vector2(-238, 129)
+
 [node name="Sprite2D2" type="Sprite2D" parent="."]
-z_index = 10
-material = SubResource("ShaderMaterial_s2ej4")
-position = Vector2(-258, -68)
-texture = ExtResource("13_66dhd")
-script = ExtResource("10_tcrck")
+z_index = 100
+texture = ExtResource("2_4yjq3")

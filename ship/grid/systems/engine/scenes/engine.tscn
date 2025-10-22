@@ -1,0 +1,61 @@
+[gd_scene load_steps=10 format=3 uid="uid://de3xk52di0t0s"]
+
+[ext_resource type="Script" path="res://ship/grid/systems/engine/scripts/Engine.cs" id="1_g6r8l"]
+[ext_resource type="Texture2D" uid="uid://d2hgy28i2w1m4" path="res://ship/grid/systems/engine/assets/engine.png" id="2_p1sil"]
+[ext_resource type="Script" path="res://game/state/base/scripts/StateMachine.cs" id="3_d7q68"]
+[ext_resource type="Script" path="res://game/state/systems/base/scripts/SysIdle.cs" id="4_632fs"]
+[ext_resource type="Script" path="res://game/state/systems/base/scripts/Occupied.cs" id="5_c5jd8"]
+[ext_resource type="Script" path="res://game/state/systems/base/scripts/Queued.cs" id="6_81qp1"]
+[ext_resource type="Script" path="res://game/state/systems/engine/scripts/Powering.cs" id="7_nghdj"]
+[ext_resource type="Script" path="res://Label2.cs" id="8_v2lf3"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_w2xbg"]
+size = Vector2(31, 31)
+
+[node name="engine" type="Area2D"]
+z_index = 1
+script = ExtResource("1_g6r8l")
+relatives = Array[Vector2i]([Vector2i(1, 0), Vector2i(0, 1), Vector2i(1, 1)])
+
+[node name="collision" type="CollisionShape2D" parent="."]
+position = Vector2(8.5, 8.5)
+shape = SubResource("RectangleShape2D_w2xbg")
+
+[node name="sprite" type="Sprite2D" parent="."]
+position = Vector2(8.5, 8.5)
+scale = Vector2(0.05, 0.05)
+texture = ExtResource("2_p1sil")
+
+[node name="brain" type="Node" parent="." node_paths=PackedStringArray("startState", "parent")]
+script = ExtResource("3_d7q68")
+startState = NodePath("idle")
+parent = NodePath("..")
+
+[node name="idle" type="Node" parent="brain" node_paths=PackedStringArray("queued", "occupied", "executing")]
+script = ExtResource("4_632fs")
+queued = NodePath("../queued")
+occupied = NodePath("../occupied")
+executing = NodePath("../executing")
+
+[node name="occupied" type="Node" parent="brain" node_paths=PackedStringArray("idle", "executing")]
+script = ExtResource("5_c5jd8")
+idle = NodePath("../idle")
+executing = NodePath("../executing")
+
+[node name="queued" type="Node" parent="brain" node_paths=PackedStringArray("idle", "occupied")]
+script = ExtResource("6_81qp1")
+idle = NodePath("../idle")
+occupied = NodePath("../occupied")
+
+[node name="executing" type="Node" parent="brain" node_paths=PackedStringArray("idle", "occupied")]
+script = ExtResource("7_nghdj")
+idle = NodePath("../idle")
+occupied = NodePath("../occupied")
+
+[node name="Label" type="Label" parent="." node_paths=PackedStringArray("engine")]
+offset_left = -30.0
+offset_top = -40.0
+offset_right = 43.0
+offset_bottom = -17.0
+script = ExtResource("8_v2lf3")
+engine = NodePath("..")

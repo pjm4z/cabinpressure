@@ -7,17 +7,23 @@ public partial class Executing : SysState
 {
 	[Export] private SysState idle;
 	[Export] private SysState occupied;
+	[Export] private SysState overloaded;
+	//protected Action
 	
 	protected double taskTime; 
 	protected bool executing = false;
 	
 	public override void enter() {
 		sys.addCharge();
+		sys.executing = true;
 		taskTime = sys.taskTime;
 	}
 	
 	public override void exit() {
+		GD.Print(":)) " + sys.load + " " + sys.watts + " " + sys.circuit.load);
 		sys.removeCharge();
+		
+		sys.executing = false;
 	}
 		
 	public override State process(double delta) {
@@ -27,29 +33,28 @@ public partial class Executing : SysState
 		}
 		
 		if (!executing) {
-			
-			execute();
+			execute();//null);
 		}
-		return null;
+		return base.process(delta);
 	}
 	
-	protected virtual async Task execute() {
-		executing = true;
-		while (checkPriorities() == null && sys.count() == 0) {
-			await waitForGameTime(0.1, (elapsedTime) => { workCallback(elapsedTime); });
-		}
-		await waitForGameTime(taskTime, (elapsedTime) => { workCallback(elapsedTime); });
+	protected virtual async Task execute() {//Action action) {
+		//executing = true;
+		//while (checkPriorities() == null && sys.count() == 0) {
+		//	await waitForGameTime(0.1, (elapsedTime) => { workCallback(elapsedTime); });
+		//}
+		//await waitForGameTime(taskTime, (elapsedTime) => { workCallback(elapsedTime); });
 		if (sys.count() > 0) {
-			sys.execute();
+			executing = true;
+			//GD.Print("EXEC");
+			await waitForGameTime(taskTime, (elapsedTime) => { workCallback(elapsedTime); });
+			sys.execute();//action);
+			executing = false;
 		}
-		executing = false;
+		//executing = false;
 	}
 	
-	protected virtual void workCallback(double elapsedTime) {
-		if (checkPriorities() != null) {
-			elapsedTime = taskTime;
-		}
-	}
+	protected virtual void workCallback(double elapsedTime) {}
 	
 	public async Task waitForGameTime(double seconds, Action<double> callback) {
 		double elapsedTime = 0;
@@ -64,8 +69,8 @@ public partial class Executing : SysState
 		if (!sys.shouldQueue() || !sys.isOccupied()) {
 			return idle;
 		}
-		if (!sys.powered()) {
-			return occupied;
+		if (sys.overloaded()) {
+			return overloaded;
 		}
 		return null;
 	}

@@ -3,10 +3,12 @@ using System;
 
 public partial class PlayerCamera : Camera2D
 {
+	//public static PlayerCamera Instance;
+	
 	[Export] public float ZoomSpeed = 0.1f;
 	[Export] public float MinZoom = 0.1f;
 	[Export] public float MaxZoom = 1.0f;
-	private Ship ship;
+	[Export] private Ship ship;
 	//float RotationDegrees;
 	float DesiredRotation;
 	
@@ -14,6 +16,9 @@ public partial class PlayerCamera : Camera2D
 	public override void _Ready()
 	{
 		ship = (Ship) GetParent();
+		Game.Instance.camera = this;
+		//Instance = this;
+		//Reparent(ship);
 		//SetPhysicsProcess(true);
 	}
 
@@ -25,16 +30,12 @@ public partial class PlayerCamera : Camera2D
 	
 	[Export] private Vector2 zoomSpeed = new Vector2(0.2f,0.2f);
 	public override void _Input(InputEvent inputEvent) {
-				// Check for zoom input actions.
-				
-		if (Input.IsActionPressed("scrollup"))
-		{
-			
-			//if (Zoom + zoomSpeed < new Vector2(4f,4f)) {
+		if (Input.IsActionPressed("scrollup")) {
+			if (Zoom + zoomSpeed < new Vector2(4f,4f)) {
 				Zoom = Zoom + zoomSpeed;
-			//} else {
-			//	Zoom = new Vector2(4f,4f);
-			//}
+			} else {
+				Zoom = new Vector2(4f,4f);
+			}
 			GD.Print("^^^^^^ " + Zoom);
 		}
 		if (Input.IsActionPressed("scrolldown")) {

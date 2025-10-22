@@ -32,15 +32,23 @@ public partial class Ship : RigidBody2D
 	[Export] private MapCtrl mapCtrl;
 	public float rotationSpeed;
 	[Export] private Skip skip;
+	[Export] private Shield shield;
+	[Export] public bool shieldEnabled = false;
 	
 	public override void _Ready() {
 		ZIndex = 1;
-		surface = (Node2D)GetParent();
-		underwater = (SubViewport) GetNode("/root/basescene/surface/surfaceviewport");
-		surfaceMap = GetNode<SurfaceMap>("/root/basescene/surface/surfaceviewport/surfacemap");
+		//surface = (Node2D)GetParent();
+		//underwater = (SubViewport) GetNode("/root/basescene/surface/surfaceviewport");
+		//surfaceMap = GetNode<SurfaceMap>("/root/basescene/surface/surfaceviewport/surfacemap");
 		InitialPosition = Position;
 		rotationSpeed = 0;
 		initBeds();
+	//	if (shieldEnabled != null) {
+		//shield = (Shield) GetNode("shield");
+		//shield.ship = this;
+		shield.init(this);
+			//shield.active = shieldEnabled;
+	//	}
 	}
 	
 	public void initBeds() {
@@ -53,6 +61,8 @@ public partial class Ship : RigidBody2D
 			availableBeds.Enqueue(bed);
 		}
 	}
+	
+	
 	
 	/*public void initWeaponSlots() {
 		var wpnArray = GetChildren()
@@ -158,22 +168,21 @@ public partial class Ship : RigidBody2D
 				if (MaxSpeed > LinearVelocity.Length()) {
 					speed = MaxSpeed;
 				}
-				/*Position += velocity.MoveToward(
-					new Vector2(LinearVelocity.X, speed).Rotated(Rotation), 
-					Acceleration * (float)delta);*/
 				velocity = velocity.MoveToward(
-					new Vector2(LinearVelocity.X, speed).Rotated(GlobalRotation), 
+					new Vector2(velocity.X, speed).Rotated(GlobalRotation), 
 					Acceleration * (float)delta);
 			}
-			else if (Input.IsActionPressed("ui_down") || Input.IsActionPressed("s")) {
+			if (Input.IsActionPressed("ui_down") || Input.IsActionPressed("s")) {
 				// Accelerate in reverse based on the ship's rotation
 				if (MaxReverseSpeed > LinearVelocity.Length()) {
 					speed = MaxReverseSpeed;
 				}
 				velocity = velocity.MoveToward(
-					new Vector2(LinearVelocity.X, speed).Rotated(GlobalRotation + (float)Math.PI), 
+					new Vector2(velocity.X, speed).Rotated(GlobalRotation + (float)Math.PI), 
 					ReverseAcceleration * (float)delta);
 			}
+		} else {
+			//LookAt(new Vector2(0,0));
 		}
 		
 		
@@ -209,11 +218,88 @@ public partial class Ship : RigidBody2D
 				GD.Print("!!!!!! COLLIDED " + Name + " " +  collision.GetPosition() + " " + (collision.GetColliderVelocity()  + " " + velocity +  " " + ship.LinearVelocity) + " " + obj);
 			}
 		}*/
-		//GD.Print(velocity);
-		ApplyCentralForce(velocity * new Vector2(100f,100f)); //
-		//ApplyCentralImpulse(velocity );//* new Vector2(0.01f,0.01f)
-		//LinearVelocity = velocity;
-		//MoveAndSlide();
+		ApplyCentralForce(velocity * new Vector2(100f,100f)); 
+		this.delta = delta;
+	}
+	
+	public void LookAt(Vector2 target) {
+		float angle = GetAngleTo(target) - 1.5708f;
+		float degrees = Mathf.RadToDeg(angle);
+		float torque = angle;
+		if (degrees < 0) {
+			torque *= -1;
+		}
+		ApplyTorque(-torque * 100);
+		GD.Print("LOOK " + degrees + " " + angle + " " + torque);
+	}
+	
+	private double delta;
+	public override void _IntegrateForces(PhysicsDirectBodyState2D state) {
+		if (Input.IsActionPressed("c")) {
+			state.LinearVelocity -= new Vector2(state.LinearVelocity.X / 100f,state.LinearVelocity.Y / 100f);
+		}
+		if (skip == null) {
+			state.AngularVelocity = GetAngleTo(new Vector2(0,0)) - 1.5708f;
+		}
+		
+		/*velocity = state.LinearVelocity;
+		float speed = state.LinearVelocity.Length();
+		
+		if (!active) {
+			//RemoveChild(camera);
+			//skip.AddChild(camera);
+		}
+		else { // Handle rotation (turning the ship)
+			if (Input.IsActionPressed("ui_left") || Input.IsActionPressed("a")) {
+				if (Input.IsActionPressed("shift")) {
+					if (MaxSpeed > LinearVelocity.Length()) {
+						speed = MaxSpeed;
+					}
+					GD.Print(LinearVelocity.Normalized());
+					velocity = state.LinearVelocity.MoveToward(
+						//new Vector2(0, speed).Rotated(Rotation - (float)(Math.PI/2)), 
+						new Vector2(velocity.X, speed).Rotated(GlobalRotation - (float)Math.PI/2.0f), 
+						Acceleration * (float)delta);
+				} else {
+					rotationSpeed = -0.0001f * TurnSpeed;
+				}
+			}
+			if (Input.IsActionPressed("ui_right") || Input.IsActionPressed("d")) {
+				if (Input.IsActionPressed("shift")) {
+					if (MaxSpeed > LinearVelocity.Length()) {
+						speed = MaxSpeed;
+					}
+					velocity = state.LinearVelocity.MoveToward(
+						new Vector2(velocity.X, speed).Rotated(GlobalRotation + (float)Math.PI/2.0f), 
+						Acceleration * (float)delta);
+				} else {
+					rotationSpeed = 0.0001f * TurnSpeed;
+				}
+			}
+			state.AngularVelocity += rotationSpeed;
+			//Rotation += rotationSpeed;
+			// Handle forward and reverse movement with acceleration
+			if (Input.IsActionPressed("ui_up") || Input.IsActionPressed("w")) {
+				// Accelerate forward based on the ship's rotation
+				if (MaxSpeed > state.LinearVelocity.Length()) {
+					speed = MaxSpeed;
+				}
+				velocity = velocity.MoveToward(
+					new Vector2(0, speed).Rotated(Rotation), 
+					Acceleration * (float)delta);
+			}
+			else if (Input.IsActionPressed("ui_down") || Input.IsActionPressed("s")) {
+				// Accelerate in reverse based on the ship's rotation
+				if (MaxReverseSpeed > state.LinearVelocity.Length()) {
+					speed = MaxReverseSpeed;
+				}
+				velocity = velocity.MoveToward(
+					new Vector2(0, speed).Rotated(Rotation + (float)Math.PI), 
+					ReverseAcceleration * (float)delta);
+			}
+			
+			state.LinearVelocity = velocity;
+		}*/
 	}
 
 	public void damageOuter(Vector2 gPos, double radius, int damage) {

@@ -43,6 +43,10 @@ public partial class BaseScene : Node2D
 													// maybe from nav callback in crew script calling movenadslide?
 			GetTree().Paused = !GetTree().Paused;
 		}
-			
+		if (Input.IsActionJustReleased("m")) { //todo nav doesnt pause (crew in motion)
+													// maybe from nav callback in crew script calling movenadslide?
+			GetTree().Paused = !GetTree().Paused;
+			GD.Print("map");
+		}
 	}
 }

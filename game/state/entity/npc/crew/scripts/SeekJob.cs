@@ -18,7 +18,7 @@ public partial class SeekJob : CrewState
 	}
 		
 	public override State process(double delta) {
-		GD.Print("SEEK JOB " + crew.lastName);
+		//GD.Print("SEEK JOB " + crew.lastName);
 		CrewState newState = checkPriorities();
 		if (newState != null) {
 			crew.kickbackOrders();

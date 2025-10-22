@@ -13,7 +13,9 @@ public partial class StateMachine : Node
 	// Called when the node enters the scene tree for the first time.
 	public void init() {
 		initStates();
+		GD.Print(startState.Name + " " + parent.Name);
 		changeState(startState);
+		//parent = GetParent();
 	}
 	
 	private void initStates() {

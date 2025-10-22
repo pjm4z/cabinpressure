@@ -1,8 +1,0 @@
-[gd_scene load_steps=3 format=3 uid="uid://celuai8ifl1dl"]
-
-[ext_resource type="Script" path="res://ship/grid/power/base/scripts/WireCtrl.cs" id="1_kna4o"]
-[ext_resource type="PackedScene" uid="uid://bklsfjrbdby0m" path="res://ship/grid/power/base/scenes/wire.tscn" id="2_yobsm"]
-
-[node name="wirectrl" type="Node2D"]
-script = ExtResource("1_kna4o")
-wireScene = ExtResource("2_yobsm")

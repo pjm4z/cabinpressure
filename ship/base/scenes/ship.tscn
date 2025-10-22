@@ -1,23 +1,24 @@
-[gd_scene load_steps=38 format=4 uid="uid://d0q4pux665fv6"]
+[gd_scene load_steps=39 format=4 uid="uid://d0q4pux665fv6"]
 
 [ext_resource type="Script" path="res://ship/base/scripts/Ship.cs" id="1_he26f"]
-[ext_resource type="Script" path="res://ship/grid/base/scripts/MapCtrl.cs" id="2_wj2el"]
+[ext_resource type="Script" path="res://ship/grid/hull/scripts/MapCtrl.cs" id="2_wj2el"]
 [ext_resource type="Texture2D" uid="uid://bod1hbl3gc6sw" path="res://ship/grid/hull/assets/shiptiles-alt.png" id="3_ahch8"]
 [ext_resource type="Texture2D" uid="uid://doi3ve3gnwth1" path="res://ship/grid/hull/assets/shipparts.png" id="4_bd732"]
 [ext_resource type="Texture2D" uid="uid://sjd8erfjrhkc" path="res://ship/grid/hull/assets/shiptiles.png" id="4_dup1i"]
 [ext_resource type="Texture2D" uid="uid://bg2kpy8yt63yc" path="res://ship/grid/hull/assets/shiptiles32.png" id="4_oe6dd"]
 [ext_resource type="Script" path="res://game/physics/scripts/ZeroGCollision.cs" id="4_ut6of"]
-[ext_resource type="Script" path="res://ship/grid/base/scripts/ShipLayer.cs" id="5_6ydcb"]
-[ext_resource type="PackedScene" uid="uid://bklsfjrbdby0m" path="res://ship/grid/power/base/scenes/wire.tscn" id="5_rpxud"]
-[ext_resource type="Script" path="res://ship/grid/power/base/scripts/PowerGrid.cs" id="5_vitnn"]
-[ext_resource type="PackedScene" uid="uid://dl24gnkim6ke4" path="res://ship/grid/power/post/scenes/post.tscn" id="6_xd5mm"]
-[ext_resource type="PackedScene" uid="uid://84ry0sqcrixf" path="res://ship/grid/power/weapon/scenes/weapon.tscn" id="7_as43g"]
-[ext_resource type="PackedScene" uid="uid://de3xk52di0t0s" path="res://ship/grid/power/engine/scenes/engine.tscn" id="7_tsa4u"]
-[ext_resource type="PackedScene" uid="uid://pmlba6c4s0lm" path="res://ship/grid/power/weapon/scenes/weaponslot.tscn" id="7_xtxwm"]
+[ext_resource type="Script" path="res://ship/grid/hull/scripts/ShipLayer.cs" id="5_6ydcb"]
+[ext_resource type="PackedScene" uid="uid://bklsfjrbdby0m" path="res://ship/grid/systems/base/scenes/wire.tscn" id="5_rpxud"]
+[ext_resource type="Script" path="res://ship/grid/systems/base/scripts/PowerGrid.cs" id="5_vitnn"]
+[ext_resource type="PackedScene" uid="uid://dl24gnkim6ke4" path="res://ship/grid/systems/post/scenes/post.tscn" id="6_xd5mm"]
+[ext_resource type="PackedScene" uid="uid://84ry0sqcrixf" path="res://ship/grid/systems/weapon/scenes/weapon.tscn" id="7_as43g"]
+[ext_resource type="PackedScene" uid="uid://de3xk52di0t0s" path="res://ship/grid/systems/engine/scenes/engine.tscn" id="7_tsa4u"]
+[ext_resource type="PackedScene" uid="uid://pmlba6c4s0lm" path="res://ship/grid/systems/weapon/scenes/weaponslot.tscn" id="7_xtxwm"]
 [ext_resource type="PackedScene" uid="uid://b2iy1ftso7uni" path="res://entity/npc/crew/scenes/crewroster.tscn" id="9_qqbgp"]
 [ext_resource type="PackedScene" uid="uid://cft1r7wppv5bq" path="res://entity/npc/crew/scenes/crew.tscn" id="10_rtian"]
 [ext_resource type="Script" path="res://ship/grid/hull/scripts/CeilingMap.cs" id="11_rxry4"]
 [ext_resource type="Texture2D" uid="uid://5at468tl22p7" path="res://ship/grid/hull/assets/shiptiles-nooutline.png" id="12_ojh7a"]
+[ext_resource type="PackedScene" uid="uid://djyu6c4yahmry" path="res://ship/grid/systems/shield/scenes/shield.tscn" id="17_c146c"]
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_hvhn3"]
 friction = 0.0
@@ -327,15 +328,19 @@ custom_data_layer_0/type = 2
 sources/2 = SubResource("TileSetAtlasSource_utyc3")
 sources/0 = SubResource("TileSetAtlasSource_ejqe1")
 
-[node name="ship" type="RigidBody2D" node_paths=PackedStringArray("mapCtrl")]
-position = Vector2(0, -46)
+[node name="ship" type="RigidBody2D" node_paths=PackedStringArray("defaultRoster", "mapCtrl", "shield")]
+collision_mask = 33
 physics_material_override = SubResource("PhysicsMaterial_hvhn3")
 gravity_scale = 0.0
-center_of_mass_mode = 1
-center_of_mass = Vector2(0, 50)
-freeze_mode = 1
+inertia = 10000.0
 script = ExtResource("1_he26f")
+defaultRoster = NodePath("crewroster")
 mapCtrl = NodePath("mapctrl")
+shield = NodePath("mapctrl/powergrid/shield")
+
+[node name="collision" type="CollisionPolygon2D" parent="."]
+polygon = PackedVector2Array(95.9995, 176, -96.0005, 176, -96.0001, 47.9998, -176, 47.9996, -175.999, -224, 176.001, -224, 176, 48.0004, 95.9999, 48.0002)
+script = ExtResource("4_ut6of")
 
 [node name="crewroster" parent="." instance=ExtResource("9_qqbgp")]
 
@@ -346,36 +351,30 @@ rotation = 3.14159
 
 [node name="crew2" parent="crewroster" instance=ExtResource("10_rtian")]
 z_index = 2
-position = Vector2(25.9999, 80)
+position = Vector2(-15, -63)
 rotation = 3.14159
 
 [node name="crew3" parent="crewroster" instance=ExtResource("10_rtian")]
 z_index = 2
-position = Vector2(-29.0001, 70)
+position = Vector2(5, -26)
 rotation = 3.14159
 
 [node name="crew4" parent="crewroster" instance=ExtResource("10_rtian")]
 z_index = 2
-position = Vector2(-27.0001, 125)
+position = Vector2(-18, -93)
 rotation = 3.14159
 
 [node name="crew5" parent="crewroster" instance=ExtResource("10_rtian")]
 z_index = 2
-position = Vector2(12.9999, 123)
+position = Vector2(11, -55)
 rotation = 3.14159
 
 [node name="crew6" parent="crewroster" instance=ExtResource("10_rtian")]
 z_index = 2
-position = Vector2(24.9999, -29)
+position = Vector2(39, -69)
 rotation = 3.14159
 
-[node name="collision" type="CollisionPolygon2D" parent="."]
-position = Vector2(-1, 77)
-polygon = PackedVector2Array(95.9995, 176, -96.0005, 176, -96.0001, 47.9998, -176, 47.9996, -175.999, -224, 176.001, -224, 176, 48.0004, 95.9999, 48.0002)
-script = ExtResource("4_ut6of")
-
 [node name="mapctrl" type="Node2D" parent="." node_paths=PackedStringArray("floorMap", "hullMap", "powerGrid", "ceilingMap")]
-position = Vector2(-1, 77)
 script = ExtResource("2_wj2el")
 floorMap = NodePath("floormap")
 hullMap = NodePath("hullmap")
@@ -438,19 +437,32 @@ position = Vector2(167, 214)
 position = Vector2(-168, -38)
 ship = NodePath("../../..")
 crewRoster = NodePath("../../../crewroster")
+chargeCost = 20.0
 watts = 500.0
+maxLoad = 200.0
 
 [node name="weapon2" parent="mapctrl/powergrid" node_paths=PackedStringArray("ship", "crewRoster") instance=ExtResource("7_as43g")]
 position = Vector2(169, -41)
 ship = NodePath("../../..")
 crewRoster = NodePath("../../../crewroster")
+chargeCost = 20.0
 watts = 500.0
+maxLoad = 200.0
+
+[node name="shield" parent="mapctrl/powergrid" node_paths=PackedStringArray("ship") instance=ExtResource("17_c146c")]
+position = Vector2(136, 56.9997)
+ship = NodePath("../../..")
+watts = 100.0
+maxLoad = 150.0
 
 [node name="post" parent="mapctrl/powergrid" instance=ExtResource("6_xd5mm")]
 position = Vector2(-131, -4)
 
 [node name="post2" parent="mapctrl/powergrid" instance=ExtResource("6_xd5mm")]
 position = Vector2(136, -4)
+
+[node name="post4" parent="mapctrl/powergrid" instance=ExtResource("6_xd5mm")]
+position = Vector2(137, 27.9997)
 
 [node name="wire" parent="mapctrl/powergrid" instance=ExtResource("5_rpxud")]
 position = Vector2(-151, -38)
@@ -507,6 +519,7 @@ position = Vector2(55, -40)
 
 [node name="wire16" parent="mapctrl/powergrid" instance=ExtResource("5_rpxud")]
 position = Vector2(39, -40)
+scale = Vector2(0.812825, 0.767182)
 
 [node name="wire17" parent="mapctrl/powergrid" instance=ExtResource("5_rpxud")]
 position = Vector2(22, -40)
@@ -519,6 +532,24 @@ position = Vector2(-10, -40)
 
 [node name="wire20" parent="mapctrl/powergrid" instance=ExtResource("5_rpxud")]
 position = Vector2(-24, -40)
+
+[node name="wire21" parent="mapctrl/powergrid" instance=ExtResource("5_rpxud")]
+position = Vector2(154, -23.0004)
+
+[node name="wire22" parent="mapctrl/powergrid" instance=ExtResource("5_rpxud")]
+position = Vector2(154, -6.00039)
+
+[node name="wire23" parent="mapctrl/powergrid" instance=ExtResource("5_rpxud")]
+position = Vector2(154, 10.9996)
+
+[node name="wire24" parent="mapctrl/powergrid" instance=ExtResource("5_rpxud")]
+position = Vector2(154, 27.9996)
+
+[node name="wire25" parent="mapctrl/powergrid" instance=ExtResource("5_rpxud")]
+position = Vector2(154, 43.9996)
+
+[node name="wire26" parent="mapctrl/powergrid" instance=ExtResource("5_rpxud")]
+position = Vector2(154, 59.9996)
 
 [node name="ceilingmap" type="TileMapLayer" parent="mapctrl" node_paths=PackedStringArray("ship")]
 visible = false

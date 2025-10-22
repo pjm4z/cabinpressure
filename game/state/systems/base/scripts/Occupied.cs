@@ -12,8 +12,7 @@ public partial class Occupied : SysState
 			return newState;
 		}
 		occupied();
-		GD.Print("OCCY WAY");
-		return null;
+		return base.process(delta);
 	}
 	
 	private void occupied() {}
@@ -25,6 +24,7 @@ public partial class Occupied : SysState
 		if (sys.canPower()) {
 			return executing;
 		}
+		
 		return null;
 	}	
 }

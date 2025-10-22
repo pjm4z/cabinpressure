@@ -13,7 +13,7 @@ public partial class Queued : SysState
 		}
 		queued();
 		//GD.Print("Q'd");
-		return null;
+		return base.process(delta);
 	}
 	
 	private void queued() {}
@@ -23,7 +23,7 @@ public partial class Queued : SysState
 			return idle;
 		}
 		if (sys.isOccupied()) {
-			GD.Print("OCCCCC");
+			//GD.Print("OCCCCC");
 			return occupied;
 		}
 		return null;

@@ -19,6 +19,10 @@ config/icon="res://misc/assets/icon.svg"
 
 aseprite_executable_path="/run/media/deck/SN01T/steamapps/common/Aseprite/Aseprite.exe"
 
+[autoload]
+
+Game="*res://game/base/scripts/Game.cs"
+
 [debug]
 
 settings/stdout/print_fps=true
@@ -43,6 +47,7 @@ enabled=PackedStringArray("res://addons/nklbdev.aseprite_importers/plugin.cfg")
 
 folder_colors={
 "res://entity/": "red",
+"res://entity/base/": "teal",
 "res://entity/npc/": "orange",
 "res://entity/npc/crew/": "orange",
 "res://entity/npc/crew/assets/": "teal",
@@ -70,6 +75,7 @@ folder_colors={
 "res://game/state/entity/npc/crew/scripts/": "teal",
 "res://game/state/systems/base/scripts/": "teal",
 "res://game/state/systems/engine/scripts/": "teal",
+"res://game/state/systems/shield/scripts/": "teal",
 "res://game/state/systems/weapon/scripts/": "teal",
 "res://game/ui/": "orange",
 "res://game/ui/base/": "teal",
@@ -85,27 +91,27 @@ folder_colors={
 "res://ship/base/scenes/": "teal",
 "res://ship/base/scripts/": "teal",
 "res://ship/grid/": "orange",
-"res://ship/grid/base/": "teal",
 "res://ship/grid/hull/": "orange",
 "res://ship/grid/hull/assets/": "teal",
 "res://ship/grid/hull/scripts/": "teal",
-"res://ship/grid/power/": "orange",
-"res://ship/grid/power/base/": "teal",
-"res://ship/grid/power/base/assets/": "teal",
-"res://ship/grid/power/base/scenes/": "teal",
-"res://ship/grid/power/base/scripts/": "teal",
-"res://ship/grid/power/engine/": "orange",
-"res://ship/grid/power/engine/assets/": "teal",
-"res://ship/grid/power/engine/scenes/": "teal",
-"res://ship/grid/power/engine/scripts/": "teal",
-"res://ship/grid/power/post/": "orange",
-"res://ship/grid/power/post/assets/": "teal",
-"res://ship/grid/power/post/scenes/": "teal",
-"res://ship/grid/power/post/scripts/": "teal",
-"res://ship/grid/power/weapon/": "orange",
-"res://ship/grid/power/weapon/assets/": "teal",
-"res://ship/grid/power/weapon/scenes/": "teal",
-"res://ship/grid/power/weapon/scripts/": "teal",
+"res://ship/grid/systems/": "orange",
+"res://ship/grid/systems/base/": "teal",
+"res://ship/grid/systems/base/assets/": "teal",
+"res://ship/grid/systems/base/scenes/": "teal",
+"res://ship/grid/systems/base/scripts/": "teal",
+"res://ship/grid/systems/engine/": "orange",
+"res://ship/grid/systems/engine/assets/": "teal",
+"res://ship/grid/systems/engine/scenes/": "teal",
+"res://ship/grid/systems/engine/scripts/": "teal",
+"res://ship/grid/systems/post/": "orange",
+"res://ship/grid/systems/post/assets/": "teal",
+"res://ship/grid/systems/post/scenes/": "teal",
+"res://ship/grid/systems/post/scripts/": "teal",
+"res://ship/grid/systems/shield/scripts/": "teal",
+"res://ship/grid/systems/weapon/": "orange",
+"res://ship/grid/systems/weapon/assets/": "teal",
+"res://ship/grid/systems/weapon/scenes/": "teal",
+"res://ship/grid/systems/weapon/scripts/": "teal",
 "res://world/": "red",
 "res://world/surface/": "orange",
 "res://world/surface/assets/": "teal",
@@ -232,6 +238,11 @@ c={
 "events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":0,"physical_keycode":67,"key_label":0,"unicode":99,"location":0,"echo":false,"script":null)
 ]
 }
+m={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":0,"physical_keycode":77,"key_label":0,"unicode":0,"location":0,"echo":false,"script":null)
+]
+}
 
 [layer_names]
 
@@ -240,6 +251,7 @@ c={
 2d_physics/layer_3="ship ceiling"
 2d_physics/layer_4="above ship"
 2d_physics/layer_5="projectile"
+2d_physics/layer_6="shield barrier"
 
 [physics]
 

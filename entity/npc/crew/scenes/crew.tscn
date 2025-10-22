@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3 uid="uid://cft1r7wppv5bq"]
+[gd_scene load_steps=15 format=3 uid="uid://cft1r7wppv5bq"]
 
 [ext_resource type="Script" path="res://entity/npc/crew/scripts/Crew.cs" id="1_bsira"]
 [ext_resource type="Texture2D" uid="uid://cc61y54rymkw5" path="res://entity/npc/crew/assets/crew.png" id="2_8bgx2"]
@@ -10,6 +10,7 @@
 [ext_resource type="Script" path="res://game/state/entity/npc/crew/scripts/SeekJob.cs" id="8_ubw6v"]
 [ext_resource type="Script" path="res://game/state/entity/npc/crew/scripts/SeekFood.cs" id="9_181an"]
 [ext_resource type="Script" path="res://game/state/entity/npc/crew/scripts/SeekBed.cs" id="10_rc5q0"]
+[ext_resource type="Script" path="res://entity/base/scripts/Health.cs" id="11_vcj4j"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_knyyy"]
 radius = 4.0
@@ -28,10 +29,6 @@ z_as_relative = false
 texture_filter = 1
 collision_layer = 4
 collision_mask = 2
-motion_mode = 1
-wall_min_slide_angle = 0.0
-platform_floor_layers = 4294967041
-platform_wall_layers = 2
 script = ExtResource("1_bsira")
 
 [node name="collision" type="CollisionShape2D" parent="."]
@@ -49,11 +46,14 @@ shape = SubResource("CircleShape2D_rhvp5")
 [node name="nav" type="NavigationAgent2D" parent="."]
 path_desired_distance = 10.0
 path_postprocessing = 1
+simplify_path = true
+simplify_epsilon = 4.0
 avoidance_enabled = true
 radius = 4.0
 neighbor_distance = 100.0
 avoidance_layers = 2
 avoidance_mask = 2
+debug_enabled = true
 
 [node name="crewtimer" type="Timer" parent="."]
 autostart = true
@@ -119,6 +119,9 @@ sleep = NodePath("../sleep")
 script = ExtResource("10_rc5q0")
 sleep = NodePath("../sleep")
 idle = NodePath("../idle")
+
+[node name="health" type="Node" parent="."]
+script = ExtResource("11_vcj4j")
 
 [connection signal="velocity_computed" from="nav" to="." method="_on_nav_velocity_computed"]
 [connection signal="timeout" from="crewtimer" to="." method="_on_crewtimer_timeout"]
