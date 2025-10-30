@@ -1,7 +1,9 @@
 [gd_scene load_steps=4 format=3 uid="uid://pmlba6c4s0lm"]
 
 [ext_resource type="Script" path="res://ship/grid/systems/weapon/scripts/WeaponSlot.cs" id="1_2lrx0"]
-[ext_resource type="Texture2D" uid="uid://15k7njjpansm" path="res://world/surface/assets/waterpt_2.png" id="2_j5csm"]
+
+[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_nyaif"]
+load_path = "res://.godot/imported/waterpt_2.png-f824b883ea82806b2ded79a42ac99d23.ctex"
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_iv6ey"]
 size = Vector2(16, 16)
@@ -11,7 +13,7 @@ script = ExtResource("1_2lrx0")
 
 [node name="sprite" type="Sprite2D" parent="."]
 scale = Vector2(16, 16)
-texture = ExtResource("2_j5csm")
+texture = SubResource("CompressedTexture2D_nyaif")
 
 [node name="collision" type="CollisionShape2D" parent="."]
 shape = SubResource("RectangleShape2D_iv6ey")

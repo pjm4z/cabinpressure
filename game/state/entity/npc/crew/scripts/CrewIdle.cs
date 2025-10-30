@@ -9,7 +9,14 @@ public partial class CrewIdle : CrewState
 	[Export] private CrewState seekJob;
 	[Export] private CrewState sleep;
 	[Export] private CrewState work;
-		
+	
+	private Ship ship;
+	
+	public override void enter() {
+		base.enter();
+		this.ship = crew.ship;
+	}
+	
 	public override CrewState process(double delta) {
 		CrewState newState = checkPriorities();
 		if (newState != null) {
@@ -22,7 +29,7 @@ public partial class CrewIdle : CrewState
 	
 	private void idle() {
 		if (crew.isNavReady()) {
-			crew.move(crew.GetGlobalMousePosition());//new Vector2(-1,-1)
+			crew.move(crew.GetGlobalMousePosition());//new Vector2(-1,-1)  - crew.ship.GlobalPosition
 		}
 	}
 	

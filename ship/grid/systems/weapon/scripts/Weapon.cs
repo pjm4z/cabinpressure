@@ -8,7 +8,7 @@ public partial class Weapon : ShipSystem
 	[Export] private PackedScene torpedoScene;
 	public WeaponSlot wpnSlot;
 	private Node2D shotPt;
-	private Node2D surface;
+	private Node2D space;
 	public double usedWatts = 0;
 
 	// Called when the node enters the scene tree for the first time.
@@ -18,7 +18,7 @@ public partial class Weapon : ShipSystem
 		shotPt = (Node2D) GetNode("shotpt");
 		panel = (HBoxContainer) GetNode("/root/basescene/hudcanvas/HUD/systems/systemspanel/weaponspanel");
 		watts = -500f;
-		surface = (Node2D) GetNode("/root/basescene/surface");
+		space = (Node2D) GetNode("/root/basescene");
 		ProcessMode = Node.ProcessModeEnum.Always;
 	}
 	
@@ -43,21 +43,12 @@ public partial class Weapon : ShipSystem
 	}
 	
 	public override void execute() { //async Task
-		
 		_Shoot_Torpedo();
-		base.execute(); //await
-		//if (circuit.overloaded()) {
-		//	GD.Print("BLACKOUT");
-	//	} else {
-	//	_Shoot_Torpedo();
-	//	}
+		base.execute(); 
 	}
 	
 	public override void _Process(double delta) {
 		base._Process(delta);
-		//if (this.powering) {
-		//	LookAt(GetGlobalMousePosition());
-		//}
 	}
 	
 	public void _Shoot_Torpedo() {
@@ -65,6 +56,6 @@ public partial class Weapon : ShipSystem
 		torpedo.init(this.ship, this.ship.LinearVelocity, GetGlobalMousePosition());
 		torpedo.GlobalPosition = shotPt.GlobalPosition;
 		torpedo.GlobalRotation = shotPt.GlobalRotation;
-		surface.AddChild(torpedo);
+		space.AddChild(torpedo);
 	}
 }

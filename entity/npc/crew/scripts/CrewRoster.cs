@@ -93,6 +93,10 @@ public partial class CrewRoster : Node2D
 		foreach(var crew in crewArray) {
 			crew.ship = parent;
 			crew.roster = this;
+			
+			crew.GlobalPosition = parent.GlobalPosition;
+			crew.TopLevel = true;
+			
 			//crew.rank = rank;
 			//rank += 1;
 			//generate name

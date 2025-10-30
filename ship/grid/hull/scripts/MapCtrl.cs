@@ -6,7 +6,7 @@ using System.Linq;
 public partial class MapCtrl : Node2D
 {
 	[ExportGroup("TileMaps")]
-	[Export] private ShipLayer floorMap;
+	[Export] private ShipLayer navMap;
 	[Export] private ShipLayer hullMap;
 	[Export] private PowerGrid powerGrid;
 	[Export] private ShipLayer ceilingMap;
@@ -17,9 +17,8 @@ public partial class MapCtrl : Node2D
 	{
 		maps.Add(hullMap);
 		maps.Add(ceilingMap);
-		maps.Add(floorMap);
+		maps.Add(navMap);
 		powerGrid.initItems();
-		//maps.Add(powerGrid);
 	}
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.

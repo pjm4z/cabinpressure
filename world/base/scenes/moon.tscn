@@ -1,0 +1,64 @@
+[gd_scene load_steps=9 format=3 uid="uid://bscvjy1tep640"]
+
+[ext_resource type="Script" path="res://world/base/scripts/CelestialBody.cs" id="1_6dhn5"]
+[ext_resource type="Texture2D" uid="uid://bqw685ry8okl0" path="res://moon.png" id="2_c4cix"]
+[ext_resource type="Script" path="res://game/state/base/scripts/StateMachine.cs" id="4_33ecb"]
+[ext_resource type="Script" path="res://game/state/world/base/scripts/Orbiting.cs" id="5_3rx4b"]
+[ext_resource type="Script" path="res://game/state/world/base/scripts/CelestialState.cs" id="6_7lix3"]
+[ext_resource type="Texture2D" uid="uid://bn76f5j7bgg6e" path="res://misc/assets/icon.svg" id="6_ikfd6"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_1u475"]
+radius = 94.0851
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_efa6w"]
+radius = 1863.87
+
+[node name="moon" type="Area2D"]
+collision_layer = 7
+collision_mask = 7
+gravity_point = true
+gravity = 0.0
+script = ExtResource("1_6dhn5")
+orbit = 0.1
+mass = 1.0
+
+[node name="brain" type="Node" parent="." node_paths=PackedStringArray("startState")]
+script = ExtResource("4_33ecb")
+startState = NodePath("orbiting")
+
+[node name="orbiting" type="Node" parent="brain" node_paths=PackedStringArray("resting")]
+script = ExtResource("5_3rx4b")
+resting = NodePath("../resting")
+
+[node name="resting" type="Node" parent="brain"]
+script = ExtResource("6_7lix3")
+
+[node name="sprite" type="Sprite2D" parent="."]
+scale = Vector2(0.1, 0.1)
+texture = ExtResource("2_c4cix")
+
+[node name="shape" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_1u475")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+z_index = 100
+scale = Vector2(0.05, 0.05)
+texture = ExtResource("6_ikfd6")
+
+[node name="innerarea" type="Area2D" parent="."]
+z_index = 100
+scale = Vector2(0.5, 0.5)
+collision_layer = 7
+collision_mask = 7
+gravity_point = true
+gravity = 0.0
+angular_damp = 10.0
+
+[node name="innershape" type="CollisionShape2D" parent="innerarea"]
+scale = Vector2(0.1, 0.1)
+shape = SubResource("CircleShape2D_efa6w")
+
+[connection signal="body_entered" from="." to="." method="_on_body_entered"]
+[connection signal="body_exited" from="." to="." method="_on_body_exited"]
+[connection signal="body_entered" from="innerarea" to="." method="_on_innerarea_body_entered"]
+[connection signal="body_exited" from="innerarea" to="." method="_on_innerarea_body_exited"]

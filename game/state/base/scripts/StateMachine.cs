@@ -4,18 +4,19 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
+[GlobalClass]
 public partial class StateMachine : Node
 {
 	[Export] State startState;
 	public State state;
-	[Export] public Node parent;
+	public Node parent;
 	
 	// Called when the node enters the scene tree for the first time.
 	public void init() {
+		parent = GetParent();
 		initStates();
 		GD.Print(startState.Name + " " + parent.Name);
 		changeState(startState);
-		//parent = GetParent();
 	}
 	
 	private void initStates() {

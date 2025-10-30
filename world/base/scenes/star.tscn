@@ -1,0 +1,53 @@
+[gd_scene load_steps=8 format=3 uid="uid://bsi70xp1un6ir"]
+
+[ext_resource type="Script" path="res://world/base/scripts/CelestialBody.cs" id="1_n4jma"]
+[ext_resource type="Texture2D" uid="uid://d321i62uxkq6p" path="res://star.png" id="2_5w5gh"]
+[ext_resource type="Script" path="res://game/state/base/scripts/StateMachine.cs" id="3_cltkv"]
+[ext_resource type="Script" path="res://game/state/world/base/scripts/Orbiting.cs" id="4_go7lm"]
+[ext_resource type="Script" path="res://game/state/world/base/scripts/CelestialState.cs" id="5_pl5ln"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_3wino"]
+radius = 4560.33
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_e37g2"]
+radius = 92880.2
+
+[node name="star" type="Area2D"]
+collision_layer = 7
+collision_mask = 7
+gravity_point = true
+gravity = 0.0
+script = ExtResource("1_n4jma")
+mass = 318000.0
+
+[node name="sprite" type="Sprite2D" parent="."]
+scale = Vector2(500, 500)
+texture = ExtResource("2_5w5gh")
+
+[node name="shape" type="CollisionShape2D" parent="."]
+position = Vector2(86, 20)
+shape = SubResource("CircleShape2D_3wino")
+
+[node name="brain" type="Node" parent="." node_paths=PackedStringArray("startState")]
+script = ExtResource("3_cltkv")
+startState = NodePath("orbiting")
+
+[node name="orbiting" type="Node" parent="brain" node_paths=PackedStringArray("resting")]
+script = ExtResource("4_go7lm")
+resting = NodePath("../resting")
+
+[node name="resting" type="Node" parent="brain"]
+script = ExtResource("5_pl5ln")
+
+[node name="innerarea" type="Area2D" parent="."]
+z_index = 100
+scale = Vector2(0.5, 0.5)
+collision_layer = 7
+collision_mask = 7
+gravity_point = true
+gravity = 0.0
+angular_damp = 10.0
+
+[node name="innershape" type="CollisionShape2D" parent="innerarea"]
+scale = Vector2(0.1, 0.1)
+shape = SubResource("CircleShape2D_e37g2")

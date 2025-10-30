@@ -73,10 +73,12 @@ folder_colors={
 "res://game/state/base/": "teal",
 "res://game/state/base/scripts/": "teal",
 "res://game/state/entity/npc/crew/scripts/": "teal",
+"res://game/state/systems/base/": "teal",
 "res://game/state/systems/base/scripts/": "teal",
 "res://game/state/systems/engine/scripts/": "teal",
 "res://game/state/systems/shield/scripts/": "teal",
 "res://game/state/systems/weapon/scripts/": "teal",
+"res://game/state/world/base/": "teal",
 "res://game/ui/": "orange",
 "res://game/ui/base/": "teal",
 "res://game/ui/base/scripts/": "teal",
@@ -113,12 +115,7 @@ folder_colors={
 "res://ship/grid/systems/weapon/scenes/": "teal",
 "res://ship/grid/systems/weapon/scripts/": "teal",
 "res://world/": "red",
-"res://world/surface/": "orange",
-"res://world/surface/assets/": "teal",
-"res://world/surface/scenes/": "teal",
-"res://world/surface/scripts/": "teal",
-"res://world/underwater/": "orange",
-"res://world/underwater/scripts/": "teal"
+"res://world/base/": "teal"
 }
 
 [input]

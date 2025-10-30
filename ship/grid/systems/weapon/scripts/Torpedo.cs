@@ -27,8 +27,6 @@ public partial class Torpedo : Area2D
 	
 	public Ship ship;
 	
-	private SurfaceMap surfaceMap;
-	
 	public override void _Ready() {
 		radius.SetDeferred("disabled", true);
 		
@@ -44,7 +42,6 @@ public partial class Torpedo : Area2D
 		wakeMaterial.EmissionBoxExtents = new Vector3(5, 1, 1);
 		wake.Lifetime = 0.5f;
 		wakeMaterial.LifetimeRandomness = 1.0f;
-		surfaceMap = (SurfaceMap) GetNode("/root/basescene/surface/surfaceviewport/surfacemap");
 		
 		Timer timer = new Timer();
 		timer.WaitTime = 10f; // Extra buffer

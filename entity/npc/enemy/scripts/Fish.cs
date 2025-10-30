@@ -12,7 +12,7 @@ public partial class Fish : CharacterBody2D
 
 	private Vector2 targetPosition; // Target position for the fish to move toward
 	private float changeTargetTimer = 2.0f; // Time between random direction changes
-	private Ship ship;  // Reference to the ship node
+	[Export] private Ship ship;  // Reference to the ship node
 
 	private RandomNumberGenerator rng = new RandomNumberGenerator();  // Random number generator
 
@@ -27,7 +27,6 @@ public partial class Fish : CharacterBody2D
 	
 	public override void _Ready() {
 		ZIndex = 1;
-		ship = (Ship) GetTree().Root.GetNode("basescene/surface/ship"); //main/svc/sv/
 	}
 
 	public override void _PhysicsProcess(double delta)

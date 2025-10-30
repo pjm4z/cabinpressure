@@ -63,6 +63,8 @@ public partial class Crew : CharacterBody2D
 		
 		brain.init();
 		
+		
+		
 		crewPanel = (VBoxContainer) GetNode("/root/basescene/hudcanvas/HUD/crew/crewpanel");
 	}
 	
@@ -103,6 +105,13 @@ public partial class Crew : CharacterBody2D
 	
 	public override void _PhysicsProcess(double delta) {
 		updateLabels();
+		//GD.Print("!! " + (ship == null) + " " + (sprite == null));
+		if (this.sprite != null && ship != null) {
+			sprite.GlobalPosition = 
+				Position.Rotated(ship.GlobalRotation) 
+				+ ship.GlobalPosition;
+		}
+		
 		//this.Sleeping = true;
 		//GD.Print(Sleeping);
 		if (!GetTree().Paused) {
@@ -137,22 +146,35 @@ public partial class Crew : CharacterBody2D
 	
 	
 	public void move(Vector2 target) {
-		nav.TargetPosition = target;
-		//this.target = target;
-		target = nav.GetNextPathPosition();
-		float rotation = 0;
-		if (this.ship != null) {
-			rotation = (float) ship.GlobalRotation;
+		if (ship != null) {
+			nav.TargetPosition = (target - ship.GlobalPosition).Rotated(-ship.GlobalRotation);
+			target = nav.GetNextPathPosition();
+			float rotation = 0;
+		
+			Vector2 spriteTarget = adjustRotation(target, ship.GlobalRotation) * speed;
+			float angle = Mathf.RadToDeg(spriteTarget.Angle() - 1.5708f);
+			angle /= 45f;
+			angle = MathF.Round(angle);
+			angle *= 45f;
+			sprite.Rotation = Mathf.DegToRad(angle);
+			
+			target = adjustRotation(target, 0.001f) * speed;
+			
+			if (nav.AvoidanceEnabled == true) {
+				nav.SetVelocity(target);
+			} else {
+				_on_nav_velocity_computed(target);
+			}
 		}
 		
-		//sprite.Rotation = Velocity.Angle() - 1.5708f;//GetAngleTo(target) + 1.5708f;
-		target = adjustRotation(target, rotation) * speed;
-		sprite.Rotation = target.Angle() - 1.5708f;
-		if (nav.AvoidanceEnabled == true) {
-			nav.SetVelocity(target);
-		} else {
-			_on_nav_velocity_computed(target);
+	}
+	
+	//public Vector2 Velocity;
+	public void _on_nav_velocity_computed(Vector2 velocity) {
+		if (ship != null) {
+			Velocity = velocity;// * ship.GlobalRotation;
 		}
+		MoveAndSlide();
 	}
 	
 	public void reportReadiness() {
@@ -291,10 +313,10 @@ public partial class Crew : CharacterBody2D
 		
 		// Adjust dir to rotation
 		if (rotation < -0.5f) {	// topright 
-			float omr = (0 - rotation);				// rotation dist from top axis
+			float omr = (0 - rotation);				// rotation dist from top axis [0 Minus Rotation]
 			float w1 = (omr - 0.5f) * 2;			// normalized 0-1
 			
-			float hpr = (0.5f + rotation);			// rotation dist from right axis
+			float hpr = (0.5f + rotation);			// rotation dist from right axis [Half Plus Rotation]
 			float w2 = 1+(hpr*2);					// normalized 0-1
 			
 			x = (dir.X * w1) + (-dir.Y * w2);		// get avg btwn x1 and x2 based on dist from axes
@@ -438,13 +460,7 @@ public partial class Crew : CharacterBody2D
 		}*/
 	}
 	
-	//public Vector2 Velocity;
-	public void _on_nav_velocity_computed(Vector2 velocity) {
-		Velocity = velocity;//PhysicsVelocity;// + 
-		//GD.Print(velocity);
-		//GD.Print(LinearVelocity);
-		MoveAndSlide();
-	}
+	
 	
 	/*public override void _IntegrateForces(PhysicsDirectBodyState2D state) {
 		state.LinearVelocity = Velocity;

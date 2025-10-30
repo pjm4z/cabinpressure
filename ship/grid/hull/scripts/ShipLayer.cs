@@ -5,7 +5,7 @@ using System.Linq;
 
 public partial class ShipLayer : TileMapLayer
 {
-	[Export] private Ship ship;
+	[Export] protected Ship ship;
 	Dictionary<Vector2I, int> tiles = new Dictionary<Vector2I, int>();
 	
 	public Ship getShip() {

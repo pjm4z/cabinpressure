@@ -7,10 +7,8 @@ public partial class Post : GridItem
 	public bool isOccupied = false;
 	[Export] public Crew assignedCrew;
 	private PackedScene torpedoScene;
-	private SubViewport underwater;
 	public int groupId;
 	private PostCtrl postCtrl;
-	//private Area2D area;
 	protected AnimatedSprite2D sprite;
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready() {
@@ -21,67 +19,10 @@ public partial class Post : GridItem
 	
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _Process(double delta) {
-	//	GD.Print("! " + postCtrl.GlobalRotationDegrees);
-		//GlobalRotation = 0;
-		
-		/*if (postCtrl.GlobalRotationDegrees > -7.5 && postCtrl.GlobalRotationDegrees <= 82.5) {
-			GlobalRotationDegrees = -90;
-		} else if (postCtrl.GlobalRotationDegrees > 82.5) { // && postCtrl.GlobalRotationDegrees <= 172.5
-			GlobalRotationDegrees = 0;
-		} else if (postCtrl.GlobalRotationDegrees < -7.5 && postCtrl.GlobalRotationDegrees >= -82.5) {
-			GlobalRotationDegrees = 180;
-		} else if (postCtrl.GlobalRotationDegrees < -82.5 ) { //&& postCtrl.GlobalRotationDegrees >= -172.5
-			GlobalRotationDegrees = 90;
-		}*/
-		
-		/*if (postCtrl.GlobalRotationDegrees > 0 && postCtrl.GlobalRotationDegrees <= 90) {
-			GlobalRotationDegrees = -90;
-		} else if (postCtrl.GlobalRotationDegrees > 90 && postCtrl.GlobalRotationDegrees <= 180) { 
-			GlobalRotationDegrees = 0;
-		} else if (postCtrl.GlobalRotationDegrees < 0 && postCtrl.GlobalRotationDegrees >= -90) {
-			GlobalRotationDegrees = 180;
-		} else if (postCtrl.GlobalRotationDegrees < -90 && postCtrl.GlobalRotationDegrees >= -180) { 
-			GlobalRotationDegrees = 90;
-		}*/
 		int section = ((int) (Math.Abs(postCtrl.GlobalRotationDegrees) % 90) / 15);
 		if (postCtrl.GlobalRotationDegrees < 0) {
 			section = 5 - section; // todo how to get frame count?
 		}
-		//sprite.Frame = section;
-		
-		
-		
-		
-		 /*else if (postCtrl.GlobalRotationDegrees > 172.5 || postCtrl.GlobalRotationDegrees <= -82.5) { 
-			GlobalRotationDegrees = 90;
-		} else if (postCtrl.GlobalRotationDegrees > 262.5 && postCtrl.GlobalRotationDegrees <= 352.5) { 
-			GlobalRotationDegrees = 180;
-		}*/
-		
-		/*if (postCtrl.GlobalRotationDegrees >= -7.5 && postCtrl.GlobalRotationDegrees <= 7.5) {
-			sprite.Frame = 0;
-			GlobalRotationDegrees = -90;
-		}
-		if (postCtrl.GlobalRotationDegrees >= 7.5 && postCtrl.GlobalRotationDegrees <= 22.5) {
-			sprite.Frame = 1;
-			GlobalRotationDegrees = -90;
-		}
-		if (postCtrl.GlobalRotationDegrees >= 22.5 && postCtrl.GlobalRotationDegrees <= 37.5) {
-			sprite.Frame = 2;
-			GlobalRotationDegrees = -90;
-		}
-		if (postCtrl.GlobalRotationDegrees >= 37.5 && postCtrl.GlobalRotationDegrees <= 52.5) {
-			sprite.Frame = 3;
-			GlobalRotationDegrees = -90;
-		}
-		if (postCtrl.GlobalRotationDegrees >= 52.5 && postCtrl.GlobalRotationDegrees <= 67.5) {
-			sprite.Frame = 4;
-			GlobalRotationDegrees = -90;
-		}
-		if (postCtrl.GlobalRotationDegrees >= 67.5 && postCtrl.GlobalRotationDegrees <= 82.5) {
-			sprite.Frame = 5;
-			GlobalRotationDegrees = -90;
-		}*/
 		
 		if (HasOverlappingAreas() == true) {
 			isOccupied = true;

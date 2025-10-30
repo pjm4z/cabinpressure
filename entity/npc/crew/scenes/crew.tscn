@@ -47,7 +47,6 @@ shape = SubResource("CircleShape2D_rhvp5")
 path_desired_distance = 10.0
 path_postprocessing = 1
 simplify_path = true
-simplify_epsilon = 4.0
 avoidance_enabled = true
 radius = 4.0
 neighbor_distance = 100.0
@@ -77,10 +76,9 @@ scale = Vector2(0.401454, 0.463959)
 theme_override_font_sizes/font_size = 0
 label_settings = SubResource("LabelSettings_x2xeg")
 
-[node name="brain" type="Node" parent="." node_paths=PackedStringArray("startState", "parent")]
+[node name="brain" type="Node" parent="." node_paths=PackedStringArray("startState")]
 script = ExtResource("4_8uv5e")
 startState = NodePath("idle")
-parent = NodePath("..")
 
 [node name="idle" type="Node" parent="brain" node_paths=PackedStringArray("seekFood", "seekBed", "seekJob", "sleep", "work")]
 script = ExtResource("5_5wbiy")
