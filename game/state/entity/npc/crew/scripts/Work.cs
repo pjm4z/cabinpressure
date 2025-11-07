@@ -20,12 +20,13 @@ public partial class Work : CrewState {
 		crewProgress = crew.crewProgress;
 		working = false;
 		//crew.GlobalPosition = post.GlobalPosition;
-		
+		post.setOccupied(true);
 		job.setOccupied(true);
 		//job.addCharge();
 	}
 	
 	public override void exit() {
+		post.setOccupied(false);
 		job.setOccupied(false);
 		//job.removeCharge(); // how to terminate async task execute?
 	}

@@ -23,13 +23,15 @@ public partial class BaseScene : Node2D
 		subViewport = (SubViewport) GetNode("background");
 		textureRect = (TextureRect) GetNode("bgtexture");
 		ProcessMode = Node.ProcessModeEnum.Always;
-	/*	star = (CelestialBody) GetNode("star");
+		star = (CelestialBody) GetNode("star");
 		planet = (CelestialBody) GetNode("star/planet");
-		moon = (CelestialBody) GetNode("star/planet/moon");*/
-		planet = (CelestialBody) GetNode("planet");
-		moon = (CelestialBody) GetNode("planet/moon");
+		moon = (CelestialBody) GetNode("star/planet/moon");
+		//planet = (CelestialBody) GetNode("planet");
+		//moon = (CelestialBody) GetNode("planet/moon");
 		ship = (Ship) GetNode("ship");
 		material = textureRect.Material;
+		//Engine.SetTimeScale(0.5f);
+		Godot.Engine.TimeScale = 1f;
 		//ship.GlobalPosition = moon.GlobalPosition;
 	}
 

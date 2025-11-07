@@ -128,6 +128,7 @@ public partial class ShipSystem : GridItem
 	
 	public void setOccupied(bool occupied) {
 		this.occupied = occupied;
+		GD.Print("EXEC SYS occ " + occupied);
 	}
 	
 	public bool isOccupied() {

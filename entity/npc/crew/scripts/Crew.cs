@@ -298,8 +298,8 @@ public partial class Crew : CharacterBody2D
 	
 	public bool atLocation(Node2D node) {
 		if (node != null) {
-			if (Math.Abs(GlobalPosition.X - node.GlobalPosition.X) < nav.TargetDesiredDistance &&
-				Math.Abs(GlobalPosition.Y - node.GlobalPosition.Y) < nav.TargetDesiredDistance) {			// if at job location, dequeue job
+			if (Math.Abs(sprite.GlobalPosition.X - node.GlobalPosition.X) < nav.TargetDesiredDistance &&
+				Math.Abs(sprite.GlobalPosition.Y - node.GlobalPosition.Y) < nav.TargetDesiredDistance) {			// if at job location, dequeue job
 				return true;
 			} 
 		}

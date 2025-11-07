@@ -39,10 +39,10 @@ public partial class PlayerCamera : Camera2D
 			GD.Print("^^^^^^ " + Zoom);
 		}
 		if (Input.IsActionPressed("scrolldown")) {
-			if (Zoom - zoomSpeed > new Vector2(0.75f,0.75f)) {
+			if (Zoom - zoomSpeed != new Vector2(0.1f,0.1f)) {
 				Zoom = Zoom - zoomSpeed;
 			} else {
-				Zoom = new Vector2(0.75f,0.75f);
+				Zoom = Zoom - zoomSpeed * 2f;
 			}
 			GD.Print("vvvvvv " + Zoom);
 		}

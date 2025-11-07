@@ -36,10 +36,9 @@ polygon = PackedVector2Array(7, -7, 27, -7, 27, 7, 7, 7, 6, 6, 6, 4, -37, 4, -37
 [node name="shotpt" type="Node2D" parent="."]
 position = Vector2(30, 0)
 
-[node name="brain" type="Node" parent="." node_paths=PackedStringArray("startState", "parent")]
+[node name="brain" type="Node" parent="." node_paths=PackedStringArray("startState")]
 script = ExtResource("4_awq8g")
 startState = NodePath("idle")
-parent = NodePath("..")
 
 [node name="idle" type="Node" parent="brain" node_paths=PackedStringArray("queued", "occupied", "executing")]
 script = ExtResource("5_nppkf")

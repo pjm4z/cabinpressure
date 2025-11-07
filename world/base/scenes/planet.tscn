@@ -18,7 +18,7 @@ collision_mask = 7
 gravity_point = true
 gravity = 100.0
 script = ExtResource("1_vexj4")
-mass = 318.0
+mass = 100.0
 
 [node name="sprite" type="Sprite2D" parent="."]
 scale = Vector2(10, 10)

@@ -30,4 +30,8 @@ public partial class Game : Node
 	/*public bool dictContains(Dictionary<string, object> objectToCheck, string propertyName) {
 		
 	}*/
+	
+	public Vector2 XY(Vector3 vec3) {
+		return new Vector2(vec3.X, vec3.Y);
+	}
 }

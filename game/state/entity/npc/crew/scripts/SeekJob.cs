@@ -34,6 +34,7 @@ public partial class SeekJob : CrewState
 			crew.kickbackOrders();
 			return idle;
 		} 
+	//	GD.Print("forever seeking");
 		crew.move(post.GlobalPosition);
 		if (crew.atLocation(post)) {
 			return work;

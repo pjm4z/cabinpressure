@@ -24,11 +24,12 @@ public partial class Post : GridItem
 			section = 5 - section; // todo how to get frame count?
 		}
 		
-		if (HasOverlappingAreas() == true) {
+		/*if (HasOverlappingAreas() == true) {
 			isOccupied = true;
+			GD.Print("OCC");
 		} else {
 			isOccupied = false;
-		}
+		}*/
 		if (this.assignedCrew == null && this.postCtrl != null) {
 			reportReadiness();
 		}
@@ -72,6 +73,10 @@ public partial class Post : GridItem
 			this.assignedCrew.kickbackOrders();
 		}
 		base.removeSelf();
+	}
+	
+	public void setOccupied(bool occupied) {
+		this.isOccupied = occupied;
 	}
 	
 	public void doJob(ShipSystem target) { //async Task

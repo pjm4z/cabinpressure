@@ -16,7 +16,7 @@
 radius = 4.0
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_rhvp5"]
-radius = 8.0
+radius = 80.0
 
 [sub_resource type="LabelSettings" id="LabelSettings_x2xeg"]
 font_size = 12

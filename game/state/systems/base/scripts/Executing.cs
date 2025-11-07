@@ -28,6 +28,7 @@ public partial class Executing : SysState
 		
 	public override State process(double delta) {
 		State newState = checkPriorities();
+		
 		if (newState != null) {
 			return newState;
 		}

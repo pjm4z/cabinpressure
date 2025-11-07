@@ -26,7 +26,7 @@ public partial class CelestialBody : Area2D
 		shape = (CollisionShape2D) GetNode("shape");
 		brain = (StateMachine) GetNode("brain");
 		innerArea = (Area2D) GetNode("innerarea");
-		
+		GlobalPosition *= Scale;
 		init();
 		brain.init();
 	}
@@ -83,7 +83,7 @@ public partial class CelestialBody : Area2D
 		prevPos = sprite.GlobalPosition;
 	}
 	
-	public Vector2 giveHeading(string name, Vector2 gPos, Vector2 heading) {
+	public Vector3 giveHeading(string name, Vector2 gPos, Vector3 heading) {
 		//GD.Print("GIVE HEADING1 " + Name +  " " + mass + " " + sprite.GlobalPosition.DistanceTo(gPos));
 		//Vector2 heading = Game.Instance.zero;
 		
@@ -92,7 +92,10 @@ public partial class CelestialBody : Area2D
 		double gravity = Math.Pow(dist, 2);
 		gravity = (mass * EarthMass) / gravity;
 		//GD.Print("??? " + Name + " " + ships.ContainsKey(name) + " " + star.Scale + " " + dir + " " +  dist + " " + " " + gravity + " " + ((float) gravity * dir));
-		heading += (float) gravity * dir;
+		Vector2 diff = Game.Instance.XY(heading);
+		diff += (float) gravity * dir;
+		heading.X += diff.X;
+		heading.Y += diff.Y;
 		if (!ships.ContainsKey(name)) {
 			//GD.Print("NOT IN CORE " + name + " " + ships.ContainsKey(name));
 			foreach (string key in satellites.Keys) {
@@ -102,7 +105,7 @@ public partial class CelestialBody : Area2D
 			}
 		} else {
 			//GD.Print("in core");
-			heading = velocity;
+			heading = new Vector3(velocity.X, velocity.Y, mass);
 		}
 		
 		//heading = Game.Instance.zero;
