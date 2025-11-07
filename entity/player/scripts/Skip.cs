@@ -22,13 +22,13 @@ public partial class Skip : CharacterBody2D
 				RemoveChild(camera);
 				ship.AddChild(camera);
 				this.active = false;
-				ship.active = true;
+				//ship.active = true;
 				GlobalPosition = new Vector2(ship.Position.X - 40, ship.Position.Y + 20);
 			} else if (camera.GetParent() == this.GetParent()) {
 				ship.RemoveChild(camera);
 				AddChild(camera);
 				this.active = true;
-				ship.active = false;
+			//	ship.active = false;
 				GlobalPosition = new Vector2(ship.Position.X - 40, ship.Position.Y + 20);
 			}
 		}

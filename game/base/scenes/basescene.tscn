@@ -217,15 +217,8 @@ shape = SubResource("RectangleShape2D_q1twc")
 z_index = 2
 rotation = 3.14159
 
-[node name="bgtexture" type="TextureRect" parent="."]
-material = SubResource("ShaderMaterial_7tpq1")
-offset_right = 1152.0
-offset_bottom = 644.0
-script = ExtResource("1_f6mk5")
-
 [node name="star" parent="." instance=ExtResource("14_rswqt")]
 position = Vector2(105600, -11)
-scale = Vector2(10, 10)
 mass = 318.0
 
 [node name="planet" parent="star" instance=ExtResource("18_183xn")]
@@ -241,7 +234,8 @@ mass = 0.05
 
 [node name="ship2" parent="." node_paths=PackedStringArray("star", "target") instance=ExtResource("5_8a8ed")]
 z_index = 2
-position = Vector2(-8373, 1)
+position = Vector2(-3153, 9)
+mass = 0.5
 gravity_scale = 1.0
 angular_damp = 0.01
 star = NodePath("../star")
@@ -282,13 +276,13 @@ position = Vector2(-13.9999, 55.951)
 [node name="item9" parent="ship2" instance=ExtResource("8_tndgh")]
 position = Vector2(4.0001, -24.049)
 
-[node name="ship" parent="." node_paths=PackedStringArray("skip", "star") instance=ExtResource("5_8a8ed")]
+[node name="ship" parent="." node_paths=PackedStringArray("star", "skip") instance=ExtResource("5_8a8ed")]
 z_index = 2
-position = Vector2(-8302, 1)
+position = Vector2(-3082, 9)
 gravity_scale = 1.0
 angular_damp = 0.01
-skip = NodePath("skip")
 star = NodePath("../star")
+skip = NodePath("skip")
 
 [node name="furniture" parent="ship" instance=ExtResource("7_shcty")]
 position = Vector2(-16, -88)
@@ -335,6 +329,12 @@ ship = NodePath("..")
 position = Vector2(41, -83)
 rotation = 3.14159
 camera = NodePath("../playercamera")
+
+[node name="bgtexture" type="TextureRect" parent="."]
+material = SubResource("ShaderMaterial_7tpq1")
+offset_right = 1152.0
+offset_bottom = 644.0
+script = ExtResource("1_f6mk5")
 
 [node name="background" type="SubViewport" parent="."]
 size = Vector2i(40, 40)

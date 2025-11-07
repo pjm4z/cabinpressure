@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3 uid="uid://c3ho5gwbhjvje"]
+[gd_scene load_steps=7 format=3 uid="uid://c3ho5gwbhjvje"]
 
 [ext_resource type="Script" path="res://world/base/scripts/CelestialBody.cs" id="1_vexj4"]
 [ext_resource type="Texture2D" uid="uid://be3lkfiurgeia" path="res://jupiter.png" id="2_m0ame"]
@@ -7,10 +7,7 @@
 [ext_resource type="Script" path="res://game/state/world/base/scripts/CelestialState.cs" id="5_r35ml"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_86c7f"]
-radius = 10854.7
-
-[sub_resource type="CircleShape2D" id="CircleShape2D_mjjrs"]
-radius = 62695.2
+radius = 3137.0
 
 [node name="planet" type="Area2D"]
 collision_layer = 7
@@ -25,7 +22,6 @@ scale = Vector2(10, 10)
 texture = ExtResource("2_m0ame")
 
 [node name="shape" type="CollisionShape2D" parent="."]
-position = Vector2(86, 20)
 shape = SubResource("CircleShape2D_86c7f")
 
 [node name="brain" type="Node" parent="." node_paths=PackedStringArray("startState")]
@@ -39,20 +35,5 @@ resting = NodePath("../resting")
 [node name="resting" type="Node" parent="brain"]
 script = ExtResource("5_r35ml")
 
-[node name="innerarea" type="Area2D" parent="."]
-z_index = 100
-scale = Vector2(0.5, 0.5)
-collision_layer = 7
-collision_mask = 7
-gravity_point = true
-gravity = 0.0
-angular_damp = 10.0
-
-[node name="innershape" type="CollisionShape2D" parent="innerarea"]
-scale = Vector2(0.1, 0.1)
-shape = SubResource("CircleShape2D_mjjrs")
-
 [connection signal="body_entered" from="." to="." method="_on_body_entered"]
 [connection signal="body_exited" from="." to="." method="_on_body_exited"]
-[connection signal="body_entered" from="innerarea" to="." method="_on_innerarea_body_entered"]
-[connection signal="body_exited" from="innerarea" to="." method="_on_innerarea_body_exited"]

@@ -5,16 +5,17 @@ using Godot.Collections;
 
 public partial class BaseScene : Node2D
 {
+	[Export] Ship ship;
 	Camera2D mainCamera;
 	Camera2D bgCamera;
 	SubViewport subViewport;
 	TextureRect textureRect;
-	private bool paused = false;
+	bool paused = false;
 	CelestialBody star;
 	CelestialBody planet;
 	CelestialBody moon;
 	Material material;
-	[Export] Ship ship;
+	
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
@@ -22,17 +23,13 @@ public partial class BaseScene : Node2D
 		bgCamera = (Camera2D) GetNode("background/bgcamera");
 		subViewport = (SubViewport) GetNode("background");
 		textureRect = (TextureRect) GetNode("bgtexture");
-		ProcessMode = Node.ProcessModeEnum.Always;
 		star = (CelestialBody) GetNode("star");
 		planet = (CelestialBody) GetNode("star/planet");
 		moon = (CelestialBody) GetNode("star/planet/moon");
-		//planet = (CelestialBody) GetNode("planet");
-		//moon = (CelestialBody) GetNode("planet/moon");
 		ship = (Ship) GetNode("ship");
 		material = textureRect.Material;
-		//Engine.SetTimeScale(0.5f);
-		Godot.Engine.TimeScale = 1f;
-		//ship.GlobalPosition = moon.GlobalPosition;
+		//ProcessMode = Node.ProcessModeEnum.Always;
+		//Godot.Engine.TimeScale =.5f;
 	}
 
 	private void PrintSceneTree(Node node, int indent = 0)
@@ -59,17 +56,17 @@ public partial class BaseScene : Node2D
 		Vector2 s = DisplayServer.WindowGetSize() * new Vector2(1/0.75f,1/0.75f);
 		Vector2 p = mainCamera.GlobalPosition;
 		
-		p.X -= s.X/2;
-		p.Y -= s.Y/2;
+		p.X -= s.X/(2 * mainCamera.Zoom.X);
+		p.Y -= s.Y/(2 * mainCamera.Zoom.X);
 		subViewport.Size = (Vector2I)s;
-		textureRect.Size = s;
+		textureRect.Size = s / mainCamera.Zoom;
 		textureRect.Position = p;
 		
 		if (material is ShaderMaterial shaderMaterial) {
 			Godot.Collections.Array bodies = new Godot.Collections.Array();
-			//bodies.Add(new Vector3(star.sprite.GlobalPosition.X, star.sprite.GlobalPosition.Y, star.mass));
-			bodies.Add(new Vector3(planet.sprite.GlobalPosition.X, planet.sprite.GlobalPosition.Y, planet.mass));
-			bodies.Add(new Vector3(moon.sprite.GlobalPosition.X, moon.sprite.GlobalPosition.Y, moon.mass));
+			bodies.Add(new Vector3(star.realPos.X, star.realPos.Y, star.mass));
+			bodies.Add(new Vector3(planet.realPos.X, planet.realPos.Y, planet.mass));
+			bodies.Add(new Vector3(moon.realPos.X, moon.realPos.Y, moon.mass));
 			// ... proceed to set parameters
 			shaderMaterial.SetShaderParameter("bodies", bodies);
 			shaderMaterial.SetShaderParameter("elements", 2);

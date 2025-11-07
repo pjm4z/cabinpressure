@@ -61,6 +61,7 @@ public partial class Wire : GridItem
 		if (this.sprite != null) {
 			this.sprite.Modulate = network.color; 
 		}
+		reparentNetwork();
 	}
 	
 	private bool checkItem(string dir) {

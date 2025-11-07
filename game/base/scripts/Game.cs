@@ -6,7 +6,7 @@ public partial class Game : Node
 	public static Game Instance;
 	public PlayerCamera camera;
 	
-	public Vector2 zero = new Vector2(0,0);
+	public Vector2 zero = Vector2.Zero;
 	
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready() {

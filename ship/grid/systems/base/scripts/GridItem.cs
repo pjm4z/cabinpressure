@@ -33,8 +33,6 @@ public partial class GridItem : Area2D
 		this.tilePos = tilePos;
 		this.Position = localPos;
 		
-		//gridAdapter/init(this, grid)
-		
 		initCircuit();
 		initNetwork();
 		joinWires();
@@ -42,7 +40,7 @@ public partial class GridItem : Area2D
 	
 	protected virtual void reparentNetwork() {
 		this.network.Reparent(this.circuit);
-		//Reparent(this.network);
+		this.Reparent(this.network);
 	}
 	
 	protected virtual void initCircuit() {

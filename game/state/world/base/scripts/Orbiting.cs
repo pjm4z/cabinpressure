@@ -5,13 +5,11 @@ public partial class Orbiting : CelestialState
 {
 	[Export] CelestialState resting;
 	
-	private Sprite2D sprite;
 	private float orbit;
 	private float dampening = 0.001f;
 	
 	public override void enter() {
 		base.enter();
-		this.sprite = celest.sprite;
 		this.orbit = celest.orbit;
 	}
 
@@ -19,7 +17,6 @@ public partial class Orbiting : CelestialState
 	public override State process(double delta)
 	{
 		celest.GlobalRotation += orbit * (float) delta * dampening;
-		sprite.GlobalRotation = 0f;
 		return base.process(delta);
 	}
 	
