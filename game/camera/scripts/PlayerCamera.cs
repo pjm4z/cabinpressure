@@ -17,9 +17,6 @@ public partial class PlayerCamera : Camera2D
 	{
 		ship = (Ship) GetParent();
 		Game.Instance.camera = this;
-		//Instance = this;
-		//Reparent(ship);
-		//SetPhysicsProcess(true);
 	}
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.

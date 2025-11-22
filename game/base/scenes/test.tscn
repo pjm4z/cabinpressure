@@ -1,0 +1,116 @@
+[gd_scene load_steps=6 format=3 uid="uid://ugity83gwvhb"]
+
+[ext_resource type="PackedScene" uid="uid://d0q4pux665fv6" path="res://ship/base/scenes/ship.tscn" id="1_rrewu"]
+[ext_resource type="PackedScene" uid="uid://nyjgnbrqeon0" path="res://object/scenes/furniture.tscn" id="2_rp6it"]
+[ext_resource type="PackedScene" uid="uid://k70ygdkfq0pd" path="res://object/scenes/item.tscn" id="3_c7as4"]
+[ext_resource type="Script" path="res://game/camera/scripts/PlayerCamera.cs" id="4_mi81d"]
+[ext_resource type="PackedScene" uid="uid://ccg41jlynxfth" path="res://entity/player/scenes/skip.tscn" id="5_yi3vl"]
+
+[node name="test" type="Node2D"]
+
+[node name="ship" parent="." node_paths=PackedStringArray("skip") instance=ExtResource("1_rrewu")]
+z_index = 2
+rotation = -1.5708
+gravity_scale = 1.0
+angular_damp = 0.01
+skip = NodePath("skip")
+
+[node name="furniture" parent="ship" instance=ExtResource("2_rp6it")]
+position = Vector2(-16, -88)
+script = null
+
+[node name="furniture2" parent="ship" instance=ExtResource("2_rp6it")]
+position = Vector2(-16, -72)
+script = null
+
+[node name="item" parent="ship" instance=ExtResource("3_c7as4")]
+position = Vector2(23.9998, 69.049)
+
+[node name="item2" parent="ship" instance=ExtResource("3_c7as4")]
+position = Vector2(22, 55)
+
+[node name="item3" parent="ship" instance=ExtResource("3_c7as4")]
+position = Vector2(40, -25)
+
+[node name="item4" parent="ship" instance=ExtResource("3_c7as4")]
+position = Vector2(4.99986, 69)
+
+[node name="item5" parent="ship" instance=ExtResource("3_c7as4")]
+position = Vector2(3.00006, 54.951)
+
+[node name="item6" parent="ship" instance=ExtResource("3_c7as4")]
+position = Vector2(21.0001, -25.049)
+
+[node name="item7" parent="ship" instance=ExtResource("3_c7as4")]
+position = Vector2(-12.0001, 70)
+
+[node name="item8" parent="ship" instance=ExtResource("3_c7as4")]
+position = Vector2(-13.9999, 55.951)
+
+[node name="item9" parent="ship" instance=ExtResource("3_c7as4")]
+position = Vector2(4.0001, -24.049)
+
+[node name="playercamera" type="Camera2D" parent="ship" node_paths=PackedStringArray("ship")]
+light_mask = 7
+visibility_layer = 7
+script = ExtResource("4_mi81d")
+ship = NodePath("..")
+
+[node name="skip" parent="ship" node_paths=PackedStringArray("camera") instance=ExtResource("5_yi3vl")]
+position = Vector2(41, -83)
+rotation = 3.14159
+camera = NodePath("../playercamera")
+
+[node name="ship2" parent="." node_paths=PackedStringArray("skip") instance=ExtResource("1_rrewu")]
+z_index = 2
+position = Vector2(0, -1183)
+rotation = -1.5708
+gravity_scale = 1.0
+angular_damp = 0.01
+skip = NodePath("skip")
+
+[node name="furniture" parent="ship2" instance=ExtResource("2_rp6it")]
+position = Vector2(-16, -88)
+script = null
+
+[node name="furniture2" parent="ship2" instance=ExtResource("2_rp6it")]
+position = Vector2(-16, -72)
+script = null
+
+[node name="item" parent="ship2" instance=ExtResource("3_c7as4")]
+position = Vector2(23.9998, 69.049)
+
+[node name="item2" parent="ship2" instance=ExtResource("3_c7as4")]
+position = Vector2(22, 55)
+
+[node name="item3" parent="ship2" instance=ExtResource("3_c7as4")]
+position = Vector2(40, -25)
+
+[node name="item4" parent="ship2" instance=ExtResource("3_c7as4")]
+position = Vector2(4.99986, 69)
+
+[node name="item5" parent="ship2" instance=ExtResource("3_c7as4")]
+position = Vector2(3.00006, 54.951)
+
+[node name="item6" parent="ship2" instance=ExtResource("3_c7as4")]
+position = Vector2(21.0001, -25.049)
+
+[node name="item7" parent="ship2" instance=ExtResource("3_c7as4")]
+position = Vector2(-12.0001, 70)
+
+[node name="item8" parent="ship2" instance=ExtResource("3_c7as4")]
+position = Vector2(-13.9999, 55.951)
+
+[node name="item9" parent="ship2" instance=ExtResource("3_c7as4")]
+position = Vector2(4.0001, -24.049)
+
+[node name="playercamera" type="Camera2D" parent="ship2" node_paths=PackedStringArray("ship")]
+light_mask = 7
+visibility_layer = 7
+script = ExtResource("4_mi81d")
+ship = NodePath("..")
+
+[node name="skip" parent="ship2" node_paths=PackedStringArray("camera") instance=ExtResource("5_yi3vl")]
+position = Vector2(41, -83)
+rotation = 3.14159
+camera = NodePath("../playercamera")

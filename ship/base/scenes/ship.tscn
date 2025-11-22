@@ -1,4 +1,4 @@
-[gd_scene load_steps=43 format=4 uid="uid://d0q4pux665fv6"]
+[gd_scene load_steps=47 format=4 uid="uid://d0q4pux665fv6"]
 
 [ext_resource type="Script" path="res://ship/base/scripts/Ship.cs" id="1_he26f"]
 [ext_resource type="Script" path="res://ship/grid/hull/scripts/MapCtrl.cs" id="2_wj2el"]
@@ -20,6 +20,10 @@
 [ext_resource type="Script" path="res://ship/grid/hull/scripts/CeilingMap.cs" id="11_rxry4"]
 [ext_resource type="Texture2D" uid="uid://5at468tl22p7" path="res://ship/grid/hull/assets/shiptiles-nooutline.png" id="12_ojh7a"]
 [ext_resource type="PackedScene" uid="uid://djyu6c4yahmry" path="res://ship/grid/systems/shield/scenes/shield.tscn" id="17_c146c"]
+[ext_resource type="Script" path="res://game/state/base/scripts/StateMachine.cs" id="21_tos8c"]
+[ext_resource type="Script" path="res://game/state/ship/base/scripts/Player.cs" id="22_fw5ly"]
+[ext_resource type="Script" path="res://game/state/ship/base/scripts/ShipIdle.cs" id="23_on7nu"]
+[ext_resource type="Script" path="res://game/state/ship/base/scripts/Follow.cs" id="24_ufhtt"]
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_hvhn3"]
 friction = 0.0
@@ -348,15 +352,15 @@ custom_data_layer_0/type = 2
 sources/2 = SubResource("TileSetAtlasSource_utyc3")
 sources/0 = SubResource("TileSetAtlasSource_ejqe1")
 
-[node name="ship" type="RigidBody2D" node_paths=PackedStringArray("defaultRoster", "mapCtrl", "shield")]
+[node name="ship" type="RigidBody2D" node_paths=PackedStringArray("defaultRoster", "mapCtrl", "brain", "shield")]
 z_index = 100
 collision_mask = 33
 physics_material_override = SubResource("PhysicsMaterial_hvhn3")
 gravity_scale = 0.0
-inertia = 10000.0
 script = ExtResource("1_he26f")
 defaultRoster = NodePath("crewroster")
 mapCtrl = NodePath("mapctrl")
+brain = NodePath("brain")
 shield = NodePath("mapctrl/powergrid/shield")
 
 [node name="collision" type="CollisionPolygon2D" parent="."]
@@ -584,5 +588,24 @@ rotation = 3.14159
 [node name="timer" type="Timer" parent="."]
 one_shot = true
 autostart = true
+
+[node name="brain" type="Node" parent="." node_paths=PackedStringArray("startState")]
+script = ExtResource("21_tos8c")
+startState = NodePath("idle")
+
+[node name="player" type="Node" parent="brain" node_paths=PackedStringArray("idle", "follow")]
+script = ExtResource("22_fw5ly")
+idle = NodePath("../idle")
+follow = NodePath("../follow")
+
+[node name="idle" type="Node" parent="brain" node_paths=PackedStringArray("player", "follow")]
+script = ExtResource("23_on7nu")
+player = NodePath("../player")
+follow = NodePath("../follow")
+
+[node name="follow" type="Node" parent="brain" node_paths=PackedStringArray("player", "idle")]
+script = ExtResource("24_ufhtt")
+player = NodePath("../player")
+idle = NodePath("../idle")
 
 [connection signal="timeout" from="timer" to="." method="_on_timer_timeout"]

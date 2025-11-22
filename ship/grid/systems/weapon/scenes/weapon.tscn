@@ -5,11 +5,11 @@
 [ext_resource type="PackedScene" uid="uid://b2aqm4r4cthby" path="res://ship/grid/systems/weapon/scenes/torpedo.tscn" id="2_wrrk3"]
 [ext_resource type="Shader" path="res://t3ssel8r.gdshader" id="3_feog2"]
 [ext_resource type="Script" path="res://game/state/base/scripts/StateMachine.cs" id="4_awq8g"]
-[ext_resource type="Script" path="res://game/state/systems/base/scripts/SysIdle.cs" id="5_nppkf"]
-[ext_resource type="Script" path="res://game/state/systems/base/scripts/Queued.cs" id="6_51xqc"]
-[ext_resource type="Script" path="res://game/state/systems/base/scripts/Occupied.cs" id="7_hgk53"]
-[ext_resource type="Script" path="res://game/state/systems/weapon/scripts/Firing.cs" id="8_ejaax"]
-[ext_resource type="Script" path="res://game/state/systems/base/scripts/Overloaded.cs" id="10_k5axp"]
+[ext_resource type="Script" path="res://game/state/ship/systems/base/scripts/SysIdle.cs" id="6_1wg03"]
+[ext_resource type="Script" path="res://game/state/ship/systems/base/scripts/Queued.cs" id="6_51xqc"]
+[ext_resource type="Script" path="res://game/state/ship/systems/base/scripts/Occupied.cs" id="7_hgk53"]
+[ext_resource type="Script" path="res://game/state/ship/systems/weapon/scripts/Firing.cs" id="8_ejaax"]
+[ext_resource type="Script" path="res://game/state/ship/systems/base/scripts/Overloaded.cs" id="10_k5axp"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_8yhcm"]
 shader = ExtResource("3_feog2")
@@ -41,7 +41,7 @@ script = ExtResource("4_awq8g")
 startState = NodePath("idle")
 
 [node name="idle" type="Node" parent="brain" node_paths=PackedStringArray("queued", "occupied", "executing")]
-script = ExtResource("5_nppkf")
+script = ExtResource("6_1wg03")
 queued = NodePath("../queued")
 occupied = NodePath("../occupied")
 executing = NodePath("../executing")

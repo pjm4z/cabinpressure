@@ -15,7 +15,7 @@ public partial class CelestialBody : Area2D
 	private Sprite2D sprite;
 	private Vector2 prevPos = Vector2.Zero;
 	public Vector2 realPos = Vector2.Zero;
-	private double EarthMass = 5.972 * Math.Pow(10, 7); 
+	private double EarthMass = 5.972 * Math.Pow(10, 6); 
 	
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
@@ -77,19 +77,23 @@ public partial class CelestialBody : Area2D
 	public Vector3 giveHeading(string name, Vector2 gPos, Vector3 heading) {
 		Vector2 dir = (realPos - gPos).Normalized();
 		float dist = gPos.DistanceTo(realPos) / (star.Scale.X);
+		//Vector2 diff = new Vector2(100f, 0f);// + (realPos - gPos);
 		double gravity = Math.Pow(dist, 2);
 		gravity = (mass * EarthMass) / gravity;
 		Vector2 diff = Game.Instance.XY(heading);
 		diff += (float) gravity * dir;
-		heading.X += diff.X;
-		heading.Y += diff.Y;
+		heading.X += (float) Math.Round(diff.X);
+		heading.Y += (float) Math.Round(diff.Y);
+		//heading *= 4f;
 		if (!ships.ContainsKey(name)) {
 			foreach (string key in satellites.Keys) {
 				CelestialBody c = satellites[key];
 				heading = c.giveHeading(name, gPos, heading);
 			}
 		} else {
-			heading = new Vector3(velocity.X, velocity.Y, mass);
+			heading = new Vector3((float) Math.Round(velocity.X),
+				(float) Math.Round(velocity.Y),
+				(float) Math.Round(mass));
 		}
 		
 		return heading; 

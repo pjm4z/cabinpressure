@@ -73,11 +73,12 @@ folder_colors={
 "res://game/state/base/": "teal",
 "res://game/state/base/scripts/": "teal",
 "res://game/state/entity/npc/crew/scripts/": "teal",
-"res://game/state/systems/base/": "teal",
-"res://game/state/systems/base/scripts/": "teal",
-"res://game/state/systems/engine/scripts/": "teal",
-"res://game/state/systems/shield/scripts/": "teal",
-"res://game/state/systems/weapon/scripts/": "teal",
+"res://game/state/ship/base/": "teal",
+"res://game/state/ship/systems/base/": "teal",
+"res://game/state/ship/systems/base/scripts/": "teal",
+"res://game/state/ship/systems/engine/scripts/": "teal",
+"res://game/state/ship/systems/shield/scripts/": "teal",
+"res://game/state/ship/systems/weapon/scripts/": "teal",
 "res://game/state/world/base/": "teal",
 "res://game/ui/": "orange",
 "res://game/ui/base/": "teal",
@@ -262,8 +263,6 @@ v={
 2d/default_gravity_vector=Vector2(0, 0)
 2d/default_linear_damp=0.0
 2d/default_angular_damp=0.0
-2d/solver/contact_max_separation=0.0
-2d/solver/contact_max_allowed_penetration=0.01
 
 [rendering]
 
