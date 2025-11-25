@@ -80,11 +80,20 @@ public partial class Player : ShipState
 			
 
 		ship.ApplyTorque(angularDrive);
-		linearDrive = ship.limitVelocity(linearDrive.Normalized() * Acceleration);
+		Vector3 result = ship.limitVelocity(linearDrive.Normalized() * Acceleration);
+		linearDrive = Game.Instance.XY(result);
 		//linearDrive = linearDrive.Normalized() * Acceleration;
 		//GD.Print(xOff + " " + yOff);
 		//ship.ApplyForce(linearDrive, new Vector2(xOff, yOff).Rotated(ship.GlobalRotation));		
-		ship.ApplyCentralForce(linearDrive);		
+		if (result.Z == 0f) {
+			ship.ApplyForce(linearDrive, new Vector2(xOff, yOff).Rotated(ship.GlobalRotation));	
+			GD.Print("FORCE");
+		} else if (result.Z == 1f) {
+			//ship.ApplyCentralImpulse(linearDrive);
+			ship.ApplyImpulse(linearDrive, new Vector2(xOff, yOff).Rotated(ship.GlobalRotation));
+			GD.Print("IMPULSE");
+		}
+			
 		
 		ship.linearDrive = linearDrive;
 		
