@@ -4,31 +4,31 @@ using System.Collections.Generic;
 using System.Linq;
 
 public partial class Ship : RigidBody2D
-{	
+{
 	[Export] public Camera2D camera;
 	[Export] public CrewRoster defaultRoster;
 	[Export] private MapCtrl mapCtrl;
 	[Export] private StateMachine brain;
-	
+
 	public float TurnSpeed = 10000f;
-	public float Acceleration = 1000.0f; 
-	public float cons = 2000f;
+	[Export] public float Acceleration = 1000.0f;
+	[Export] public float cons = 2000f;
 	public float v = 0f;
 	private float angularDrive = 0f;
 	public Vector2 linearDrive = Vector2.Zero;
 	public Vector2 calculatedDrive = Vector2.Zero;
 	public Vector2 heading = Vector2.Zero;
-	
+
 	[Export] public CelestialBody star;
 	[Export] public Ship target;
 	[Export] public Skip skip;
 	[Export] private Shield shield;
 	[Export] public bool shieldEnabled = false;
 	[Export] public int hp = 1000;
-	
+
 	public Queue<Furniture> availableBeds = new Queue<Furniture>();  // TODO --> change to bed when i have bed class
 	private List<Furniture> takenBeds = new List<Furniture>();
-	
+
 	private Label accelLabel;
 	private Label velLabel;
 	private Label driveLabel;
@@ -37,7 +37,7 @@ public partial class Ship : RigidBody2D
 	private AnimatedSprite2D velMeter;
 	private AnimatedSprite2D driveMeter;
 	private AnimatedSprite2D headMeter;
-	
+
 	public override void _Ready() {
 		HBoxContainer panel = (HBoxContainer) GetNode("/root/basescene/hudcanvas/HUD/ship/shippanel");
 		accelMeter = (AnimatedSprite2D) panel.GetNode("acceleration");
@@ -54,49 +54,52 @@ public partial class Ship : RigidBody2D
 			panel.AddChild(driveLabel);
 			panel.AddChild(headLabel);
 		}
-		
+
 		GlobalPosition *= star.Scale;
 		initBeds();
 		shield.init(this);
 		brain.init();
 	}
-	
+
 	public void initBeds() {
 		var bedArray = GetChildren()
 			.Where(child => child is Furniture) // TODO --> change to bed when I have bed class
-			.Select(child => child)          
-			.Cast<Furniture>(); // TODO --> change to bed when I have bed class                 
+			.Select(child => child)
+			.Cast<Furniture>(); // TODO --> change to bed when I have bed class
 
 		foreach(var bed in bedArray) {
 			availableBeds.Enqueue(bed);
 		}
 	}
-	
+
 	public void giveBed(Crew crew) {
 		if (availableBeds.Count > 0) {
 			Furniture bed = availableBeds.Dequeue();
 			crew.bed = bed;
 			bed.crew = crew;
 			takenBeds.Add(bed);
-		} 
+		}
 	}
 
 	public override void _Input(InputEvent inputEvent) { base._Input(inputEvent); }
-	
+
 	public float delta = 0f;
 	public override void _PhysicsProcess(double delta) {
 		this.delta = (float) delta;
 		base._PhysicsProcess(delta);
-		
+
 		updateHeading();
 		//ApplyCentralForce(new Vector2(200f, 0f));
 		brain.process(delta);
+		
 		if (!timer) {
 		//	ApplyCentralForce(new Vector2(100f, 0f));
 		}
-		
-		
-		if (skip != null) { 
+
+
+		if (skip != null) {
+			//GD.Print(Mathf.RadToDeg(linearDrive.Angle() ) + " " + Mathf.RadToDeg(GlobalRotation));
+			//GD.Print("!! " + Mathf.RadToDeg(linearDrive.Angle()));// - GlobalRotation ));-//linearDrive.Angle()));
 			if (f == 10) {
 				displayVel = LinearVelocity.Length();
 				displayDrive = v;
@@ -114,7 +117,7 @@ public partial class Ship : RigidBody2D
 	float displayVel = 0f;
 	float displayDrive = 0f;//Vector2.Zero;
 	Vector2 displayHead = Vector2.Zero;
-	
+
 	public override void _IntegrateForces(PhysicsDirectBodyState2D state) {
 		if (Input.IsActionPressed("c")) {
 			Vector2 diff = state.LinearVelocity - heading;
@@ -127,8 +130,8 @@ public partial class Ship : RigidBody2D
 			} else {
 				state.LinearVelocity -= new Vector2(diff.X / 100f, diff.Y / 100f);
 			}
-		} 
-		
+		}
+
 		if (Input.IsActionPressed("v")) {
 			float diff = state.AngularVelocity;
 			if (state.AngularVelocity <= 0.1f) {
@@ -136,139 +139,163 @@ public partial class Ship : RigidBody2D
 			} else {
 				state.AngularVelocity -= diff / 100f;
 			}
-		} 
-		
+		}
+
 		if (skip != null) {
 			updateMeters(state);
 		}
 	}
-	
+
 	public void move(Vector2 targ) {
 		move(targ, 0f, Vector2.Zero, 0f);
 	}
-	
+
 	public void move(Vector2 targ, float desiredDist) {
 		move(targ, desiredDist, Vector2.Zero, 0f);
 	}
-	
+
 	Vector2 prevPos = Vector2.Zero;
 	float angle;
 	int i = 0;
-	
+
 	public void move(Vector2 targ, float desiredDist, Vector2 targetVelocity, float targetAcceleration) {
-		if (i == 10) {
-			angle = (targetVelocity.Angle() - GlobalRotation) - (1.5708f);
-			i = 0;
-		} else {
-			i++;
+		
+		float interceptTime = 0f;
+		if (LinearVelocity.Length() != 0f) {
+			interceptTime = (targ - GlobalPosition).Length()/(LinearVelocity).Length();
+		}
+		if (interceptTime < 0f) {
+			interceptTime = 0f;
 		}
 		
-		Vector2 dist = targ + targetVelocity - GlobalPosition;
+		// + (targetVelocity * interceptTime)
+		Vector2 drive = ((targ + (targetVelocity * interceptTime)) - GlobalPosition);
+		
+		Vector2 vel = LinearVelocity;
+		if ((LinearVelocity + drive).Length() > LinearVelocity.Length()) {
+			vel = drive.Normalized();  //LinearVelocity.Normalized() +
+		} else {
+			//vel = Vector2.Zero;
+		}
+		
+		
+		GD.Print(interceptTime);
+
+		Vector2 dist = targ - GlobalPosition;
+		Vector2 interceptDist = targ + (targetVelocity * interceptTime) - GlobalPosition;
 		dist.X = Math.Abs(dist.X);
 		dist.Y = Math.Abs(dist.Y);
+		interceptDist.X = Math.Abs(interceptDist.X);
+		interceptDist.Y = Math.Abs(interceptDist.Y);
 		Vector2 ratio = dist.Normalized();
 		dist -= new Vector2(desiredDist * ratio.X, desiredDist * ratio.Y);
 		
-		linearDrive = (targ - GlobalPosition);//.Rotated(angularDiff);
-		float newSpeed = Math.Abs(linearDrive.X);
-		float curSpeed = Math.Abs(LinearVelocity.X);
+		Vector2 interceptRatio = interceptDist.Normalized();
+		interceptDist -= new Vector2(desiredDist * interceptRatio.X, desiredDist * interceptRatio.Y);
+
 		
-		float decelTime = curSpeed / Acceleration;
+		float newSpeed = Math.Abs(drive.X);
+		float curSpeed = Math.Abs(LinearVelocity.X);
+
+
+		float accel = Acceleration;
+		if (accel > targetAcceleration) {
+			accel = targetAcceleration;
+		}
+		float decelTime = curSpeed / accel;
 		float traverseTime = (dist.X / curSpeed) - 1f;
+		interceptTime = (interceptDist.X / curSpeed) - 1f;
+
 		float targetDecelTime = 0f;
 		if (targetAcceleration != 0) {
-			targetDecelTime = Math.Abs(targetVelocity.X) / targetAcceleration; 
+			targetDecelTime = Math.Abs(targetVelocity.X) / targetAcceleration;
 		}
-		
-		
-		
-		if (decelTime >= traverseTime + targetDecelTime) {
-			//angle = GetAngleTo(targ) - (1.5708f);
+
+		if (decelTime >= traverseTime + targetDecelTime
+			|| decelTime >= interceptTime + targetDecelTime) {
 			if (curSpeed > newSpeed) {
-				linearDrive.X = LinearVelocity.Normalized().X - (LinearVelocity.Normalized().X * Acceleration);
+				drive.X = LinearVelocity.Normalized().X - (LinearVelocity.Normalized().X * Acceleration);
 			} else {
-				linearDrive.X = -LinearVelocity.X;
-			} 
-		}
-		
-		newSpeed = Math.Abs(linearDrive.Y);
+				drive.X = -LinearVelocity.X;
+			}
+		} 
+
+		newSpeed = Math.Abs(drive.Y);
 		curSpeed = Math.Abs(LinearVelocity.Y);
 		
-		decelTime = curSpeed / Acceleration;
+		decelTime = curSpeed / accel;
 		traverseTime = (dist.Y / curSpeed) - 1f;
-		targetDecelTime =  Math.Abs(targetVelocity.Y) / targetAcceleration; 
-		
-		if (decelTime >= traverseTime + targetDecelTime) {
-			//angle = GetAngleTo(targ) - (1.5708f);
+		interceptTime = (interceptDist.Y / curSpeed) - 1f;
+
+		if (targetAcceleration != 0) {
+			targetDecelTime = Math.Abs(targetVelocity.Y) / targetAcceleration;
+		}
+
+		if (decelTime >= traverseTime + targetDecelTime
+			|| decelTime >= interceptTime + targetDecelTime) {
 			if (curSpeed > newSpeed) {
-				linearDrive.Y = LinearVelocity.Normalized().Y - (LinearVelocity.Normalized().Y * Acceleration);
+				drive.Y = LinearVelocity.Normalized().Y - (LinearVelocity.Normalized().Y * Acceleration);
 			} else {
-				linearDrive.Y = -LinearVelocity.Y;
-			} 
+				drive.Y = -LinearVelocity.Y;
+			}
 		}
 		
-		//GD.Print(Mathf.RadToDeg(angle));
-		//prevPos = GlobalPosition;
-		float stopRotTime = Math.Abs(AngularVelocity) * Inertia / Math.Abs(TurnSpeed);
+		float offset = 1.5708f;
+		
+		angle = ((vel.Angle() - GlobalRotation)) - offset;
+		if (vel.Angle() < 0f && GlobalRotation > 0f) { // Math.Abs(angle) > 3.1416) {
+			angle = ((-4.71239f - angle) * -1f) + offset;
+		}
+		
 		float turnTime = Math.Abs(angle / AngularVelocity);
 		
-		if (stopRotTime >= turnTime - 1f) {
-			ApplyTorque(-AngularVelocity * TurnSpeed);
+		float dir = 0f;
+		if (AngularVelocity > 0f) {
+			dir = -1f;
+		} else if (AngularVelocity < 0f) {
+			dir = 1f;
+		}
+		float stopRotTime = Math.Abs(AngularVelocity/Math.Abs((dir * TurnSpeed)/Inertia));
+		
+		if (stopRotTime >= turnTime) {
+			ApplyTorque(dir * TurnSpeed);
 		} else {
-			float rot = 0f;
+			dir = 0f;
 			if (angle > 0f) {
-				rot = 1f;
+				dir = 1f;
 			} else if (angle < 0f) {
-				rot = -1f;
+				dir = -1f;
 			}
-			ApplyTorque(rot * TurnSpeed);
+			ApplyTorque(dir * TurnSpeed);
 		}
 		
-		linearDrive = linearDrive.Normalized() * Acceleration;
+		driveLabel.Text = Math.Round(drive.Length(), 2).ToString();
 		
-		driveLabel.Text = Math.Round(linearDrive.Length(), 2).ToString();
-		ApplyCentralForce(Game.Instance.XY(limitVelocity(linearDrive)));
+		Vector4 result = limitVelocity(drive.Normalized() * Acceleration);
+		drive = new Vector2(result.X, result.Y);
+		if (result.Z == 0f) {
+			ApplyCentralForce(drive);
+		} else if (result.Z == 1f) {
+			ApplyCentralImpulse(drive);
+		}
+		
+		if (result.W == 0f) {
+			linearDrive = drive;
+		}
 	}
-	
+
 	Vector2 orbitOffset = Vector2.Zero;
-	public Vector3 limitVelocity(Vector2 force) {
-		float flag = 0f;
+	public Vector4 limitVelocity(Vector2 force) {
+		float impulse = 0f;
+		float limited = 0f;
+		// orbiting planet
 		if (desiredHeading.Z != 0f) { 
 			Vector2 dh = new Vector2(desiredHeading.X,desiredHeading.Y);
-			if (v <= cons + dh.Length()) {//((LinearVelocity).Length() <= (((LinearVelocity.Normalized() * cons) + heading).Length())) {//(v != ((LinearVelocity.Normalized() * cons) + heading).Length()) {//((LinearVelocity.Normalized() * cons) + heading).Length()) { // ((LinearVelocity.Normalized() * cons) 
-				//GD.Print("1 " + v);
-				v = ((LinearVelocity.Normalized() * cons) + dh).Length();  //
-			//	orbitOffset = Vector2.Zero;
-				orbitOffset = dh;//(LinearVelocity.Normalized() + heading);
-				
-				
-				//TODO <= ?? below is <
-				
-		//	} else if (heading != orbitOffset) { 
-		//		
-				// check angle to heading
-				//if -1, v -= heading.len
-				//if 1, v += heading.len
-				
-				
-		//		GD.Print("2 " + (heading - orbitOffset).Length());
-		//		v = ((LinearVelocity - orbitOffset) + heading).Length(); // - orbitOffset) + headingwwwwww 
-		//		orbitOffset = heading; 
-		//	}  else if (LinearVelocity.Length() > (LinearVelocity + heading).Length()) { // && desiredHeading.Z == 0f
-		//	GD.Print("2");
-				//v = LinearVelocity.Length(); //+ (heading * delta)
-			//v = ((LinearVelocity - orbitOffset) + heading).Length(); // - orbitOffset) + headingwwwwww 
-			//	v = (LinearVelocity).Length();
-			//orbitOffset = heading; 
-			
-			//v = (LinearVelocity + headDiff).Length();
-			//+ headDiff
-			//v = (LinearVelocity - (heading * delta)).Length();
-		} else if ((Math.Abs(force.Angle() - LinearVelocity.Angle()) > 1.5708f &&
-			 LinearVelocity.Length() < v)  // target vel > 90 deg from velocity, slowing down
-			// ||	LinearVelocity.Length() != (LinearVelocity + heading).Length() 							 	// heading decreases velocity
-				//|| LinearVelocity.Length() > v
-				) { 		// accel past speed limit (from heading?)
+			if (v <= cons + dh.Length()) { // currently under speed limit
+				v = ((LinearVelocity.Normalized() * cons) + dh).Length();
+				orbitOffset = dh;
+			} else if ((Math.Abs(force.Angle() - LinearVelocity.Angle()) > 1.5708f &&
+					 	LinearVelocity.Length() < v)) { 		// accel past speed limit (from heading?)
 						/*if (LinearVelocity.Length() > (LinearVelocity - orbitOffset).Length()) {
 							v = (LinearVelocity - orbitOffset).Length();
 						} else {
@@ -276,12 +303,12 @@ public partial class Ship : RigidBody2D
 						}*/
 					//	GD.Print("!!! " + v + " " /*+ heading + " " + heading.Length() + " "*/ + orbitOffset.Length());
 					//	Vector2 newOrbitOffset = ( heading); //LinearVelocity.Normalized() +
-						v = ((LinearVelocity - orbitOffset) + dh).Length(); // - orbitOffset) + headingwwwwww 
+						v = ((LinearVelocity - orbitOffset) + dh).Length(); // - orbitOffset) + heading
 					//	v = (LinearVelocity).Length();
-						orbitOffset = dh; 
-						
+						orbitOffset = dh;
+
 						if (v < LinearVelocity.Length()) {
-							
+
 						//	ApplyCentralForce(-LinearVelocity.Normalized() * Math.Abs(v - LinearVelocity.Length()));
 						}//orbitOffset
 						/*if (LinearVelocity.Length() > (LinearVelocity - orbitOffset).Length()) {
@@ -289,214 +316,108 @@ public partial class Ship : RigidBody2D
 						} else {
 							v -= orbitOffset.Length();
 						}*/
-						
-						
-				GD.Print("3 " + v);
 			}
-			//v -= (LinearVelocity.Normalized() + orbitOffset).Length();
-			//v += (LinearVelocity.Normalized() + heading).Length();
-		} else {
+		} 
+		// free space
+		else { 
 			orbitOffset = Vector2.Zero;
-		if (v <= cons && LinearVelocity.Length() <= cons) {
-			v = ((LinearVelocity.Normalized() * cons) + ((heading * delta) / Mass)).Length(); //(heading * delta)
-			
-		} else if (LinearVelocity.Length() > (LinearVelocity + heading).Length()) { 
-			Vector2 headDiff = heading + force;
-			
-			//ensuring heading will be negated but not exceeded
-			if (heading.X > 0) {
-				if (heading.X + force.X < -heading.X) {
-					headDiff.X = -heading.X;
-				} else if (heading.X + force.X > heading.X) {
-					headDiff.X = heading.X;
-				}
-			} else if (heading.X < 0) {
-				if (heading.X + force.X > -heading.X) {
-					headDiff.X = -heading.X;
-				} else if (heading.X + force.X < heading.X) {
-					headDiff.X = heading.X;
-				}
-			}
-			//ensuring heading will be negated but not exceeded
-			if (heading.Y > 0) {
-				if (heading.Y + force.Y < -heading.Y) {
-					headDiff.Y = -heading.Y;
-				} else if (heading.Y + force.Y > heading.Y) {
-					headDiff.Y = heading.Y;
-				}
-			} else if (heading.Y < 0) {
-				if (heading.Y + force.Y > -heading.Y) {
-					headDiff.Y = -heading.Y;
-				} else if (heading.Y + force.Y < heading.Y) {
-					headDiff.Y = heading.Y;
-				}
-			}
-			
-			if (force.Length() > (force + heading).Length()) {
-				//ApplyCentralForce(headDiff);
-				//GD.Print("!!!!!!??");
-			} else {
-				v = LinearVelocity.Length(); //+ (heading * delta)
-			}
-			
-			
-			//v = (LinearVelocity + headDiff).Length();
-			//+ headDiff
-			//v = (LinearVelocity - (heading * delta)).Length();
-		} else if ((Math.Abs(force.Angle() - LinearVelocity.Angle()) > 1.5708f && LinearVelocity.Length() < v)  // target vel within 90 deg of velocity
-			//LinearVelocity.Length() > (LinearVelocity + (heading * delta)).Length() ||							 	// heading decreases velocity
-			 || LinearVelocity.Length() > v
-			) { 		
-			//	if ( desiredHeading.Z == 0f) {
+		if (v <= cons && LinearVelocity.Length() <= cons) {	// currently under speed limit
+			v = ((LinearVelocity.Normalized() * cons) + ((heading * delta) / Mass)).Length();
+		} else if ((Math.Abs(force.Angle() - LinearVelocity.Angle()) > 1.5708f && LinearVelocity.Length() < v)  // target vel > 90 deg of velocity (decrease limit)						 	// heading decreases velocity
+			 || LinearVelocity.Length() > v) {																	// or, speed exceeds limit (increase limit)
 				if (LinearVelocity.Length() - cons < Acceleration * delta) {
 					v = cons;
-			//		GD.Print("3 " + (LinearVelocity.Length() - v) + " " + (Acceleration * delta));
 				} else {
-					
-					v = (LinearVelocity + ((heading * delta) / Mass)).Length();//(LinearVelocity + (heading * delta)).Length();
+					v = (LinearVelocity).Length();
 				}
-		
-			
-		} 
+			}
 		}
-		
-		// if what im abt to do will exceed v, negate it
-		//GD.Print("SLOW1 !!! " + LinearVelocity.Normalized().DistanceTo(force.Normalized()));
-		//GD.Print(force + " "  + force.Length());
-		
-		float angularDiff = Mathf.RadToDeg(LinearVelocity.Normalized().DistanceTo(force.Normalized()));
-		//GD.Print(angularDiff);
 
-		// + ((heading * delta)
-		//Vector2 negforce = (force.Normalized() - LinearVelocity.Normalized()) * (Acceleration);// * (speedDiff/impulse));
-		if ((LinearVelocity + ((force * delta) / Mass)).Length() >= v 									// force will exceed speed limit
-			&& 
-			(LinearVelocity + ((force * delta) / Mass)).Length() > LinearVelocity.Length()		// force will speed up
-			
-			) { 
-				
-				Vector2 proposedForce = force;
-					float xOff = Math.Abs(LinearVelocity.Normalized().X) - Math.Abs(force.Normalized().X);
-					float yOff = Math.Abs(LinearVelocity.Normalized().Y) - Math.Abs(force.Normalized().Y);
 		
-				
-			//		GD.Print(xOff);
-			//		GD.Print(yOff);
-			//		GD.Print();
-				
-				Vector2 absForce = new Vector2(Math.Abs(force.X), Math.Abs(force.Y));
-				Vector2 absVel = new Vector2(Math.Abs(LinearVelocity.X), Math.Abs(LinearVelocity.Y));
-				float xDest = LinearVelocity.X + (force.X / Mass);// LinearVelocity.X + ((force.X * delta) / Mass);
-				float yDest = LinearVelocity.Y + (force.Y / Mass);
-				
-			/*	if ((LinearVelocity + (heading * delta)).Length() > v
-					&& (LinearVelocity + (heading * delta)).Length() > LinearVelocity.Length()) {
-					v = (LinearVelocity + (heading * delta)).Length();
-					GD.Print("EEADING");
-				}*/
-				
-				float curSpeed = v;
-				
-				// cleaning up values for xDest + yDest (decreases likelihood generated force will exceed speed limit)
-				//bool rounded = true;
-				int dir = 1;
-				if (Math.Abs(xDest) > curSpeed || curSpeed - Math.Abs(xDest) < 1f) {
-					//flag = 1f;
-					if (force.X < 0f) {
-						dir = -1;
-					}
-					xDest = curSpeed * dir;
-				} else if (Math.Abs(xDest) < 1f) {
-				//	flag = 1f;
-					//xDest = 0f;
+		// apply damping	
+		if ((LinearVelocity + ((force * delta) / Mass)).Length() >= v 								// force will exceed speed limit
+			&& (LinearVelocity + ((force * delta) / Mass)).Length() > LinearVelocity.Length()) {	// force will accelerate ship
+			
+			//float angularDiff = Mathf.RadToDeg(LinearVelocity.Normalized().DistanceTo(force.Normalized()));
+			Vector2 proposedForce = force;
+			float xOff = Math.Abs(LinearVelocity.Normalized().X) - Math.Abs(force.Normalized().X);
+			float yOff = Math.Abs(LinearVelocity.Normalized().Y) - Math.Abs(force.Normalized().Y);
+
+			Vector2 absForce = new Vector2(Math.Abs(force.X), Math.Abs(force.Y));
+			Vector2 absVel = new Vector2(Math.Abs(LinearVelocity.X), Math.Abs(LinearVelocity.Y));
+			float xDest = LinearVelocity.X + (force.X / Mass);// LinearVelocity.X + ((force.X * delta) / Mass);
+			float yDest = LinearVelocity.Y + (force.Y / Mass);
+
+			float curSpeed = v;
+
+			// cleaning up values for xDest + yDest (decreases likelihood generated force will exceed speed limit)
+			int dir = 1;
+			if (Math.Abs(xDest) > curSpeed || curSpeed - Math.Abs(xDest) < 1f) {
+				if (force.X < 0f) {
+					dir = -1;
 				}
-				
-				dir = 1;
-				if (Math.Abs(yDest) > curSpeed || curSpeed - Math.Abs(yDest) < 1f) {
-					//flag = 1f;
-					if (force.Y < 0f) {
-						dir = -1;
-					}
-					yDest = curSpeed * dir;
-				} else if (Math.Abs(yDest) < 1f) {
-				//	flag = 1f;
-					yDest = 0f;
+				xDest = curSpeed * dir;
+			} else if (Math.Abs(xDest) < 1f) {
+				xDest = 0f;
+			}
+
+			dir = 1;
+			if (Math.Abs(yDest) > curSpeed || curSpeed - Math.Abs(yDest) < 1f) {
+				if (force.Y < 0f) {
+					dir = -1;
 				}
-				
-				
-				/*bool f = false;
-				if (xOff <= 0f && yOff >= 0f) {
-				//	GD.Print("1 " + xOff + " " + yOff);
-					force.X = (xDest - LinearVelocity.X) * Mass;
-					
-					int dirY = 1;
-					if (force.Y < 0f) {
-						dirY = -1;
-					}
-					yDest = dirY * (float) Math.Sqrt(Math.Pow(curSpeed, 2) - Math.Pow(xDest, 2));	// necessary dest of y to maintain speed (pythagorean theorum)
-					force.Y = (yDest - LinearVelocity.Y) * Mass;
-					f = true;
-				} else if (xOff >= 0f && yOff <= 0f) {
-				//	GD.Print("2 " + xOff + " " + yOff);
-					force.Y = (yDest - LinearVelocity.Y) * Mass;
-					
-					int dirX = 1;
-					if (force.X < 0f) {
-						dirX = -1;
-					}
-					xDest = dirX * (float) Math.Sqrt(Math.Pow(curSpeed, 2) - Math.Pow(yDest, 2));	// necessary dest of x to maintain speed (pythagorean theorum)
-					force.X = (xDest - LinearVelocity.X) * Mass;
-					f = true;
+				yDest = curSpeed * dir;
+			} else if (Math.Abs(yDest) < 1f) {
+				yDest = 0f;
+			}
+
+
+			if (xOff <= 0f && yOff >= 0f) {
+				limited = 1f;
+				force.X = (xDest - LinearVelocity.X) * Mass;
+				int dirY = 1;
+				if (force.Y < 0f) {
+					dirY = -1;
 				}
-				
-				if (f) {
-					Vector2 dest = (force / Mass) + LinearVelocity;
-					dest = dest.Normalized() * curSpeed;
-					dest = (dest - LinearVelocity) * Mass;
-					force = force.Normalized() * dest.Length();
-					GD.Print("flag!!!");
-				}*/
-				
-				if (((force * delta) + (heading * delta) + LinearVelocity).Length() != curSpeed 
-					//|| (Math.Abs(xOff) < 0.1f && Math.Abs(yOff) < 0.1f)
-				//	|| 
-					) {
-					
-					Vector2 dest = (force / Mass) + LinearVelocity;
-					dest = dest.Normalized() * curSpeed;
-					force = (dest - LinearVelocity) * Mass;
-					GD.Print("====");
+				yDest = dirY * (float) Math.Sqrt(Math.Pow(curSpeed, 2) - Math.Pow(xDest, 2));	// necessary dest of y to maintain speed (pythagorean theorum)
+				force.Y = (yDest - LinearVelocity.Y) * Mass;
+			} else if (xOff >= 0f && yOff <= 0f) {
+				limited = 1f;
+				force.Y = (yDest - LinearVelocity.Y) * Mass;
+				int dirX = 1;
+				if (force.X < 0f) {
+					dirX = -1;
 				}
-				/*if ((LinearVelocity + force + heading).Length() < v) {
-					if ((LinearVelocity + proposedForce + heading).Length() >= v) {
-						//GD.Print("$$$$$$ " + xDest + " " + yDest + " " + (Math.Sqrt(Math.Pow(xDest, 2) + Math.Pow(yDest, 2))));
-						Vector2 dest = heading + force + LinearVelocity;
-						dest = dest.Normalized() * curSpeed;
-						force = dest - LinearVelocity;
-					} 
-				} *///(force * delta) + 
-				float headDiff = (LinearVelocity + (heading * delta)).Length() - v;
-				if ((LinearVelocity + heading).Length() > (LinearVelocity + heading + force).Length()
-					&& (proposedForce + heading).Length() > proposedForce.Length()) {
-					if (headDiff > 0) {
-						/*v += headDiff;
-						curSpeed += headDiff;
-						Vector2 dest = heading + force + LinearVelocity;
-						dest = dest.Normalized() * curSpeed;
-						force = dest - LinearVelocity;*/
-						force += heading.Normalized() * headDiff;// heading.Length();
-						GD.Print("!!!?? " +( (LinearVelocity + heading).Length() - v));
-						v += headDiff;
-					}
+				xDest = dirX * (float) Math.Sqrt(Math.Pow(curSpeed, 2) - Math.Pow(yDest, 2));	// necessary dest of x to maintain speed (pythagorean theorum)
+				force.X = (xDest - LinearVelocity.X) * Mass;
+			}
+			
+			
+			if (((force * delta) + (heading * delta) + LinearVelocity).Length() != curSpeed) {
+				Vector2 dest = ((force * delta) / Mass) + LinearVelocity;
+				dest = dest.Normalized() * curSpeed;
+				force = (dest - LinearVelocity) * Mass; // decreases as u approach speed
+
+				if (force.Length() <= Acceleration * delta * 10f) {
+					impulse = 1f;
 				}
+			}
+			float headDiff = (LinearVelocity + (heading * delta)).Length() - v;
+			if ((LinearVelocity + heading).Length() > (LinearVelocity + heading + force).Length()
+				&& (proposedForce + heading).Length() > proposedForce.Length()) {
+				if (headDiff > 0) {
+					v += headDiff;
+					GD.Print("!!!!!");
+				}
+			}
 		}
-		return new Vector3(force.X, force.Y, flag);//force;
+		return new Vector4(force.X, force.Y, impulse, limited);
 	}
-	
-	
-	
+
+
+
 	private Vector2 prevVel = Vector2.Zero;
-	
+
 	private void updateMeters(PhysicsDirectBodyState2D state) {
 		Vector2 accel = (state.LinearVelocity - prevVel);
 		accelLabel.Text = Math.Round(accel.Length(), 2).ToString();
@@ -508,7 +429,7 @@ public partial class Ship : RigidBody2D
 			accelMeter.Frame = 1;
 			accelMeter.Rotation = 1.5708f;
 		}
-		
+
 		if (state.LinearVelocity.Length() >= 0.1f) {
 			velMeter.Frame = 0;
 			velMeter.Rotation = state.LinearVelocity.Angle() + 1.5708f;
@@ -516,7 +437,7 @@ public partial class Ship : RigidBody2D
 			velMeter.Frame = 1;
 			velMeter.Rotation = 1.5708f;
 		}
-		
+
 		if (linearDrive.Length() != 0f) {
 			driveMeter.Frame = 0;
 			driveMeter.Rotation = linearDrive.Angle() + 1.5708f;
@@ -524,7 +445,7 @@ public partial class Ship : RigidBody2D
 			driveMeter.Frame = 1;
 			driveMeter.Rotation = 1.5708f;
 		}
-		
+
 		if (heading.Length() >= 0.1f) {
 			headMeter.Frame = 0;
 			headMeter.Rotation = heading.Angle() + 1.5708f;
@@ -533,17 +454,17 @@ public partial class Ship : RigidBody2D
 			headMeter.Rotation = 1.5708f;
 		}
 	}
-	
+
 	Vector3 desiredHeading = Vector3.Zero;
-	
+
 	public Vector2 updateHeading() {
 		if (star != null && this.timer) {
 			desiredHeading = Vector3.Zero;
 			desiredHeading = star.giveHeading(Name, GlobalPosition, desiredHeading);
-			
+
 			Vector2 diff = Game.Instance.XY(desiredHeading) - heading;
 			heading = Game.Instance.XY(desiredHeading);
-			
+
 			if (desiredHeading.Z != 0f) {
 				Vector2 vel = LinearVelocity;
 				bool apply = false;
@@ -559,7 +480,7 @@ public partial class Ship : RigidBody2D
 						apply = true;
 						factor = 1f;
 					}
-				} 
+				}
 				x *= (factor);
 				//ensures we dont push past planets velocity
 				if (apply) {
@@ -570,11 +491,11 @@ public partial class Ship : RigidBody2D
 					//GD.Print("!! " + (x * 100f));
 					ApplyCentralForce(new Vector2(x * 100f, 0f));// * desiredHeading.Z);
 					heading.X = x * 100f;
-				} 
+				}
 				apply = false;
 				factor = 0;
 				float y = 1;
-				
+
 				if (heading.Y < -y) {
 					if (vel.Y > heading.Y) {
 						apply = true;
@@ -585,7 +506,7 @@ public partial class Ship : RigidBody2D
 						apply = true;
 						factor = 1f;
 					}
-				} 
+				}
 				y *= (factor);
 				//ensures we dont push past planets velocity
 				if (apply) {
@@ -596,7 +517,7 @@ public partial class Ship : RigidBody2D
 					//GD.Print("?? " + (y * 100f));
 					ApplyCentralForce(new Vector2(0f, y * 100f));// * desiredHeading.Z);
 					heading.Y = 100f * y;
-				} 
+				}
 			} else {
 				ApplyCentralForce(heading);
 			}
@@ -608,18 +529,18 @@ public partial class Ship : RigidBody2D
 		} else {
 			return Vector2.Zero;
 		}
-		
+
 	}
 	Vector2 appliedHeading = Vector2.Zero;
 
 	public void damageOuter(Vector2 gPos, double radius, int damage) {
 		mapCtrl.damageOuter(gPos, radius, damage);
 	}
-	
+
 	public void damageInner(Vector2 gPos, double radius, int damage) {
 		mapCtrl.damageInner(gPos, radius, damage);
 	}
-	
+
 	public void changeHP(int hp) {
 		this.hp += hp;
 		if (this.hp < 0) {
@@ -632,3 +553,4 @@ public partial class Ship : RigidBody2D
 		this.timer = true;
 	}
 }
+ 

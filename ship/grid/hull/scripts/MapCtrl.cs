@@ -6,6 +6,7 @@ using System.Linq;
 public partial class MapCtrl : Node2D
 {
 	[ExportGroup("TileMaps")]
+	[Export] private Ship ship;
 	[Export] private ShipLayer navMap;
 	[Export] private ShipLayer hullMap;
 	[Export] private PowerGrid powerGrid;
@@ -18,6 +19,10 @@ public partial class MapCtrl : Node2D
 		maps.Add(hullMap);
 		maps.Add(ceilingMap);
 		maps.Add(navMap);
+		
+		foreach (ShipLayer map in maps) {
+			map.init(this.ship);
+		}
 		powerGrid.initItems();
 	}
 

@@ -5,17 +5,22 @@ using System.Linq;
 
 public partial class ShipLayer : TileMapLayer
 {
-	[Export] protected Ship ship;
+	protected Ship ship;
 	Dictionary<Vector2I, int> tiles = new Dictionary<Vector2I, int>();
 	
 	public Ship getShip() {
 		return this.ship;
 	}
 	
+	public void init(Ship ship) {
+		this.ship = ship;
+		initTiles();
+	}
+	
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
-		initTiles();
+		
 	}
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.

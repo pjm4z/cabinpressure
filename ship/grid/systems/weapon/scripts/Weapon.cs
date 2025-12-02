@@ -54,6 +54,7 @@ public partial class Weapon : ShipSystem
 	public void _Shoot_Torpedo() {
 		Torpedo torpedo = (Torpedo)torpedoScene.Instantiate();
 		torpedo.init(this.ship, this.ship.LinearVelocity, GetGlobalMousePosition());
+		//torpedo.init(this.ship, this.ship.Velocity, GetGlobalMousePosition());
 		torpedo.GlobalPosition = shotPt.GlobalPosition;
 		torpedo.GlobalRotation = shotPt.GlobalRotation;
 		space.AddChild(torpedo);

@@ -72,6 +72,7 @@ public partial class BaseScene : Node2D
 			shaderMaterial.SetShaderParameter("elements", 2);
 			shaderMaterial.SetShaderParameter("scale", ship.star.Scale.X);
 			shaderMaterial.SetShaderParameter("speed", ship.LinearVelocity.Length());
+			//shaderMaterial.SetShaderParameter("speed", ship.Velocity.Length());
 			shaderMaterial.SetShaderParameter("zoom", mainCamera.Zoom.X);
 		}
 		else {

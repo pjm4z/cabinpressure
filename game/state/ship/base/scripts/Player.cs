@@ -39,7 +39,7 @@ public partial class Player : ShipState
 	
 	private void player() {
 		linearDrive = Vector2.Zero;
-		angularDrive = ship.AngularVelocity;
+		angularDrive = 0f;//ship.AngularVelocity;
 		GlobalRotation = ship.GlobalRotation;
 		float yOff = 0f;
 		float xOff = 0f;	
@@ -80,23 +80,19 @@ public partial class Player : ShipState
 			
 
 		ship.ApplyTorque(angularDrive);
-		Vector3 result = ship.limitVelocity(linearDrive.Normalized() * Acceleration);
-		linearDrive = Game.Instance.XY(result);
-		//linearDrive = linearDrive.Normalized() * Acceleration;
-		//GD.Print(xOff + " " + yOff);
-		//ship.ApplyForce(linearDrive, new Vector2(xOff, yOff).Rotated(ship.GlobalRotation));		
+		//ship.GlobalRotation += angularDrive * ship.delta;
+		Vector4 result = ship.limitVelocity(linearDrive.Normalized() * Acceleration);
+		linearDrive = new Vector2(result.X, result.Y);
+		
 		if (result.Z == 0f) {
-			ship.ApplyForce(linearDrive, new Vector2(xOff, yOff).Rotated(ship.GlobalRotation));	
-			GD.Print("FORCE");
+			ship.ApplyForce(linearDrive, new Vector2(xOff, yOff).Rotated(ship.GlobalRotation));
 		} else if (result.Z == 1f) {
-			//ship.ApplyCentralImpulse(linearDrive);
 			ship.ApplyImpulse(linearDrive, new Vector2(xOff, yOff).Rotated(ship.GlobalRotation));
-			GD.Print("IMPULSE");
 		}
-			
 		
-		ship.linearDrive = linearDrive;
-		
+		if (result.W == 0f) {
+			ship.linearDrive = linearDrive;
+		}
 	}
 	float cons = 200f; // move to appliued heading, or use total calculated linear drive?
 	float v = 200f;

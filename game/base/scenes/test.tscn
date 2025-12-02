@@ -11,7 +11,6 @@
 [node name="ship" parent="." node_paths=PackedStringArray("skip") instance=ExtResource("1_rrewu")]
 z_index = 2
 rotation = -1.5708
-gravity_scale = 1.0
 angular_damp = 0.01
 skip = NodePath("skip")
 
@@ -65,7 +64,6 @@ camera = NodePath("../playercamera")
 z_index = 2
 position = Vector2(0, -1183)
 rotation = -1.5708
-gravity_scale = 1.0
 angular_damp = 0.01
 skip = NodePath("skip")
 

@@ -25,6 +25,7 @@ public partial class Follow : ShipState
 	}
 	
 	private void follow() {
+		//GD.Print(target.LinearVelocity + " " +  target.Acceleration + " " + (target.LinearVelocity.X / target.Acceleration));
 		ship.move(target.GlobalPosition, 1000f, target.LinearVelocity, target.Acceleration);
 	}
 	

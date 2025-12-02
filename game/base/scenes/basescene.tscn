@@ -218,8 +218,8 @@ z_index = 2
 rotation = 3.14159
 
 [node name="star" parent="." instance=ExtResource("14_rswqt")]
-position = Vector2(105600, -11)
-scale = Vector2(5, 5)
+position = Vector2(103878, 36)
+scale = Vector2(10, 10)
 mass = 318.0
 
 [node name="planet" parent="star" instance=ExtResource("18_183xn")]
@@ -252,11 +252,10 @@ ship = NodePath("../../ship")
 scale = Vector2(10, 10)
 texture = ExtResource("18_s2162")
 
-[node name="ship" parent="." node_paths=PackedStringArray("star", "skip") instance=ExtResource("5_8a8ed")]
+[node name="ship" parent="." node_paths=PackedStringArray("camera", "star", "skip") instance=ExtResource("5_8a8ed")]
 z_index = 2
-position = Vector2(-168, -5615)
-rotation = -0.523599
-angular_damp = 0.01
+position = Vector2(163, -46)
+camera = NodePath("playercamera")
 star = NodePath("../star")
 skip = NodePath("skip")
 
@@ -305,3 +304,46 @@ ship = NodePath("..")
 position = Vector2(41, -83)
 rotation = 3.14159
 camera = NodePath("../playercamera")
+
+[node name="ship2" parent="." node_paths=PackedStringArray("star", "target") instance=ExtResource("5_8a8ed")]
+z_index = 2
+position = Vector2(-3537, -11)
+Acceleration = 2000.0
+cons = 4000.0
+star = NodePath("../star")
+target = NodePath("../ship")
+
+[node name="furniture" parent="ship2" instance=ExtResource("7_shcty")]
+position = Vector2(-16, -88)
+script = null
+
+[node name="furniture2" parent="ship2" instance=ExtResource("7_shcty")]
+position = Vector2(-16, -72)
+script = null
+
+[node name="item" parent="ship2" instance=ExtResource("8_tndgh")]
+position = Vector2(23.9998, 69.049)
+
+[node name="item2" parent="ship2" instance=ExtResource("8_tndgh")]
+position = Vector2(22, 55)
+
+[node name="item3" parent="ship2" instance=ExtResource("8_tndgh")]
+position = Vector2(40, -25)
+
+[node name="item4" parent="ship2" instance=ExtResource("8_tndgh")]
+position = Vector2(4.99986, 69)
+
+[node name="item5" parent="ship2" instance=ExtResource("8_tndgh")]
+position = Vector2(3.00006, 54.951)
+
+[node name="item6" parent="ship2" instance=ExtResource("8_tndgh")]
+position = Vector2(21.0001, -25.049)
+
+[node name="item7" parent="ship2" instance=ExtResource("8_tndgh")]
+position = Vector2(-12.0001, 70)
+
+[node name="item8" parent="ship2" instance=ExtResource("8_tndgh")]
+position = Vector2(-13.9999, 55.951)
+
+[node name="item9" parent="ship2" instance=ExtResource("8_tndgh")]
+position = Vector2(4.0001, -24.049)
