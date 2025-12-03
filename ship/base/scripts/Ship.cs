@@ -181,7 +181,7 @@ public partial class Ship : RigidBody2D
 		
 		GD.Print(interceptTime);
 
-		Vector2 dist = targ - GlobalPosition;
+		Vector2 dist = targ + (targetVelocity * interceptTime) - GlobalPosition;// targ - GlobalPosition;
 		Vector2 interceptDist = targ + (targetVelocity * interceptTime) - GlobalPosition;
 		dist.X = Math.Abs(dist.X);
 		dist.Y = Math.Abs(dist.Y);
@@ -203,16 +203,16 @@ public partial class Ship : RigidBody2D
 			accel = targetAcceleration;
 		}
 		float decelTime = curSpeed / accel;
-		float traverseTime = (dist.X / curSpeed) - 1f;
+		float traverseTime = (dist.X / curSpeed)- 1f;
 		interceptTime = (interceptDist.X / curSpeed) - 1f;
 
-		float targetDecelTime = 0f;
+		float targetDecelTime = 0f;    
 		if (targetAcceleration != 0) {
 			targetDecelTime = Math.Abs(targetVelocity.X) / targetAcceleration;
 		}
 
-		if (decelTime >= traverseTime + targetDecelTime
-			|| decelTime >= interceptTime + targetDecelTime) {
+		if (decelTime >= traverseTime + Mathf.Max(decelTime, targetDecelTime)
+			|| decelTime >= interceptTime + Mathf.Max(decelTime, targetDecelTime)) {
 			if (curSpeed > newSpeed) {
 				drive.X = LinearVelocity.Normalized().X - (LinearVelocity.Normalized().X * Acceleration);
 			} else {
@@ -231,8 +231,9 @@ public partial class Ship : RigidBody2D
 			targetDecelTime = Math.Abs(targetVelocity.Y) / targetAcceleration;
 		}
 
-		if (decelTime >= traverseTime + targetDecelTime
-			|| decelTime >= interceptTime + targetDecelTime) {
+		if (decelTime >= traverseTime + Mathf.Max(decelTime, targetDecelTime)
+			|| decelTime >= interceptTime + Mathf.Max(decelTime, targetDecelTime)) {
+				GD.Print("!!!");
 			if (curSpeed > newSpeed) {
 				drive.Y = LinearVelocity.Normalized().Y - (LinearVelocity.Normalized().Y * Acceleration);
 			} else {

@@ -308,8 +308,6 @@ camera = NodePath("../playercamera")
 [node name="ship2" parent="." node_paths=PackedStringArray("star", "target") instance=ExtResource("5_8a8ed")]
 z_index = 2
 position = Vector2(-3537, -11)
-Acceleration = 2000.0
-cons = 4000.0
 star = NodePath("../star")
 target = NodePath("../ship")
 
