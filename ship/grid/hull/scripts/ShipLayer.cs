@@ -12,7 +12,7 @@ public partial class ShipLayer : TileMapLayer
 		return this.ship;
 	}
 	
-	public void init(Ship ship) {
+	public virtual void init(Ship ship) {
 		this.ship = ship;
 		initTiles();
 	}

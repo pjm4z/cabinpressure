@@ -5,6 +5,9 @@ using System.Linq;
 
 public partial class CelestialBody : Area2D
 {
+	[Signal]
+	public delegate void InitSignalEventHandler(CelestialBody sysStar);
+	
 	[Export] public float orbit;
 	[Export] public float mass;
 	public CelestialBody star = null;
@@ -15,38 +18,47 @@ public partial class CelestialBody : Area2D
 	private Sprite2D sprite;
 	private Vector2 prevPos = Vector2.Zero;
 	public Vector2 realPos = Vector2.Zero;
-	private double EarthMass = 5.972 * Math.Pow(10, 6); 
-	
+	private double EarthMass = 5.972 * Math.Pow(10, 7); 
+	private BaseScene game;
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
 		sprite = (Sprite2D) GetNode("sprite");
 		shape = (CollisionShape2D) GetNode("shape");
 		brain = (StateMachine) GetNode("brain");
+		game = (BaseScene) GetNode("/root/basescene");
+		game.OriginShiftSignal += originShift;
 		
 		init();
 		brain.init();
 	}
 	
 	private void init() {
-		GlobalPosition *= Scale;
 		Node2D parent = (Node2D) GetParent();
 		if (parent is CelestialBody) {
 			CelestialBody body = (CelestialBody) parent;
 			this.star = body;
-			float dist = GlobalPosition.DistanceTo(body.GlobalPosition);
-			
-			realPos = GlobalPosition;
-			this.GlobalPosition = this.star.GlobalPosition;
-			sprite.GlobalPosition = realPos;
-			shape.GlobalPosition = realPos;
-			prevPos = realPos;
-			
-			orbit /= star.Scale.X;
+			this.star.InitSignal += treeReadyEvent;
 		} else {
 			this.star = this;
+			GlobalPosition *= Scale;
+			EmitSignal(nameof(SignalName.InitSignal), this);
 		}
 		initSatellites();
+	}
+	
+	public void treeReadyEvent(CelestialBody sysStar) {
+	//	GlobalPosition *= sysStar.Scale;
+		float dist = GlobalPosition.DistanceTo(this.star.realPos);
+			
+		realPos = GlobalPosition + this.star.realPos;
+		this.GlobalPosition = this.star.realPos;
+		sprite.GlobalPosition = realPos;
+		shape.GlobalPosition = realPos;
+		prevPos = realPos;
+		GD.Print(Name + " ::star-->:: " + sysStar.Name + " " + GlobalPosition + " " + realPos);
+		orbit /= sysStar.Scale.X;
+		EmitSignal(nameof(SignalName.InitSignal), sysStar);
 	}
 	
 	public void initSatellites() {
@@ -60,6 +72,15 @@ public partial class CelestialBody : Area2D
 		}
 	}
 	
+	//private Vector2 originOffset;
+	public void originShift(Vector2 offset) {
+	//	this.originOffset = offset;
+		prevPos -= offset;
+	//	GlobalPosition -= originOffset;
+		
+	//	GD.Print("1111111111 " + Name);
+	}
+	
 	Vector2 velocity = Vector2.Zero;
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _PhysicsProcess(double delta)
@@ -69,9 +90,19 @@ public partial class CelestialBody : Area2D
 		brain.process(delta);
 		GravityPointCenter = ToLocal(realPos);
 		
-		Vector2 deltaPos = realPos - prevPos;
-		velocity = deltaPos / (float) delta;
-		prevPos = realPos;
+	//	if (originOffset != Vector2.Zero) {
+	//		prevPos -= originOffset;
+	//		originOffset = Vector2.Zero;
+			
+	//		GD.Print(" 1.51.51.51.51.5 " + Name + " " +  velocity.Length());
+	//	} else {
+			Vector2 deltaPos = realPos - prevPos;
+			velocity = deltaPos / (float) delta;
+			prevPos = realPos;
+			if (velocity.Length() > 1000f) {
+	//			GD.Print(" 22222222 " + Name + " " + velocity.Length());
+			}
+	//	}
 	}
 	
 	public Vector3 giveHeading(string name, Vector2 gPos, Vector3 heading) {
@@ -94,6 +125,9 @@ public partial class CelestialBody : Area2D
 			heading = new Vector3((float) Math.Round(velocity.X),
 				(float) Math.Round(velocity.Y),
 				(float) Math.Round(mass));
+				if (velocity.Length() > 1000f) {
+	//				GD.Print("333333333");
+				}
 		}
 		
 		return heading; 

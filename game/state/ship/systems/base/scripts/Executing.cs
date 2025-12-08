@@ -49,6 +49,7 @@ public partial class Executing : SysState
 			executing = true;
 			//GD.Print("EXEC");
 			await waitForGameTime(taskTime, (elapsedTime) => { workCallback(elapsedTime); });
+			
 			sys.execute();//action);
 			executing = false;
 		}

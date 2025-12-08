@@ -15,10 +15,11 @@
 shader = ExtResource("3_feog2")
 shader_parameter/main_tex = ExtResource("2_4jixg")
 
-[node name="weapon" type="Area2D"]
+[node name="weapon" type="Area2D" node_paths=PackedStringArray("brain")]
 z_index = 1
 script = ExtResource("1_edn4v")
 torpedoScene = ExtResource("2_wrrk3")
+brain = NodePath("brain")
 
 [node name="sprite" type="Sprite2D" parent="."]
 texture_filter = 1

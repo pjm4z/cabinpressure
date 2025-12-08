@@ -33,11 +33,17 @@ public partial class ShipSystem : GridItem
 	
 	public override void init(PowerGrid grid, Vector2I tilePos, Vector2 localPos) {
 		base.init(grid, tilePos, localPos);
+		grid.InitSignal += treeLoadedEvent;
 		if (brain == null) {
 			brain = (StateMachine) GetNode("brain");
 			GD.Print("BRAIN " + brain + " "  +Name);
 		}
 		brain.init();
+	}
+	
+	public void treeLoadedEvent(Ship ship) {
+		this.ship = ship;
+		GD.Print("INITTT222s");
 	}
 	
 	
@@ -170,6 +176,7 @@ public partial class ShipSystem : GridItem
 	public virtual void execute() { //async Task
 		//addCharge();
 		//await waitForGameTime(taskTime, (elapsedTime) => { workCallback(elapsedTime); });
+		
 		addLoad(chargeCost);
 		if (queuedOrders > 0) {
 			queuedOrders -= 1;

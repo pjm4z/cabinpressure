@@ -11,6 +11,7 @@ public partial class SysIdle : SysState
 	
 		
 	public override State process(double delta) {
+		
 		SysState newState = checkPriorities();
 		if (newState != null) {
 			return newState;

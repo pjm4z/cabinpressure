@@ -12,17 +12,24 @@ public partial class PlayerCamera : Camera2D
 	//float RotationDegrees;
 	float DesiredRotation;
 	
+	private float limit = 0f;
+	
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
 		ship = (Ship) GetParent();
 		Game.Instance.camera = this;
+		limit = LimitRight;
 	}
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _Process(double delta)
 	{
-		
+	//	GD.Print(GlobalPosition + " " + LimitLeft);
+	/*	LimitRight = (int) (limit + GlobalPosition.X);
+		LimitBottom = (int) (limit + GlobalPosition.Y);
+		LimitLeft = (int) (-limit + GlobalPosition.X);
+		LimitTop = (int) (-limit + GlobalPosition.Y);*/
 	}
 	
 	[Export] private Vector2 zoomSpeed = new Vector2(0.2f,0.2f);

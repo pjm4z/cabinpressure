@@ -28,6 +28,8 @@ public partial class Torpedo : Area2D
 	public Ship ship;
 	
 	public override void _Ready() {
+		
+		
 		radius.SetDeferred("disabled", true);
 		
 		initPos = Position;
@@ -50,9 +52,12 @@ public partial class Torpedo : Area2D
 		timer.Timeout += () => GracefulQF();
 		AddChild(timer);
 		timer.Start();
+		GlobalPosition = initPos;
+		GD.Print("WPN EXWEC 5 " + GlobalPosition + " "  + initPos);
 	}
 	
 	public void init(Ship ship, Vector2 init_velocity, Vector2 mousePos) {
+		GD.Print("WPN EXWEC 3 " + ship.GlobalPosition + " " + GlobalPosition);
 		this.ship = ship;
 		this.init_velocity = init_velocity;
 		this.mousePos = mousePos;
@@ -60,6 +65,7 @@ public partial class Torpedo : Area2D
 
 	
 	public override void _PhysicsProcess(double delta) {
+		GD.Print("WPN EXWEC 4 " + GlobalPosition);
    		GlobalPosition += total_velocity * (float) delta;
 		lifespan -= delta;
 		if (shouldDetonate()) {

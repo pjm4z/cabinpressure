@@ -19,11 +19,11 @@ public partial class MapCtrl : Node2D
 		maps.Add(hullMap);
 		maps.Add(ceilingMap);
 		maps.Add(navMap);
+		maps.Add(powerGrid);
 		
 		foreach (ShipLayer map in maps) {
 			map.init(this.ship);
 		}
-		powerGrid.initItems();
 	}
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.

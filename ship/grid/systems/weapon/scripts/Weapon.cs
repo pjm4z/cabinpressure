@@ -18,7 +18,7 @@ public partial class Weapon : ShipSystem
 		shotPt = (Node2D) GetNode("shotpt");
 		panel = (HBoxContainer) GetNode("/root/basescene/hudcanvas/HUD/systems/systemspanel/weaponspanel");
 		watts = -500f;
-		space = (Node2D) GetNode("/root/basescene");
+		space = (Node2D) GetNode("/root/basescene/space");
 		ProcessMode = Node.ProcessModeEnum.Always;
 	}
 	
@@ -43,7 +43,9 @@ public partial class Weapon : ShipSystem
 	}
 	
 	public override void execute() { //async Task
+		GD.Print("WPN EXWEC 1");
 		_Shoot_Torpedo();
+		
 		base.execute(); 
 	}
 	
@@ -52,11 +54,19 @@ public partial class Weapon : ShipSystem
 	}
 	
 	public void _Shoot_Torpedo() {
-		Torpedo torpedo = (Torpedo)torpedoScene.Instantiate();
-		torpedo.init(this.ship, this.ship.LinearVelocity, GetGlobalMousePosition());
+		
+		Torpedo torpedo = (Torpedo) torpedoScene.Instantiate();
+		GD.Print("WPN EXWEC 2 " + ship.GlobalPosition + " " + shotPt.GlobalPosition);
+		GD.Print(this.ship == null);
+		
 		//torpedo.init(this.ship, this.ship.Velocity, GetGlobalMousePosition());
 		torpedo.GlobalPosition = shotPt.GlobalPosition;
 		torpedo.GlobalRotation = shotPt.GlobalRotation;
+		
+		torpedo.init(this.ship, this.ship.LinearVelocity, GetGlobalMousePosition());
+		
+		
 		space.AddChild(torpedo);
+		
 	}
 }

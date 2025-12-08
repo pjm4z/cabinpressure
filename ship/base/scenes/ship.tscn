@@ -423,14 +423,12 @@ position = Vector2(167, 214)
 [node name="weapon" parent="mapctrl/powergrid" node_paths=PackedStringArray("crewRoster") instance=ExtResource("7_as43g")]
 position = Vector2(-168, -38)
 crewRoster = NodePath("../../../crewroster")
-chargeCost = 20.0
 watts = 500.0
 maxLoad = 200.0
 
 [node name="weapon2" parent="mapctrl/powergrid" node_paths=PackedStringArray("crewRoster") instance=ExtResource("7_as43g")]
 position = Vector2(169, -41)
 crewRoster = NodePath("../../../crewroster")
-chargeCost = 20.0
 watts = 500.0
 maxLoad = 200.0
 

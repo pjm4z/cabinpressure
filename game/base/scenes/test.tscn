@@ -49,7 +49,7 @@ position = Vector2(-13.9999, 55.951)
 [node name="item9" parent="ship" instance=ExtResource("3_c7as4")]
 position = Vector2(4.0001, -24.049)
 
-[node name="playercamera" type="Camera2D" parent="ship" node_paths=PackedStringArray("ship")]
+[node name="playercamera2" type="Camera2D" parent="ship" node_paths=PackedStringArray("ship")]
 light_mask = 7
 visibility_layer = 7
 script = ExtResource("4_mi81d")
@@ -102,7 +102,7 @@ position = Vector2(-13.9999, 55.951)
 [node name="item9" parent="ship2" instance=ExtResource("3_c7as4")]
 position = Vector2(4.0001, -24.049)
 
-[node name="playercamera" type="Camera2D" parent="ship2" node_paths=PackedStringArray("ship")]
+[node name="playercamera2" type="Camera2D" parent="ship2" node_paths=PackedStringArray("ship")]
 light_mask = 7
 visibility_layer = 7
 script = ExtResource("4_mi81d")

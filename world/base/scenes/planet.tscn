@@ -7,7 +7,7 @@
 [ext_resource type="Script" path="res://game/state/world/base/scripts/CelestialState.cs" id="5_r35ml"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_86c7f"]
-radius = 3137.0
+radius = 30000.0
 
 [node name="planet" type="Area2D"]
 collision_layer = 7
@@ -18,7 +18,7 @@ script = ExtResource("1_vexj4")
 mass = 100.0
 
 [node name="sprite" type="Sprite2D" parent="."]
-scale = Vector2(10, 10)
+scale = Vector2(100, 100)
 texture = ExtResource("2_m0ame")
 
 [node name="shape" type="CollisionShape2D" parent="."]

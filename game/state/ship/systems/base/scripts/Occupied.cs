@@ -7,6 +7,7 @@ public partial class Occupied : SysState
 	[Export] private SysState executing;
 		
 	public override State process(double delta) {
+		
 		State newState = checkPriorities();
 		if (newState != null) {
 			return newState;

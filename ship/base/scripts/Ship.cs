@@ -55,7 +55,11 @@ public partial class Ship : RigidBody2D
 			panel.AddChild(headLabel);
 		}
 
-		GlobalPosition *= star.Scale;
+		GlobalPosition *= star.Scale;// * star.Scale;
+		if (camera != null) {
+			camera.GlobalPosition = GlobalPosition;
+		}
+		
 		initBeds();
 		shield.init(this);
 		brain.init();
@@ -85,6 +89,7 @@ public partial class Ship : RigidBody2D
 
 	public float delta = 0f;
 	public override void _PhysicsProcess(double delta) {
+		GD.Print(GlobalPosition.Length());
 		this.delta = (float) delta;
 		base._PhysicsProcess(delta);
 
@@ -118,7 +123,17 @@ public partial class Ship : RigidBody2D
 	float displayDrive = 0f;//Vector2.Zero;
 	Vector2 displayHead = Vector2.Zero;
 
+/*	private Vector2 originOffset = Vector2.Zero;
+	public void originShift(Vector2 offset) {
+		this.originOffset = offset;
+	}
+*/
 	public override void _IntegrateForces(PhysicsDirectBodyState2D state) {
+		/*if (originOffset != Vector2.Zero) {
+			GlobalPosition -= originOffset;
+			star.GlobalPosition -= originOffset;
+			originOffset = Vector2.Zero;
+		}*/
 		if (Input.IsActionPressed("c")) {
 			Vector2 diff = state.LinearVelocity - heading;
 			if (state.LinearVelocity.Length() <= 1f) {
@@ -159,40 +174,59 @@ public partial class Ship : RigidBody2D
 	int i = 0;
 
 	public void move(Vector2 targ, float desiredDist, Vector2 targetVelocity, float targetAcceleration) {
-		
-		float interceptTime = 0f;
-		if (LinearVelocity.Length() != 0f) {
-			interceptTime = (targ - GlobalPosition).Length()/(LinearVelocity).Length();
+		Vector2 R = Vector2.Zero;
+		if (targetVelocity.Length() >= 1f) {
+			 R = targ + targetVelocity - GlobalPosition;
 		}
-		if (interceptTime < 0f) {
-			interceptTime = 0f;
+		Vector2 tv = Vector2.Zero;
+		if (targetVelocity.Length() >= 1f) {
+			tv = targetVelocity;
+		}
+
+		float a = (tv * tv).Length() - (v * v);
+		if (a == 0f) {
+			a = 0.5f;
+		}
+		float b = 2.0f * R.Dot(tv);
+		float c = R.Dot(R);
+
+		float disc = b*b - 4*a*c;
+		if (disc < 1f) {
+			disc = 1f;
+		}
+
+		float sqrt_disc = (float) Math.Sqrt(disc);
+
+		float t1 = (-b + sqrt_disc) / (2*a);
+		float t2 = (-b - sqrt_disc) / (2*a);
+		float t = Mathf.Max(t1, t2);
+		
+		if (t < 1f) {
+			t = 1f;
+		} 
+
+		Vector2 drive = (R + targetVelocity * t) / t;
+		
+		float approxTime = t;
+		if (LinearVelocity.Length() > 0f) {
+			approxTime = (targ - GlobalPosition).Length()/(LinearVelocity).Length();
 		}
 		
-		// + (targetVelocity * interceptTime)
-		Vector2 drive = ((targ + (targetVelocity * interceptTime)) - GlobalPosition);
+		float interceptTime = Mathf.Min(t, approxTime);
+		drive = (R + targetVelocity * interceptTime) / interceptTime;
+		Vector2 futureTarg = targ + targetVelocity;
 		
 		Vector2 vel = LinearVelocity;
 		if ((LinearVelocity + drive).Length() > LinearVelocity.Length()) {
-			vel = drive.Normalized();  //LinearVelocity.Normalized() +
-		} else {
-			//vel = Vector2.Zero;
+			vel = drive.Normalized(); 
 		}
-		
-		
-		GD.Print(interceptTime);
 
-		Vector2 dist = targ + (targetVelocity * interceptTime) - GlobalPosition;// targ - GlobalPosition;
+		Vector2 dist = targ + targetVelocity - GlobalPosition;
 		Vector2 interceptDist = targ + (targetVelocity * interceptTime) - GlobalPosition;
 		dist.X = Math.Abs(dist.X);
 		dist.Y = Math.Abs(dist.Y);
-		interceptDist.X = Math.Abs(interceptDist.X);
-		interceptDist.Y = Math.Abs(interceptDist.Y);
 		Vector2 ratio = dist.Normalized();
 		dist -= new Vector2(desiredDist * ratio.X, desiredDist * ratio.Y);
-		
-		Vector2 interceptRatio = interceptDist.Normalized();
-		interceptDist -= new Vector2(desiredDist * interceptRatio.X, desiredDist * interceptRatio.Y);
-
 		
 		float newSpeed = Math.Abs(drive.X);
 		float curSpeed = Math.Abs(LinearVelocity.X);
@@ -203,16 +237,21 @@ public partial class Ship : RigidBody2D
 			accel = targetAcceleration;
 		}
 		float decelTime = curSpeed / accel;
-		float traverseTime = (dist.X / curSpeed)- 1f;
-		interceptTime = (interceptDist.X / curSpeed) - 1f;
+		float traverseTime = (dist.X / curSpeed) - 1f;
 
 		float targetDecelTime = 0f;    
 		if (targetAcceleration != 0) {
 			targetDecelTime = Math.Abs(targetVelocity.X) / targetAcceleration;
 		}
 
-		if (decelTime >= traverseTime + Mathf.Max(decelTime, targetDecelTime)
-			|| decelTime >= interceptTime + Mathf.Max(decelTime, targetDecelTime)) {
+		float adjTime = LinearVelocity.DistanceTo(targetVelocity)/(Acceleration * Mass);
+
+		if (adjTime >= interceptTime) {
+			drive = (drive.Normalized() + targetVelocity.Normalized()).Normalized() * Acceleration;
+		}
+
+		if (decelTime >= traverseTime + Mathf.Min(decelTime, targetDecelTime)
+			) {
 			if (curSpeed > newSpeed) {
 				drive.X = LinearVelocity.Normalized().X - (LinearVelocity.Normalized().X * Acceleration);
 			} else {
@@ -225,15 +264,13 @@ public partial class Ship : RigidBody2D
 		
 		decelTime = curSpeed / accel;
 		traverseTime = (dist.Y / curSpeed) - 1f;
-		interceptTime = (interceptDist.Y / curSpeed) - 1f;
 
 		if (targetAcceleration != 0) {
 			targetDecelTime = Math.Abs(targetVelocity.Y) / targetAcceleration;
 		}
 
-		if (decelTime >= traverseTime + Mathf.Max(decelTime, targetDecelTime)
-			|| decelTime >= interceptTime + Mathf.Max(decelTime, targetDecelTime)) {
-				GD.Print("!!!");
+		if (decelTime >= traverseTime + Mathf.Min(decelTime, targetDecelTime)
+			) {
 			if (curSpeed > newSpeed) {
 				drive.Y = LinearVelocity.Normalized().Y - (LinearVelocity.Normalized().Y * Acceleration);
 			} else {
@@ -244,7 +281,7 @@ public partial class Ship : RigidBody2D
 		float offset = 1.5708f;
 		
 		angle = ((vel.Angle() - GlobalRotation)) - offset;
-		if (vel.Angle() < 0f && GlobalRotation > 0f) { // Math.Abs(angle) > 3.1416) {
+		if (vel.Angle() < 0f && GlobalRotation > 0f) { 
 			angle = ((-4.71239f - angle) * -1f) + offset;
 		}
 		
@@ -294,6 +331,7 @@ public partial class Ship : RigidBody2D
 			Vector2 dh = new Vector2(desiredHeading.X,desiredHeading.Y);
 			if (v <= cons + dh.Length()) { // currently under speed limit
 				v = ((LinearVelocity.Normalized() * cons) + dh).Length();
+				//GD.Print("!!!1 " + v + " " + LinearVelocity.Length() + " " + dh.Length());
 				orbitOffset = dh;
 			} else if ((Math.Abs(force.Angle() - LinearVelocity.Angle()) > 1.5708f &&
 					 	LinearVelocity.Length() < v)) { 		// accel past speed limit (from heading?)
@@ -307,7 +345,6 @@ public partial class Ship : RigidBody2D
 						v = ((LinearVelocity - orbitOffset) + dh).Length(); // - orbitOffset) + heading
 					//	v = (LinearVelocity).Length();
 						orbitOffset = dh;
-
 						if (v < LinearVelocity.Length()) {
 
 						//	ApplyCentralForce(-LinearVelocity.Normalized() * Math.Abs(v - LinearVelocity.Length()));
@@ -408,7 +445,7 @@ public partial class Ship : RigidBody2D
 				&& (proposedForce + heading).Length() > proposedForce.Length()) {
 				if (headDiff > 0) {
 					v += headDiff;
-					GD.Print("!!!!!");
+				//	GD.Print("!!!!!");
 				}
 			}
 		}

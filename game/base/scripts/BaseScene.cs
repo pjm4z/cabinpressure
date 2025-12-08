@@ -5,6 +5,9 @@ using Godot.Collections;
 
 public partial class BaseScene : Node2D
 {
+	[Signal]
+	public delegate void OriginShiftSignalEventHandler(Vector2 offset);
+	
 	[Export] Ship ship;
 	Camera2D mainCamera;
 	Camera2D bgCamera;
@@ -15,19 +18,21 @@ public partial class BaseScene : Node2D
 	CelestialBody planet;
 	CelestialBody moon;
 	Material material;
-	
+	private Node2D space;
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
-		mainCamera = (Camera2D) GetNode("ship/playercamera");
-		bgCamera = (Camera2D) GetNode("background/bgcamera");
+		mainCamera = (Camera2D) GetNode("space/ship/playercamera");
+		bgCamera = (Camera2D) GetNode("space/background/bgcamera");
 		subViewport = (SubViewport) GetNode("background");
 		textureRect = (TextureRect) GetNode("bgtexture");
-		star = (CelestialBody) GetNode("star");
-		planet = (CelestialBody) GetNode("star/planet");
-		moon = (CelestialBody) GetNode("star/planet/moon");
-		ship = (Ship) GetNode("ship");
+		star = (CelestialBody) GetNode("space/star");
+		planet = (CelestialBody) GetNode("space/star/planet");
+		moon = (CelestialBody) GetNode("space/star/planet/moon");
+		ship = (Ship) GetNode("space/ship");
 		material = textureRect.Material;
+		
+		space = (Node2D) GetNode("space");
 		//ProcessMode = Node.ProcessModeEnum.Always;
 		//Godot.Engine.TimeScale =.5f;
 	}
@@ -47,7 +52,21 @@ public partial class BaseScene : Node2D
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _PhysicsProcess(double delta)
 	{
+		if (mainCamera.GlobalPosition.Length() > 10000f) {
+			GD.Print("lim");
+			Vector2 offset = mainCamera.GlobalPosition;
+			//GlobalPosition -= offset;
+			space.GlobalPosition -= offset;
+			EmitSignal(nameof(SignalName.OriginShiftSignal), offset);
+		}
 		
+		if (mainCamera.GlobalPosition.Length() > 10000f) {
+			//GD.Print("!!!!!");
+		}
+		
+		if (Godot.Engine.GetFramesPerSecond() < 200f) {
+			//GD.Print("LOW FRAMES " + Godot.Engine.GetFramesPerSecond());
+		}
 		if (mainCamera != null && bgCamera != null) {
 			bgCamera.GlobalPosition = mainCamera.GlobalPosition / new Vector2(10,10); // ship.GlobalPosition;
 			bgCamera.Zoom = new Vector2(1,1);//mainCamera.Zoom;

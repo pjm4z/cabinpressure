@@ -5,6 +5,9 @@ using System.Linq;
 
 public partial class PowerGrid : ShipLayer
 {
+	[Signal]
+	public delegate void InitSignalEventHandler(Ship ship);
+	
 	//[Export] private TileMapLayer tileMap;
 	[Export] private MapCtrl mapCtrl;
 	[Export] private CrewRoster crewRoster; // temp todo remove
@@ -16,6 +19,11 @@ public partial class PowerGrid : ShipLayer
 	[Export] private PackedScene wpnSlotScene;
 	[Export] private PackedScene wpnScene;
 	
+	public override void init(Ship ship) {
+		base.init(ship);
+		initItems();
+		EmitSignal(nameof(SignalName.InitSignal), ship);
+	}
 	
 
 	
@@ -305,6 +313,7 @@ public partial class PowerGrid : ShipLayer
 			Weapon wpn = (Weapon) wpnScene.Instantiate();
 			addItem(wpn, tilePos);
 			wpnSlots[tilePos].setWpn(wpn);
+			GD.Print("!!!???? " + getShip());
 			wpn.init(this, tilePos, MapToLocal(tilePos));
 			wpn.setCrewRoster(this.crewRoster);
 			wpn.key = newKey();
@@ -319,6 +328,7 @@ public partial class PowerGrid : ShipLayer
 		if (map != null && wpnSlots.ContainsKey(tilePos)) {
 			addItem(item, tilePos);
 			wpnSlots[tilePos].setWpn(item);
+			GD.Print("!!!???? " + getShip());
 			item.init(this, tilePos, MapToLocal(tilePos)); 
 			item.setCrewRoster(this.crewRoster);
 			item.key = newKey();

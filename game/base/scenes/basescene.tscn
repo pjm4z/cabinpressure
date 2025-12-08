@@ -8,7 +8,6 @@
 [ext_resource type="PackedScene" uid="uid://ccg41jlynxfth" path="res://entity/player/scenes/skip.tscn" id="6_b2xmm"]
 [ext_resource type="PackedScene" uid="uid://nyjgnbrqeon0" path="res://object/scenes/furniture.tscn" id="7_shcty"]
 [ext_resource type="PackedScene" uid="uid://k70ygdkfq0pd" path="res://object/scenes/item.tscn" id="8_tndgh"]
-[ext_resource type="Script" path="res://game/camera/scripts/PlayerCamera.cs" id="9_1l30t"]
 [ext_resource type="PackedScene" uid="uid://cft1r7wppv5bq" path="res://entity/npc/crew/scenes/crew.tscn" id="9_j0bkd"]
 [ext_resource type="Script" path="res://rot.cs" id="10_tcrck"]
 [ext_resource type="Texture2D" uid="uid://dst16ha06edc5" path="res://ship/grid/systems/post/assets/console-test.png" id="11_562p4"]
@@ -21,6 +20,15 @@
 [ext_resource type="PackedScene" uid="uid://c3ho5gwbhjvje" path="res://world/base/scenes/planet.tscn" id="18_183xn"]
 [ext_resource type="Texture2D" uid="uid://uxuhlt6byrmc" path="res://space.jpg" id="18_s2162"]
 [ext_resource type="PackedScene" uid="uid://bscvjy1tep640" path="res://world/base/scenes/moon.tscn" id="19_rssrs"]
+[ext_resource type="Script" path="res://game/camera/scripts/PlayerCamera.cs" id="21_leu80"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_7tpq1"]
+shader = ExtResource("12_bkh6a")
+shader_parameter/bodies = PackedVector3Array()
+shader_parameter/elements = 0
+shader_parameter/scale = 1.0
+shader_parameter/speed = 1.0
+shader_parameter/zoom = 0.0
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_su4n8"]
 atlas = ExtResource("3_cicwo")
@@ -83,17 +91,29 @@ animations = [{
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_q1twc"]
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_7tpq1"]
-shader = ExtResource("12_bkh6a")
-shader_parameter/bodies = PackedVector3Array()
-shader_parameter/elements = 0
-shader_parameter/scale = 1.0
-shader_parameter/speed = 1.0
-shader_parameter/zoom = 0.0
-
 [node name="basescene" type="Node2D"]
 texture_filter = 1
 script = ExtResource("1_h7qa5")
+
+[node name="bgtexture" type="TextureRect" parent="."]
+material = SubResource("ShaderMaterial_7tpq1")
+offset_right = 1152.0
+offset_bottom = 644.0
+script = ExtResource("1_f6mk5")
+
+[node name="background" type="SubViewport" parent="."]
+size = Vector2i(40, 40)
+
+[node name="fish" parent="background" node_paths=PackedStringArray("ship") instance=ExtResource("16_8xe54")]
+z_index = -1
+position = Vector2(313, 138)
+ship = NodePath("../../space/ship")
+
+[node name="bgcamera" type="Camera2D" parent="background"]
+
+[node name="Sprite2D3" type="Sprite2D" parent="background"]
+scale = Vector2(10, 10)
+texture = ExtResource("18_s2162")
 
 [node name="hudcanvas" type="CanvasLayer" parent="."]
 process_mode = 3
@@ -217,131 +237,168 @@ shape = SubResource("RectangleShape2D_q1twc")
 z_index = 2
 rotation = 3.14159
 
-[node name="star" parent="." instance=ExtResource("14_rswqt")]
-position = Vector2(103878, 36)
-scale = Vector2(10, 10)
+[node name="space" type="Node2D" parent="."]
+
+[node name="star" parent="space" instance=ExtResource("14_rswqt")]
 mass = 318.0
 
-[node name="planet" parent="star" instance=ExtResource("18_183xn")]
+[node name="planet" parent="space/star" instance=ExtResource("18_183xn")]
 z_index = 1
-position = Vector2(-105849, 0)
+position = Vector2(1e+06, 0)
 
-[node name="moon" parent="star/planet" instance=ExtResource("19_rssrs")]
+[node name="moon" parent="space/star/planet" instance=ExtResource("19_rssrs")]
 z_index = 1
-position = Vector2(-8135.86, 12.39)
-orbit = 1.0
+position = Vector2(-50000, 6)
+orbit = 0.0
 mass = 0.05
 
-[node name="bgtexture" type="TextureRect" parent="."]
-material = SubResource("ShaderMaterial_7tpq1")
-offset_right = 1152.0
-offset_bottom = 644.0
-script = ExtResource("1_f6mk5")
+[node name="planet2" parent="space/star" instance=ExtResource("18_183xn")]
+z_index = 1
+position = Vector2(-1e+06, 0)
 
-[node name="background" type="SubViewport" parent="."]
-size = Vector2i(40, 40)
+[node name="moon" parent="space/star/planet2" instance=ExtResource("19_rssrs")]
+z_index = 1
+position = Vector2(50000, 0)
+orbit = 0.0
+mass = 0.05
 
-[node name="fish" parent="background" node_paths=PackedStringArray("ship") instance=ExtResource("16_8xe54")]
-z_index = -1
-position = Vector2(313, 138)
-ship = NodePath("../../ship")
-
-[node name="bgcamera" type="Camera2D" parent="background"]
-
-[node name="Sprite2D3" type="Sprite2D" parent="background"]
-scale = Vector2(10, 10)
-texture = ExtResource("18_s2162")
-
-[node name="ship" parent="." node_paths=PackedStringArray("camera", "star", "skip") instance=ExtResource("5_8a8ed")]
+[node name="ship" parent="space" node_paths=PackedStringArray("camera", "star", "skip") instance=ExtResource("5_8a8ed")]
 z_index = 2
-position = Vector2(163, -46)
+position = Vector2(-969280, -813)
+rotation = -1.5708
 camera = NodePath("playercamera")
 star = NodePath("../star")
 skip = NodePath("skip")
 
-[node name="furniture" parent="ship" instance=ExtResource("7_shcty")]
+[node name="furniture" parent="space/ship" instance=ExtResource("7_shcty")]
 position = Vector2(-16, -88)
 script = null
 
-[node name="furniture2" parent="ship" instance=ExtResource("7_shcty")]
+[node name="furniture2" parent="space/ship" instance=ExtResource("7_shcty")]
 position = Vector2(-16, -72)
 script = null
 
-[node name="item" parent="ship" instance=ExtResource("8_tndgh")]
+[node name="item" parent="space/ship" instance=ExtResource("8_tndgh")]
 position = Vector2(23.9998, 69.049)
 
-[node name="item2" parent="ship" instance=ExtResource("8_tndgh")]
+[node name="item2" parent="space/ship" instance=ExtResource("8_tndgh")]
 position = Vector2(22, 55)
 
-[node name="item3" parent="ship" instance=ExtResource("8_tndgh")]
+[node name="item3" parent="space/ship" instance=ExtResource("8_tndgh")]
 position = Vector2(40, -25)
 
-[node name="item4" parent="ship" instance=ExtResource("8_tndgh")]
+[node name="item4" parent="space/ship" instance=ExtResource("8_tndgh")]
 position = Vector2(4.99986, 69)
 
-[node name="item5" parent="ship" instance=ExtResource("8_tndgh")]
+[node name="item5" parent="space/ship" instance=ExtResource("8_tndgh")]
 position = Vector2(3.00006, 54.951)
 
-[node name="item6" parent="ship" instance=ExtResource("8_tndgh")]
+[node name="item6" parent="space/ship" instance=ExtResource("8_tndgh")]
 position = Vector2(21.0001, -25.049)
 
-[node name="item7" parent="ship" instance=ExtResource("8_tndgh")]
+[node name="item7" parent="space/ship" instance=ExtResource("8_tndgh")]
 position = Vector2(-12.0001, 70)
 
-[node name="item8" parent="ship" instance=ExtResource("8_tndgh")]
+[node name="item8" parent="space/ship" instance=ExtResource("8_tndgh")]
 position = Vector2(-13.9999, 55.951)
 
-[node name="item9" parent="ship" instance=ExtResource("8_tndgh")]
+[node name="item9" parent="space/ship" instance=ExtResource("8_tndgh")]
 position = Vector2(4.0001, -24.049)
 
-[node name="playercamera" type="Camera2D" parent="ship" node_paths=PackedStringArray("ship")]
-light_mask = 7
-visibility_layer = 7
-script = ExtResource("9_1l30t")
-ship = NodePath("..")
-
-[node name="skip" parent="ship" node_paths=PackedStringArray("camera") instance=ExtResource("6_b2xmm")]
+[node name="skip" parent="space/ship" instance=ExtResource("6_b2xmm")]
 position = Vector2(41, -83)
 rotation = 3.14159
-camera = NodePath("../playercamera")
 
-[node name="ship2" parent="." node_paths=PackedStringArray("star", "target") instance=ExtResource("5_8a8ed")]
+[node name="playercamera" type="Camera2D" parent="space/ship" node_paths=PackedStringArray("ship")]
+light_mask = 7
+visibility_layer = 7
+script = ExtResource("21_leu80")
+ship = NodePath("..")
+
+[node name="ship2" parent="space" node_paths=PackedStringArray("camera", "star", "target", "skip") instance=ExtResource("5_8a8ed")]
 z_index = 2
-position = Vector2(-3537, -11)
+position = Vector2(-971182, -2335)
+rotation = -1.5708
+camera = NodePath("")
 star = NodePath("../star")
 target = NodePath("../ship")
+skip = NodePath("")
 
-[node name="furniture" parent="ship2" instance=ExtResource("7_shcty")]
+[node name="furniture" parent="space/ship2" instance=ExtResource("7_shcty")]
 position = Vector2(-16, -88)
 script = null
 
-[node name="furniture2" parent="ship2" instance=ExtResource("7_shcty")]
+[node name="furniture2" parent="space/ship2" instance=ExtResource("7_shcty")]
 position = Vector2(-16, -72)
 script = null
 
-[node name="item" parent="ship2" instance=ExtResource("8_tndgh")]
+[node name="item" parent="space/ship2" instance=ExtResource("8_tndgh")]
 position = Vector2(23.9998, 69.049)
 
-[node name="item2" parent="ship2" instance=ExtResource("8_tndgh")]
+[node name="item2" parent="space/ship2" instance=ExtResource("8_tndgh")]
 position = Vector2(22, 55)
 
-[node name="item3" parent="ship2" instance=ExtResource("8_tndgh")]
+[node name="item3" parent="space/ship2" instance=ExtResource("8_tndgh")]
 position = Vector2(40, -25)
 
-[node name="item4" parent="ship2" instance=ExtResource("8_tndgh")]
+[node name="item4" parent="space/ship2" instance=ExtResource("8_tndgh")]
 position = Vector2(4.99986, 69)
 
-[node name="item5" parent="ship2" instance=ExtResource("8_tndgh")]
+[node name="item5" parent="space/ship2" instance=ExtResource("8_tndgh")]
 position = Vector2(3.00006, 54.951)
 
-[node name="item6" parent="ship2" instance=ExtResource("8_tndgh")]
+[node name="item6" parent="space/ship2" instance=ExtResource("8_tndgh")]
 position = Vector2(21.0001, -25.049)
 
-[node name="item7" parent="ship2" instance=ExtResource("8_tndgh")]
+[node name="item7" parent="space/ship2" instance=ExtResource("8_tndgh")]
 position = Vector2(-12.0001, 70)
 
-[node name="item8" parent="ship2" instance=ExtResource("8_tndgh")]
+[node name="item8" parent="space/ship2" instance=ExtResource("8_tndgh")]
 position = Vector2(-13.9999, 55.951)
 
-[node name="item9" parent="ship2" instance=ExtResource("8_tndgh")]
+[node name="item9" parent="space/ship2" instance=ExtResource("8_tndgh")]
+position = Vector2(4.0001, -24.049)
+
+[node name="ship3" parent="space" node_paths=PackedStringArray("camera", "star", "target", "skip") instance=ExtResource("5_8a8ed")]
+z_index = 2
+position = Vector2(-966996, 177)
+rotation = -1.5708
+camera = NodePath("")
+star = NodePath("../star")
+target = NodePath("../ship2")
+skip = NodePath("")
+
+[node name="furniture" parent="space/ship3" instance=ExtResource("7_shcty")]
+position = Vector2(-16, -88)
+script = null
+
+[node name="furniture2" parent="space/ship3" instance=ExtResource("7_shcty")]
+position = Vector2(-16, -72)
+script = null
+
+[node name="item" parent="space/ship3" instance=ExtResource("8_tndgh")]
+position = Vector2(23.9998, 69.049)
+
+[node name="item2" parent="space/ship3" instance=ExtResource("8_tndgh")]
+position = Vector2(22, 55)
+
+[node name="item3" parent="space/ship3" instance=ExtResource("8_tndgh")]
+position = Vector2(40, -25)
+
+[node name="item4" parent="space/ship3" instance=ExtResource("8_tndgh")]
+position = Vector2(4.99986, 69)
+
+[node name="item5" parent="space/ship3" instance=ExtResource("8_tndgh")]
+position = Vector2(3.00006, 54.951)
+
+[node name="item6" parent="space/ship3" instance=ExtResource("8_tndgh")]
+position = Vector2(21.0001, -25.049)
+
+[node name="item7" parent="space/ship3" instance=ExtResource("8_tndgh")]
+position = Vector2(-12.0001, 70)
+
+[node name="item8" parent="space/ship3" instance=ExtResource("8_tndgh")]
+position = Vector2(-13.9999, 55.951)
+
+[node name="item9" parent="space/ship3" instance=ExtResource("8_tndgh")]
 position = Vector2(4.0001, -24.049)

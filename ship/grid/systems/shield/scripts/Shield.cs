@@ -7,7 +7,6 @@ public partial class Shield : ShipSystem
 	private ShieldBarrier barrier;
 	private ShieldArea area;
 	private GrooveJoint2D joint;
-	//public Ship ship;
 	[Export] public bool enabled;
 	
 	// Called when the node enters the scene tree for the first time.
