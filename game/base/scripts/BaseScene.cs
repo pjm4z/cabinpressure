@@ -6,6 +6,9 @@ using Godot.Collections;
 public partial class BaseScene : Node2D
 {
 	[Signal]
+	public delegate void TreeLoadedSignalEventHandler();
+	
+	[Signal]
 	public delegate void OriginShiftSignalEventHandler(Vector2 offset);
 	
 	[Export] Ship ship;
@@ -18,7 +21,7 @@ public partial class BaseScene : Node2D
 	CelestialBody planet;
 	CelestialBody moon;
 	Material material;
-	private Node2D space;
+	private Space space;
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
@@ -29,10 +32,11 @@ public partial class BaseScene : Node2D
 		star = (CelestialBody) GetNode("space/star");
 		planet = (CelestialBody) GetNode("space/star/planet");
 		moon = (CelestialBody) GetNode("space/star/planet/moon");
-		ship = (Ship) GetNode("space/ship");
+		//ship = (Ship) GetNode("space/ship");
 		material = textureRect.Material;
 		
-		space = (Node2D) GetNode("space");
+		space = (Space) GetNode("space");
+		EmitSignal(nameof(SignalName.TreeLoadedSignal));
 		//ProcessMode = Node.ProcessModeEnum.Always;
 		//Godot.Engine.TimeScale =.5f;
 	}
@@ -52,18 +56,16 @@ public partial class BaseScene : Node2D
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _PhysicsProcess(double delta)
 	{
-		if (mainCamera.GlobalPosition.Length() > 10000f) {
+		if (mainCamera.GlobalPosition.Length() > 100000f) {
 			GD.Print("lim");
 			Vector2 offset = mainCamera.GlobalPosition;
 			//GlobalPosition -= offset;
 			space.GlobalPosition -= offset;
 			EmitSignal(nameof(SignalName.OriginShiftSignal), offset);
 		}
-		
-		if (mainCamera.GlobalPosition.Length() > 10000f) {
-			//GD.Print("!!!!!");
+		if (ship.LinearVelocity.Length() > ship.v) {
+			//GD.Print(ship.LinearVelocity.Length() - ship.v);
 		}
-		
 		if (Godot.Engine.GetFramesPerSecond() < 200f) {
 			//GD.Print("LOW FRAMES " + Godot.Engine.GetFramesPerSecond());
 		}
@@ -98,7 +100,8 @@ public partial class BaseScene : Node2D
 			GD.PrintErr("Material is not a ShaderMaterial!");
 		}
 	}
-	
+	Vector2 prevZoom;
+	bool map = false;
 	public override void _Input(InputEvent inputEvent) {
 		if (Input.IsActionJustReleased("space")) { //todo nav doesnt pause (crew in motion)
 													// maybe from nav callback in crew script calling movenadslide?
@@ -107,9 +110,16 @@ public partial class BaseScene : Node2D
 		}
 		if (Input.IsActionJustReleased("m")) { //todo nav doesnt pause (crew in motion)
 													// maybe from nav callback in crew script calling movenadslide?
-			GetTree().Paused = !GetTree().Paused;
+			//GetTree().Paused = !GetTree().Paused;
 			GD.Print("map");
-			mainCamera.Zoom = new Vector2(0.001f, 0.001f);
+			map = !map;
+			if (map) {
+				prevZoom = mainCamera.Zoom;
+		//		mainCamera.Zoom = new Vector2(0.001f, 0.001f);
+			} else {
+		//		mainCamera.Zoom = prevZoom;
+			}
+			
 		}
 	}
 }

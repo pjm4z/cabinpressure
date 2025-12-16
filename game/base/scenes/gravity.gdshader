@@ -1,13 +1,13 @@
 shader_type canvas_item;
 render_mode world_vertex_coords;
 
-uniform vec3 bodies[100]; 
+uniform vec3 bodies[100];
 uniform int elements = 0;
 uniform float scale = 1;
 uniform float speed = 0;
 uniform float zoom = 1;
 
-const float EarthMass = 5.972 * pow(10, 7); 
+const float EarthMass = 5.972 * pow(10, 7);
 varying vec2 world_pos;
 void vertex() {
 	world_pos = VERTEX;
@@ -36,7 +36,7 @@ void fragment() {
 		if (speed >= 200.0f) {
 			float s = speed / 2.0f;
 			if (speed >= 1000.0f) {
-				s = 500.0f; 
+				s = 500.0f;
 				x *= 2.0f;
 			}
 			x = round(x * (100.0f / s));
@@ -47,7 +47,7 @@ void fragment() {
 		float l = length(h);
 		float lx  = length(hx);
 		float ly  = length(hy);
-		
+
 		float measure = 10.0f;
 		/*if (l >= 100.0f) {
 			measure = 10.0f;
@@ -56,7 +56,7 @@ void fragment() {
 		} */
 		float d = mod(l, measure);
 		float dx = mod(lx, measure);
-		float dy = mod(measure, ly); 
+		float dy = mod(measure, ly);
 		if ((l > lx) && (d < dx)) { // dom src of gravity to the left, x dist to the right is across the line
 			COLOR = vec4(0.0, 1.0, 0.0, 1.0);
 		}
@@ -79,5 +79,3 @@ void fragment() {
 		}*/
 	}
 }
-
-

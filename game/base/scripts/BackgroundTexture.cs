@@ -11,7 +11,7 @@ public partial class BackgroundTexture : TextureRect
 	public override void _Ready()
 	{
 		// Create a SubViewport and add it to the parent Node2D
-		subViewport = (SubViewport) GetNode("/root/basescene/background");
+		subViewport = (SubViewport) GetNode("%background");
 		Texture = subViewport.GetTexture(); 
 		
 	}

@@ -7,7 +7,7 @@
 [ext_resource type="Script" path="res://game/state/world/base/scripts/CelestialState.cs" id="6_7lix3"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_1u475"]
-radius = 900.0
+radius = 9000.0
 
 [node name="moon" type="Area2D"]
 collision_layer = 7
@@ -26,10 +26,12 @@ startState = NodePath("orbiting")
 script = ExtResource("5_3rx4b")
 resting = NodePath("../resting")
 
-[node name="resting" type="Node" parent="brain"]
+[node name="resting" type="Node" parent="brain" node_paths=PackedStringArray("orbiting")]
 script = ExtResource("6_7lix3")
+orbiting = NodePath("../orbiting")
 
 [node name="sprite" type="Sprite2D" parent="."]
+scale = Vector2(10, 10)
 texture = ExtResource("2_c4cix")
 
 [node name="shape" type="CollisionShape2D" parent="."]

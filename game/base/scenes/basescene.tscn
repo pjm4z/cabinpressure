@@ -1,4 +1,4 @@
-[gd_scene load_steps=33 format=3 uid="uid://dsxnf6bp5eun6"]
+[gd_scene load_steps=35 format=3 uid="uid://dsxnf6bp5eun6"]
 
 [ext_resource type="Script" path="res://game/base/scripts/BackgroundTexture.cs" id="1_f6mk5"]
 [ext_resource type="Script" path="res://game/base/scripts/BaseScene.cs" id="1_h7qa5"]
@@ -17,10 +17,12 @@
 [ext_resource type="PackedScene" uid="uid://bsi70xp1un6ir" path="res://world/base/scenes/star.tscn" id="14_rswqt"]
 [ext_resource type="Script" path="res://animrot.cs" id="15_qt6pc"]
 [ext_resource type="PackedScene" uid="uid://boxhlj4kob12l" path="res://entity/npc/enemy/scenes/fish.tscn" id="16_8xe54"]
+[ext_resource type="Script" path="res://world/base/scripts/Space.cs" id="16_yr6o3"]
 [ext_resource type="PackedScene" uid="uid://c3ho5gwbhjvje" path="res://world/base/scenes/planet.tscn" id="18_183xn"]
 [ext_resource type="Texture2D" uid="uid://uxuhlt6byrmc" path="res://space.jpg" id="18_s2162"]
 [ext_resource type="PackedScene" uid="uid://bscvjy1tep640" path="res://world/base/scenes/moon.tscn" id="19_rssrs"]
 [ext_resource type="Script" path="res://game/camera/scripts/PlayerCamera.cs" id="21_leu80"]
+[ext_resource type="Script" path="res://game/ui/base/scripts/Map.cs" id="22_twvey"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_7tpq1"]
 shader = ExtResource("12_bkh6a")
@@ -91,9 +93,10 @@ animations = [{
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_q1twc"]
 
-[node name="basescene" type="Node2D"]
+[node name="basescene" type="Node2D" node_paths=PackedStringArray("ship")]
 texture_filter = 1
 script = ExtResource("1_h7qa5")
+ship = NodePath("space/ship")
 
 [node name="bgtexture" type="TextureRect" parent="."]
 material = SubResource("ShaderMaterial_7tpq1")
@@ -102,6 +105,7 @@ offset_bottom = 644.0
 script = ExtResource("1_f6mk5")
 
 [node name="background" type="SubViewport" parent="."]
+unique_name_in_owner = true
 size = Vector2i(40, 40)
 
 [node name="fish" parent="background" node_paths=PackedStringArray("ship") instance=ExtResource("16_8xe54")]
@@ -119,6 +123,7 @@ texture = ExtResource("18_s2162")
 process_mode = 3
 
 [node name="HUD" type="Control" parent="hudcanvas"]
+unique_name_in_owner = true
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -206,6 +211,28 @@ position = Vector2(176, -41)
 scale = Vector2(0.15, 0.15)
 sprite_frames = SubResource("SpriteFrames_gqkou")
 
+[node name="map" type="Panel" parent="hudcanvas/HUD" node_paths=PackedStringArray("ship")]
+unique_name_in_owner = true
+self_modulate = Color(0.74441, 0.000425091, 0.744405, 1)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("22_twvey")
+ship = NodePath("../../../space/ship")
+
+[node name="viewport" type="SubViewport" parent="hudcanvas/HUD/map"]
+
+[node name="sprite" type="Sprite2D" parent="hudcanvas/HUD/map/viewport"]
+z_index = 100
+
+[node name="mapCamera" type="Camera2D" parent="hudcanvas/HUD/map/viewport"]
+
+[node name="canvas" type="TextureRect" parent="hudcanvas/HUD/map"]
+layout_mode = 0
+
 [node name="post" type="Sprite2D" parent="."]
 z_index = 10
 material = SubResource("ShaderMaterial_krsxe")
@@ -238,35 +265,38 @@ z_index = 2
 rotation = 3.14159
 
 [node name="space" type="Node2D" parent="."]
+unique_name_in_owner = true
+script = ExtResource("16_yr6o3")
 
 [node name="star" parent="space" instance=ExtResource("14_rswqt")]
 mass = 318.0
 
 [node name="planet" parent="space/star" instance=ExtResource("18_183xn")]
-z_index = 1
 position = Vector2(1e+06, 0)
+orbit = 1.0
 
 [node name="moon" parent="space/star/planet" instance=ExtResource("19_rssrs")]
-z_index = 1
-position = Vector2(-50000, 6)
-orbit = 0.0
-mass = 0.05
+position = Vector2(-91984, 0)
+orbit = 4.0
+
+[node name="moon" parent="space/star/planet/moon" instance=ExtResource("19_rssrs")]
+position = Vector2(30672, 768)
+orbit = 8.0
 
 [node name="planet2" parent="space/star" instance=ExtResource("18_183xn")]
-z_index = 1
 position = Vector2(-1e+06, 0)
+orbit = 2.0
 
 [node name="moon" parent="space/star/planet2" instance=ExtResource("19_rssrs")]
-z_index = 1
-position = Vector2(50000, 0)
-orbit = 0.0
-mass = 0.05
+position = Vector2(133072, -384)
+orbit = 1.0
 
 [node name="ship" parent="space" node_paths=PackedStringArray("camera", "star", "skip") instance=ExtResource("5_8a8ed")]
 z_index = 2
-position = Vector2(-969280, -813)
+position = Vector2(983556, -120)
 rotation = -1.5708
 camera = NodePath("playercamera")
+Acceleration = 500.0
 star = NodePath("../star")
 skip = NodePath("skip")
 
@@ -314,91 +344,3 @@ light_mask = 7
 visibility_layer = 7
 script = ExtResource("21_leu80")
 ship = NodePath("..")
-
-[node name="ship2" parent="space" node_paths=PackedStringArray("camera", "star", "target", "skip") instance=ExtResource("5_8a8ed")]
-z_index = 2
-position = Vector2(-971182, -2335)
-rotation = -1.5708
-camera = NodePath("")
-star = NodePath("../star")
-target = NodePath("../ship")
-skip = NodePath("")
-
-[node name="furniture" parent="space/ship2" instance=ExtResource("7_shcty")]
-position = Vector2(-16, -88)
-script = null
-
-[node name="furniture2" parent="space/ship2" instance=ExtResource("7_shcty")]
-position = Vector2(-16, -72)
-script = null
-
-[node name="item" parent="space/ship2" instance=ExtResource("8_tndgh")]
-position = Vector2(23.9998, 69.049)
-
-[node name="item2" parent="space/ship2" instance=ExtResource("8_tndgh")]
-position = Vector2(22, 55)
-
-[node name="item3" parent="space/ship2" instance=ExtResource("8_tndgh")]
-position = Vector2(40, -25)
-
-[node name="item4" parent="space/ship2" instance=ExtResource("8_tndgh")]
-position = Vector2(4.99986, 69)
-
-[node name="item5" parent="space/ship2" instance=ExtResource("8_tndgh")]
-position = Vector2(3.00006, 54.951)
-
-[node name="item6" parent="space/ship2" instance=ExtResource("8_tndgh")]
-position = Vector2(21.0001, -25.049)
-
-[node name="item7" parent="space/ship2" instance=ExtResource("8_tndgh")]
-position = Vector2(-12.0001, 70)
-
-[node name="item8" parent="space/ship2" instance=ExtResource("8_tndgh")]
-position = Vector2(-13.9999, 55.951)
-
-[node name="item9" parent="space/ship2" instance=ExtResource("8_tndgh")]
-position = Vector2(4.0001, -24.049)
-
-[node name="ship3" parent="space" node_paths=PackedStringArray("camera", "star", "target", "skip") instance=ExtResource("5_8a8ed")]
-z_index = 2
-position = Vector2(-966996, 177)
-rotation = -1.5708
-camera = NodePath("")
-star = NodePath("../star")
-target = NodePath("../ship2")
-skip = NodePath("")
-
-[node name="furniture" parent="space/ship3" instance=ExtResource("7_shcty")]
-position = Vector2(-16, -88)
-script = null
-
-[node name="furniture2" parent="space/ship3" instance=ExtResource("7_shcty")]
-position = Vector2(-16, -72)
-script = null
-
-[node name="item" parent="space/ship3" instance=ExtResource("8_tndgh")]
-position = Vector2(23.9998, 69.049)
-
-[node name="item2" parent="space/ship3" instance=ExtResource("8_tndgh")]
-position = Vector2(22, 55)
-
-[node name="item3" parent="space/ship3" instance=ExtResource("8_tndgh")]
-position = Vector2(40, -25)
-
-[node name="item4" parent="space/ship3" instance=ExtResource("8_tndgh")]
-position = Vector2(4.99986, 69)
-
-[node name="item5" parent="space/ship3" instance=ExtResource("8_tndgh")]
-position = Vector2(3.00006, 54.951)
-
-[node name="item6" parent="space/ship3" instance=ExtResource("8_tndgh")]
-position = Vector2(21.0001, -25.049)
-
-[node name="item7" parent="space/ship3" instance=ExtResource("8_tndgh")]
-position = Vector2(-12.0001, 70)
-
-[node name="item8" parent="space/ship3" instance=ExtResource("8_tndgh")]
-position = Vector2(-13.9999, 55.951)
-
-[node name="item9" parent="space/ship3" instance=ExtResource("8_tndgh")]
-position = Vector2(4.0001, -24.049)

@@ -18,7 +18,7 @@ script = ExtResource("1_vexj4")
 mass = 100.0
 
 [node name="sprite" type="Sprite2D" parent="."]
-scale = Vector2(100, 100)
+scale = Vector2(95, 95)
 texture = ExtResource("2_m0ame")
 
 [node name="shape" type="CollisionShape2D" parent="."]

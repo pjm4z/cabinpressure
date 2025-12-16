@@ -9,8 +9,9 @@ public partial class Ship : RigidBody2D
 	[Export] public CrewRoster defaultRoster;
 	[Export] private MapCtrl mapCtrl;
 	[Export] private StateMachine brain;
+	private Space space;
 
-	public float TurnSpeed = 10000f;
+	[Export] public float TurnSpeed = 10000f;
 	[Export] public float Acceleration = 1000.0f;
 	[Export] public float cons = 2000f;
 	public float v = 0f;
@@ -89,14 +90,14 @@ public partial class Ship : RigidBody2D
 
 	public float delta = 0f;
 	public override void _PhysicsProcess(double delta) {
-		GD.Print(GlobalPosition.Length());
+	//	GD.Print(GlobalPosition.Length());
 		this.delta = (float) delta;
 		base._PhysicsProcess(delta);
 
-		updateHeading();
+		//updateHeading();
 		//ApplyCentralForce(new Vector2(200f, 0f));
 		brain.process(delta);
-		
+		updateHeading();
 		if (!timer) {
 		//	ApplyCentralForce(new Vector2(100f, 0f));
 		}
@@ -134,8 +135,9 @@ public partial class Ship : RigidBody2D
 			star.GlobalPosition -= originOffset;
 			originOffset = Vector2.Zero;
 		}*/
+		//GlobalRotation += (float)(delta * Math.PI * 2)/20f;
 		if (Input.IsActionPressed("c")) {
-			Vector2 diff = state.LinearVelocity - heading;
+			Vector2 diff = state.LinearVelocity - Game.Instance.XY(desiredHeading);
 			if (state.LinearVelocity.Length() <= 1f) {
 				state.LinearVelocity = Vector2.Zero;
 			} else if (state.LinearVelocity.Length() <= 100f) {
@@ -330,30 +332,13 @@ public partial class Ship : RigidBody2D
 		if (desiredHeading.Z != 0f) { 
 			Vector2 dh = new Vector2(desiredHeading.X,desiredHeading.Y);
 			if (v <= cons + dh.Length()) { // currently under speed limit
-				v = ((LinearVelocity.Normalized() * cons) + dh).Length();
-				//GD.Print("!!!1 " + v + " " + LinearVelocity.Length() + " " + dh.Length());
+				v =  ((LinearVelocity.Normalized() * cons) + dh).Length();
+				//cons + desiredHeading.Length();//
 				orbitOffset = dh;
 			} else if ((Math.Abs(force.Angle() - LinearVelocity.Angle()) > 1.5708f &&
-					 	LinearVelocity.Length() < v)) { 		// accel past speed limit (from heading?)
-						/*if (LinearVelocity.Length() > (LinearVelocity - orbitOffset).Length()) {
-							v = (LinearVelocity - orbitOffset).Length();
-						} else {
-							v = (LinearVelocity + orbitOffset).Length();
-						}*/
-					//	GD.Print("!!! " + v + " " /*+ heading + " " + heading.Length() + " "*/ + orbitOffset.Length());
-					//	Vector2 newOrbitOffset = ( heading); //LinearVelocity.Normalized() +
-						v = ((LinearVelocity - orbitOffset) + dh).Length(); // - orbitOffset) + heading
-					//	v = (LinearVelocity).Length();
-						orbitOffset = dh;
-						if (v < LinearVelocity.Length()) {
-
-						//	ApplyCentralForce(-LinearVelocity.Normalized() * Math.Abs(v - LinearVelocity.Length()));
-						}//orbitOffset
-						/*if (LinearVelocity.Length() > (LinearVelocity - orbitOffset).Length()) {
-							v += orbitOffset.Length();
-						} else {
-							v -= orbitOffset.Length();
-						}*/
+					 LinearVelocity.Length() < v)) { 
+				v = ((LinearVelocity - orbitOffset) + dh).Length(); 
+				orbitOffset = dh;
 			}
 		} 
 		// free space
@@ -361,13 +346,17 @@ public partial class Ship : RigidBody2D
 			orbitOffset = Vector2.Zero;
 		if (v <= cons && LinearVelocity.Length() <= cons) {	// currently under speed limit
 			v = ((LinearVelocity.Normalized() * cons) + ((heading * delta) / Mass)).Length();
-		} else if ((Math.Abs(force.Angle() - LinearVelocity.Angle()) > 1.5708f && LinearVelocity.Length() < v)  // target vel > 90 deg of velocity (decrease limit)						 	// heading decreases velocity
+		} else if (((Math.Abs(force.Angle() - LinearVelocity.Angle()) > 1.5708f || force.Length() == 0f) && LinearVelocity.Length() < v)  // target vel > 90 deg of velocity (decrease limit)						 	// heading decreases velocity
 			 || LinearVelocity.Length() > v) {																	// or, speed exceeds limit (increase limit)
 				if (LinearVelocity.Length() - cons < Acceleration * delta) {
 					v = cons;
 				} else {
 					v = (LinearVelocity).Length();
+					
 				}
+			}
+			if (v < cons) {
+				v = cons;
 			}
 		}
 
@@ -378,19 +367,26 @@ public partial class Ship : RigidBody2D
 			
 			//float angularDiff = Mathf.RadToDeg(LinearVelocity.Normalized().DistanceTo(force.Normalized()));
 			Vector2 proposedForce = force;
+			
+			
+			// diff in magnitude of direction, velocity - force for x,y
+			// 0 --> force in same dir as vel
+			// 1 --> vel but no force on that axis
+			// -1 --> 90 degree diff on axis btwn vel - force
 			float xOff = Math.Abs(LinearVelocity.Normalized().X) - Math.Abs(force.Normalized().X);
 			float yOff = Math.Abs(LinearVelocity.Normalized().Y) - Math.Abs(force.Normalized().Y);
 
 			Vector2 absForce = new Vector2(Math.Abs(force.X), Math.Abs(force.Y));
 			Vector2 absVel = new Vector2(Math.Abs(LinearVelocity.X), Math.Abs(LinearVelocity.Y));
-			float xDest = LinearVelocity.X + (force.X / Mass);// LinearVelocity.X + ((force.X * delta) / Mass);
-			float yDest = LinearVelocity.Y + (force.Y / Mass);
+			float xDest = LinearVelocity.X + (force.X / Mass);// + (heading.X / Mass);// LinearVelocity.X + ((force.X * delta) / Mass);
+			float yDest = LinearVelocity.Y + (force.Y / Mass);// + (heading.Y / Mass);
 
 			float curSpeed = v;
 
 			// cleaning up values for xDest + yDest (decreases likelihood generated force will exceed speed limit)
 			int dir = 1;
 			if (Math.Abs(xDest) > curSpeed || curSpeed - Math.Abs(xDest) < 1f) {
+				//GD.Print(xOff + " " + yOff);
 				if (force.X < 0f) {
 					dir = -1;
 				}
@@ -401,6 +397,7 @@ public partial class Ship : RigidBody2D
 
 			dir = 1;
 			if (Math.Abs(yDest) > curSpeed || curSpeed - Math.Abs(yDest) < 1f) {
+				//GD.Print(xOff + " " + yOff);
 				if (force.Y < 0f) {
 					dir = -1;
 				}
@@ -409,49 +406,227 @@ public partial class Ship : RigidBody2D
 				yDest = 0f;
 			}
 
-
+			// x is offset, y is not
 			if (xOff <= 0f && yOff >= 0f) {
+				//GD.Print("1 " + xOff + " " + yOff);
 				limited = 1f;
-				force.X = (xDest - LinearVelocity.X) * Mass;
+				force.X = (xDest - LinearVelocity.X) * Mass; // * yOff
 				int dirY = 1;
 				if (force.Y < 0f) {
 					dirY = -1;
 				}
 				yDest = dirY * (float) Math.Sqrt(Math.Pow(curSpeed, 2) - Math.Pow(xDest, 2));	// necessary dest of y to maintain speed (pythagorean theorum)
 				force.Y = (yDest - LinearVelocity.Y) * Mass;
-			} else if (xOff >= 0f && yOff <= 0f) {
+				//force = force * 
+			} else if (yOff <= 0f && xOff >= 0f) { 		// y is offset, x is not
+				//GD.Print("2 " + xOff + " " + yOff);
 				limited = 1f;
-				force.Y = (yDest - LinearVelocity.Y) * Mass;
+				force.Y = (yDest - LinearVelocity.Y) * Mass; // * xOff 
 				int dirX = 1;
 				if (force.X < 0f) {
 					dirX = -1;
 				}
 				xDest = dirX * (float) Math.Sqrt(Math.Pow(curSpeed, 2) - Math.Pow(yDest, 2));	// necessary dest of x to maintain speed (pythagorean theorum)
 				force.X = (xDest - LinearVelocity.X) * Mass;
+				//force = (force + proposedForce.Normalized() * force.Length())/2f;
 			}
-			
-			
+			if (force.Length() > Acceleration) {
+				//GD.Print("!!!!!!!!!!!!!!!!!!!1 " + force.Length());
+				force = force.Normalized() * Acceleration;
+			}
 			if (((force * delta) + (heading * delta) + LinearVelocity).Length() != curSpeed) {
-				Vector2 dest = ((force * delta) / Mass) + LinearVelocity;
-				dest = dest.Normalized() * curSpeed;
-				force = (dest - LinearVelocity) * Mass; // decreases as u approach speed
-
-				if (force.Length() <= Acceleration * delta * 10f) {
+			//	GD.Print("???????????2 " + force.Length());		// TODO CHECK THIS!!!
+				Vector2 factoredHeading = ((heading * delta) / Mass); //  * delta
+				//if (force.Dot(heading) > 0f && desiredHeading.Z == 0f) { //|| desiredHeading.Z != 0f
+				//	factoredHeading = Vector2.Zero;
+				//}
+				if (desiredHeading.Z != 0f) {
+					Vector2 dest = ((force * delta) / Mass) + (LinearVelocity * delta);
+					float factor = 1f;
+					dest = dest.Normalized() * curSpeed; //  - factoredHeading
+					factoredHeading = (Game.Instance.XY(desiredHeading) - heading); // heading;//
+					
+					
+					if (factoredHeading.Length() >= heading.Length()) {
+						factor = (proposedForce.Normalized() - factoredHeading.Normalized()).Length();
+						factoredHeading = factoredHeading.Normalized() * Math.Max(Acceleration, Game.Instance.XY(desiredHeading).Length());
+						
+						GD.Print("?? " + factoredHeading.Length() + " " + factor); 
+					} else if (factoredHeading.Length() == 0f) {
+						GD.Print("!!!!!!!! " + factoredHeading.Length());
+					} else {
+						GD.Print(factoredHeading.Length());
+					}
+					//if ((proposedForce + Game.Instance.XY(desiredHeading)).Length() > Game.Instance.XY(desiredHeading).Length()) {
+					//	GD.Print(":) " + force.Dot(factoredHeading));
+					//}
+					
+					force = (dest - LinearVelocity + factoredHeading) * Mass; // decreases as u approach speed
+					force = force.Normalized() * Acceleration;
+					//force *= factor;
+				} else {
+					Vector2 dest = ((force * delta) / Mass) + factoredHeading + (LinearVelocity);
+				
+					dest = dest.Normalized() * curSpeed; //  - factoredHeading
+					force = (dest - LinearVelocity) * Mass; // decreases as u approach speed
+				}
+				
+					//
+				if (force.Length() <= Acceleration * delta) { // * 10f                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
 					impulse = 1f;
+				//	GD.Print("IMPULSE");
 				}
 			}
-			float headDiff = (LinearVelocity + (heading * delta)).Length() - v;
-			if ((LinearVelocity + heading).Length() > (LinearVelocity + heading + force).Length()
-				&& (proposedForce + heading).Length() > proposedForce.Length()) {
-				if (headDiff > 0) {
-					v += headDiff;
-				//	GD.Print("!!!!!");
+			if (desiredHeading.Z == 0f) {
+				float headDiff = (LinearVelocity + (heading * delta)).Length() - v;
+				if ((LinearVelocity + heading).Length() > (LinearVelocity + heading + force).Length()
+					&& (proposedForce + heading).Length() > proposedForce.Length()) {
+					if (headDiff > 0) {
+						v += headDiff;
+					}
 				}
 			}
+			
+			
 		}
 		return new Vector4(force.X, force.Y, impulse, limited);
 	}
+		
+	Vector2 excess = Vector2.Zero;
+	public Vector4 limitVelocityExp(Vector2 force) {
+		float impulse = 0f;
+		float limited = 0f;
+		Vector2 factoredVel = LinearVelocity - heading;
+		if (factoredVel.Length() != cons && Name == "ship") {
+			GD.Print("!!!!!!! " + (factoredVel - (LinearVelocity.Normalized() * cons)).Length());
+			Vector2 hDiff = (factoredVel - (LinearVelocity.Normalized() * cons));
+			
+			if (hDiff.Length() > 0f) {
+				excess += hDiff * delta;
+			}
+		
+		// apply damping	
+		if ((factoredVel + ((force * delta) / Mass)).Length() >= cons 								// force will exceed speed limit
+			&& (factoredVel + ((force * delta) / Mass)).Length() > factoredVel.Length()) {	// force will accelerate ship
+			
+			
+			
+			
+		}
+			//float angularDiff = Mathf.RadToDeg(LinearVelocity.Normalized().DistanceTo(force.Normalized()));
+			Vector2 proposedForce = force;
+			
+			
+			// diff in magnitude of direction, velocity - force for x,y
+			// 0 --> force in same dir as vel
+			// 1 --> vel but no force on that axis
+			// -1 --> 90 degree diff on axis btwn vel - force
+			float xOff = Math.Abs(factoredVel.Normalized().X) - Math.Abs(force.Normalized().X);
+			float yOff = Math.Abs(factoredVel.Normalized().Y) - Math.Abs(force.Normalized().Y);
 
+			Vector2 absForce = new Vector2(Math.Abs(force.X), Math.Abs(force.Y));
+			Vector2 absVel = new Vector2(Math.Abs(factoredVel.X), Math.Abs(factoredVel.Y));
+			float xDest = factoredVel.X + (force.X / Mass);// + (heading.X / Mass);// LinearVelocity.X + ((force.X * delta) / Mass);
+			float yDest = factoredVel.Y + (force.Y / Mass);// + (heading.Y / Mass);
+
+			float curSpeed = cons;
+			if (LinearVelocity.Dot(heading) < 0f) {
+				curSpeed = (LinearVelocity.Normalized() * cons + heading).Length();
+			}
+			curSpeed += excess.Length();
+			
+			// cleaning up values for xDest + yDest (decreases likelihood generated force will exceed speed limit)
+			int dir = 1;
+			if (Math.Abs(xDest) > curSpeed || curSpeed - Math.Abs(xDest) < 1f) {
+				//GD.Print(xOff + " " + yOff);
+				if (force.X < 0f) {
+					dir = -1;
+				}
+				xDest = curSpeed * dir;
+			} else if (Math.Abs(xDest) < 1f) {
+				xDest = 0f;
+			}
+
+			dir = 1;
+			if (Math.Abs(yDest) > curSpeed || curSpeed - Math.Abs(yDest) < 1f) {
+				//GD.Print(xOff + " " + yOff);
+				if (force.Y < 0f) {
+					dir = -1;
+				}
+				yDest = curSpeed * dir;
+			} else if (Math.Abs(yDest) < 1f) {
+				yDest = 0f;
+			}
+
+			// x is offset, y is not
+			if (xOff <= 0f && yOff >= 0f) {
+				//GD.Print("1 " + xOff + " " + yOff);
+				limited = 1f;
+				force.X = (xDest - factoredVel.X) * Mass; // * yOff
+				int dirY = 1;
+				if (force.Y < 0f) {
+					dirY = -1;
+				}
+				yDest = dirY * (float) Math.Sqrt(Math.Pow(curSpeed, 2) - Math.Pow(xDest, 2));	// necessary dest of y to maintain speed (pythagorean theorum)
+				force.Y = (yDest - factoredVel.Y) * Mass;
+				//force = force * 
+			} else if (yOff <= 0f && xOff >= 0f) { 		// y is offset, x is not
+				//GD.Print("2 " + xOff + " " + yOff);
+				limited = 1f;
+				force.Y = (yDest - factoredVel.Y) * Mass; // * xOff 
+				int dirX = 1;
+				if (force.X < 0f) {
+					dirX = -1;
+				}
+				xDest = dirX * (float) Math.Sqrt(Math.Pow(curSpeed, 2) - Math.Pow(yDest, 2));	// necessary dest of x to maintain speed (pythagorean theorum)
+				force.X = (xDest - factoredVel.X) * Mass;
+				//force = (force + proposedForce.Normalized() * force.Length())/2f;
+			}
+			if (force.Length() > Acceleration) {
+				GD.Print("!!!!!!!!!!!!!!!!!!!1 " + force.Length());
+				force = force.Normalized() * Acceleration;
+			}
+			if ((force + factoredVel).Length() != curSpeed) {
+				//GD.Print("???????????2 " + force.Length());		// TODO CHECK THIS!!!
+				Vector2 factoredHeading = ((heading * delta) / Mass); //  * delta
+				if (force.Dot(heading) > 0f && desiredHeading.Z == 0f) { //|| desiredHeading.Z != 0f
+					factoredHeading = Vector2.Zero;
+				}
+				//if (desiredHeading.Z != 0f) {
+					//Vector2 dest = ((force / Mass) + LinearVelocity).Normalized() * cons;
+					Vector2 dest = ((force * delta) / Mass) + (factoredVel * delta);
+					dest = dest.Normalized() * cons;
+					//dest += factoredHeading/delta; // not giving proper dir?
+					
+					//cvdest = dest.Normalized() * curSpeed; //  - factoredHeading
+					force = (dest - factoredVel) * Mass;
+				/*} else {
+					Vector2 dest = ((force * delta) / Mass) + factoredHeading + factoredVel;
+				
+					dest = dest.Normalized() * curSpeed; //  - factoredHeading
+					force = (dest - factoredVel - factoredHeading) * Mass; // decreases as u approach speed
+				}*/
+				
+					//
+				if (force.Length() <= Acceleration * delta) { // * 10f                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
+					impulse = 1f;
+				//	GD.Print("IMPULSE");
+				}
+			}
+			if (desiredHeading.Z == 0f) {
+				float headDiff = (LinearVelocity + (heading * delta)).Length() - v;
+				if ((LinearVelocity + heading).Length() > (LinearVelocity + heading + force).Length()
+					&& (proposedForce + heading).Length() > proposedForce.Length()) {
+					if (headDiff > 0) {
+						v += headDiff;
+					}
+				}
+			}
+			
+			
+		}
+		return new Vector4(force.X, force.Y, impulse, limited);
+	}
 
 
 	private Vector2 prevVel = Vector2.Zero;
@@ -498,27 +673,34 @@ public partial class Ship : RigidBody2D
 	public Vector2 updateHeading() {
 		if (star != null && this.timer) {
 			desiredHeading = Vector3.Zero;
-			desiredHeading = star.giveHeading(Name, GlobalPosition, desiredHeading);
-
+			bool cont = true;
+			desiredHeading = star.giveHeading(Name, GlobalPosition, desiredHeading, ref cont);
+			
+			//GD.Print(desiredHeading + " " + Name);
 			Vector2 diff = Game.Instance.XY(desiredHeading) - heading;
 			heading = Game.Instance.XY(desiredHeading);
 
 			if (desiredHeading.Z != 0f) {
+				if (linearDrive.Length() == 0f && (heading - LinearVelocity).Length() < 10f) {
+					ApplyCentralImpulse((heading - LinearVelocity) / 100f);
+					GD.Print("!!!!imppulse");
+				} else {
 				Vector2 vel = LinearVelocity;
 				bool apply = false;
 				float factor = 0;
 				float x = 1f;
-				if (heading.X < -x) {
+				if (heading.X < 0f) {
 					if (vel.X > heading.X) {
 						apply = true;
 						factor = -1f;
 					}
-				} else if (heading.X > x) {
+				} else if (heading.X > 0f) {
 					if (vel.X < heading.X) {
 						apply = true;
 						factor = 1f;
 					}
 				}
+			//	GD.Print(factor + " x");
 				x *= (factor);
 				//ensures we dont push past planets velocity
 				if (apply) {
@@ -527,6 +709,8 @@ public partial class Ship : RigidBody2D
 							x = heading.X - vel.X;
 					}
 					//GD.Print("!! " + (x * 100f));
+					// if drive = 0 and vel - heading < 0.1f, apply impulse (heading - vel) / 100 
+					
 					ApplyCentralForce(new Vector2(x * 100f, 0f));// * desiredHeading.Z);
 					heading.X = x * 100f;
 				}
@@ -534,12 +718,12 @@ public partial class Ship : RigidBody2D
 				factor = 0;
 				float y = 1;
 
-				if (heading.Y < -y) {
+				if (heading.Y < 0f) {
 					if (vel.Y > heading.Y) {
 						apply = true;
 						factor = -1f;
 					}
-				} else if (heading.Y > y) {
+				} else if (heading.Y > 0f) {
 					if (vel.Y < heading.Y) {
 						apply = true;
 						factor = 1f;
@@ -550,11 +734,12 @@ public partial class Ship : RigidBody2D
 				if (apply) {
 					if (((heading.Y < 0) && (y + vel.Y < heading.Y)) ||
 						((heading.Y > 0) && (y + vel.Y > heading.Y))) {
-						y =  heading.Y - vel.Y;
+						y = heading.Y - vel.Y;
 					}
 					//GD.Print("?? " + (y * 100f));
 					ApplyCentralForce(new Vector2(0f, y * 100f));// * desiredHeading.Z);
 					heading.Y = 100f * y;
+				}
 				}
 			} else {
 				ApplyCentralForce(heading);

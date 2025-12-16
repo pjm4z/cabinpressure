@@ -8,7 +8,7 @@ public partial class Weapon : ShipSystem
 	[Export] private PackedScene torpedoScene;
 	public WeaponSlot wpnSlot;
 	private Node2D shotPt;
-	private Node2D space;
+	private Space space;
 	public double usedWatts = 0;
 
 	// Called when the node enters the scene tree for the first time.
@@ -18,7 +18,8 @@ public partial class Weapon : ShipSystem
 		shotPt = (Node2D) GetNode("shotpt");
 		panel = (HBoxContainer) GetNode("/root/basescene/hudcanvas/HUD/systems/systemspanel/weaponspanel");
 		watts = -500f;
-		space = (Node2D) GetNode("/root/basescene/space");
+		space = (Space) GetNode("/root/basescene/space");
+		
 		ProcessMode = Node.ProcessModeEnum.Always;
 	}
 	

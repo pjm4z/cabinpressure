@@ -1,12 +1,12 @@
 using Godot;
 using System;
+using System.Collections.Generic;
 
 public partial class Game : Node
 {
 	public static Game Instance;
 	public PlayerCamera camera;
 	
-	public Vector2 zero = Vector2.Zero;
 	
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready() {
@@ -27,9 +27,16 @@ public partial class Game : Node
 		return type.GetProperty(propertyName) != null;
 	} 
 	
-	/*public bool dictContains(Dictionary<string, object> objectToCheck, string propertyName) {
-		
-	}*/
+	public List<T> CollectChildren<T>(Node node) where T : Node
+	{
+		List<T> children = new List<T>();
+		foreach (Node child in node.GetChildren()) {
+			if (child is T typedChild) {
+				children.Add(typedChild);
+			}
+		}
+		return children; // Return null if not found
+	}
 	
 	public Vector2 XY(Vector3 vec3) {
 		return new Vector2(vec3.X, vec3.Y);

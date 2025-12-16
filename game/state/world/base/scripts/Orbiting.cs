@@ -4,7 +4,7 @@ using System;
 public partial class Orbiting : CelestialState
 {
 	[Export] CelestialState resting;
-	
+	private float tau = (float) Math.PI * 2f;
 	private float orbit;
 	private float dampening = 0.001f;
 	
@@ -12,11 +12,12 @@ public partial class Orbiting : CelestialState
 		base.enter();
 		this.orbit = celest.orbit;
 	}
-
+	
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
-	public override State process(double delta)
-	{
-		celest.GlobalRotation += orbit * (float) delta * dampening;
+	public override State process(double delta) {
+		if (orbit > 0f) {
+			celest.GlobalRotation += (float) (((tau * orbit) / 10000f) * delta) - celest.star.rotOff;
+		}
 		return base.process(delta);
 	}
 	

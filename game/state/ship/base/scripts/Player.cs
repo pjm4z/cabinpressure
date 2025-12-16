@@ -85,9 +85,9 @@ public partial class Player : ShipState
 		linearDrive = new Vector2(result.X, result.Y);
 		
 		if (result.Z == 0f) {
-			ship.ApplyForce(linearDrive, new Vector2(xOff, yOff).Rotated(ship.GlobalRotation));
+			ship.ApplyCentralForce(linearDrive);//, new Vector2(xOff, yOff).Rotated(ship.GlobalRotation));
 		} else if (result.Z == 1f) {
-			ship.ApplyImpulse(linearDrive, new Vector2(xOff, yOff).Rotated(ship.GlobalRotation));
+			ship.ApplyCentralImpulse(linearDrive);//, new Vector2(xOff, yOff).Rotated(ship.GlobalRotation));
 		}
 		
 		if (result.W == 0f) {

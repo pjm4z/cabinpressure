@@ -55,10 +55,9 @@ visibility_layer = 7
 script = ExtResource("4_mi81d")
 ship = NodePath("..")
 
-[node name="skip" parent="ship" node_paths=PackedStringArray("camera") instance=ExtResource("5_yi3vl")]
+[node name="skip" parent="ship" instance=ExtResource("5_yi3vl")]
 position = Vector2(41, -83)
 rotation = 3.14159
-camera = NodePath("../playercamera")
 
 [node name="ship2" parent="." node_paths=PackedStringArray("skip") instance=ExtResource("1_rrewu")]
 z_index = 2
@@ -108,7 +107,6 @@ visibility_layer = 7
 script = ExtResource("4_mi81d")
 ship = NodePath("..")
 
-[node name="skip" parent="ship2" node_paths=PackedStringArray("camera") instance=ExtResource("5_yi3vl")]
+[node name="skip" parent="ship2" instance=ExtResource("5_yi3vl")]
 position = Vector2(41, -83)
 rotation = 3.14159
-camera = NodePath("../playercamera")
