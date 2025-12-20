@@ -1,0 +1,76 @@
+The Correct Solution: Fixed-Point Iteration (Predict → Adjust → Repeat)
+
+What you want is the T_calc where:
+
+The trajectory computed starting at T_calc requires exactly T_calc real time to compute.
+
+That’s a fixed point.
+
+Algorithm (this is the key)
+
+Initial guess
+
+    T_calc = estimated_time(distance / nominal_speed)
+
+
+Predict from that time
+
+Advance ship to T_calc
+
+Run trajectory integration
+
+Measure how long it actually took:
+
+    T_calc_new = measured_real_time
+
+
+Compare
+
+    error = T_calc_new - T_calc
+
+
+Update
+
+    T_calc = lerp(T_calc, T_calc_new, 0.5)
+
+
+Repeat 2–4 until |error| < ε
+
+This converges fast (usually 2–4 iterations).
+
+✔️ Handles “farther after calc” case
+✔️ No divergence
+✔️ No quadratic math
+✔️ Works with arbitrary gravity
+
+
+-------------------------------------
+Definitions (lock these in)
+
+sim_time = in-game time (planets, gravity, ship motion)
+
+C = real CPU seconds needed to compute the prediction
+
+P(C) = predicted trajectory assuming it starts at sim_time + C
+
+Goal:
+
+C = cost_to_compute( P(C) )
+
+
+
+
+0. Initial guess (cheap, rough)
+C₀ = estimated_CPU_time
+
+
+1. Assume prediction starts at sim_time + C₀
+
+You do not move the real ship.
+You analytically advance its predicted start state:
+
+ship_pos_start = ship_pos_now + ship_vel_now * C₀
+ship_vel_start = ship_vel_now
+start_sim_time = sim_time_now + C₀
+
+

@@ -19,7 +19,7 @@ public partial class CelestialBody : Area2D
 	private Vector2 prevPos = Vector2.Zero;
 	public Vector2 realPos = Vector2.Zero;
 	private float prevRot = 0f;
-	private double EarthMass = 5.972 * Math.Pow(10, 7); 
+	private double EarthMass = 5.972 * Math.Pow(10, 7) * 5f; 
 	private BaseScene game;
 	private Space space;
 	
@@ -118,18 +118,35 @@ public partial class CelestialBody : Area2D
 	
 	public Vector2 predictPosition(float t, Vector2 offset) {
 		//float dist = (float) (radius * ((deltaRot * t)/delta));
-		float dist = (radius * orbit * t) / 1000f;
+		if (orbit != 0f) {
+			
+			
+			//celest.GlobalRotation += (float) (((Math.Tau * orbit) / 10000f) * delta) - celest.star.rotOff;
+			float dist = (float) (Math.Tau * orbit * t * radius) / 10000f;
+			
+			//celest.GlobalRotation += orbit * (float) delta * dampening;
+			//float dist = (radius * orbit * t) / 1000f;
+			
 		
-		float theta = (float) (2 * Math.PI * dist / circumference);
-		float theta0 = Mathf.Atan2(realPos.Y - GlobalPosition.Y, realPos.X - GlobalPosition.X);
-		float theta1 = theta0 + theta;
+			float theta = (float) (Math.Tau * dist / circumference);
+			float theta0 = Mathf.Atan2(realPos.Y - GlobalPosition.Y, realPos.X - GlobalPosition.X);
+			float theta1 = theta0 + theta;
+			
+			float x = GlobalPosition.X + radius * Mathf.Cos(theta1);
+			float y = GlobalPosition.Y + radius * Mathf.Sin(theta1);
+			Vector2 predPos = new Vector2(x, y);
+			
+			/*if (offset == Vector2.Zero) {
+				if (star != this) {
+					offset = star.predictPosition(t, Vector2.Zero);
+				}
+			}*/
+			//GD.Print((predPos + offset) + " " + realPos + " !~! " + Name);
+			return predPos + offset; //star.realPos;//
+		} else {
+			return GlobalPosition;
+		}
 		
-		float x = GlobalPosition.X + radius * Mathf.Cos(theta1);
-		float y = GlobalPosition.Y + radius * Mathf.Sin(theta1);
-		Vector2 predPos = new Vector2(x, y);
-		
-		//GD.Print((predPos + offset) + " " + realPos + " !~! " + Name);
-		return predPos + offset;
 	}
 	
 	//private Vector2 originOffset;
@@ -203,6 +220,7 @@ public partial class CelestialBody : Area2D
 		if (body is Ship) {
 			Ship ship = (Ship) body;
 			ships[ship.Name] = ship;
+			GD.Print(ship.Name + " " + (ship.LinearVelocity.Length() - ship.cons));
 		}
 	}
 	

@@ -89,15 +89,32 @@ public partial class Ship : RigidBody2D
 	public override void _Input(InputEvent inputEvent) { base._Input(inputEvent); }
 
 	public float delta = 0f;
+	public Vector2 trajectory = Vector2.Zero;
 	public override void _PhysicsProcess(double delta) {
 	//	GD.Print(GlobalPosition.Length());
+		//ApplyTorque(1000f);
 		this.delta = (float) delta;
 		base._PhysicsProcess(delta);
-
+		//
+		updateHeading();
+		//heading = Vector2.Zero;
+	//	desiredHeading = new Vector3(0f,0f,0f);
+		if (trajectory != Vector2.Zero && skip != null) {
+			move(((CelestialBody) GetNode("%moon4")).realPos, 0f, LinearVelocity, 1f); //GlobalPosition + (trajectory * Acceleration)
+		} else {
+			brain.process(delta);
+		}
+		
+		//ApplyCentralForce;
+		//GD.Print((linearDrive.Normalized() - LinearVelocity.Normalized()).Length());
 		//updateHeading();
 		//ApplyCentralForce(new Vector2(200f, 0f));
-		brain.process(delta);
-		updateHeading();
+		
+		//
+		//if (LinearVelocity.Length() != v && LinearVelocity.Length() >= cons) {
+		//	GD.Print("!!!!!! " + (v - LinearVelocity.Length()));
+		//	ApplyCentralImpulse(LinearVelocity.Normalized() * (v - LinearVelocity.Length()) * (float) delta);
+		//}
 		if (!timer) {
 		//	ApplyCentralForce(new Vector2(100f, 0f));
 		}
@@ -228,6 +245,7 @@ public partial class Ship : RigidBody2D
 		dist.X = Math.Abs(dist.X);
 		dist.Y = Math.Abs(dist.Y);
 		Vector2 ratio = dist.Normalized();
+		
 		dist -= new Vector2(desiredDist * ratio.X, desiredDist * ratio.Y);
 		
 		float newSpeed = Math.Abs(drive.X);
@@ -254,6 +272,7 @@ public partial class Ship : RigidBody2D
 
 		if (decelTime >= traverseTime + Mathf.Min(decelTime, targetDecelTime)
 			) {
+				
 			if (curSpeed > newSpeed) {
 				drive.X = LinearVelocity.Normalized().X - (LinearVelocity.Normalized().X * Acceleration);
 			} else {
@@ -298,6 +317,7 @@ public partial class Ship : RigidBody2D
 		float stopRotTime = Math.Abs(AngularVelocity/Math.Abs((dir * TurnSpeed)/Inertia));
 		
 		if (stopRotTime >= turnTime) {
+			//GD.Print("!!!!!!!");
 			ApplyTorque(dir * TurnSpeed);
 		} else {
 			dir = 0f;
@@ -310,9 +330,14 @@ public partial class Ship : RigidBody2D
 		}
 		
 		driveLabel.Text = Math.Round(drive.Length(), 2).ToString();
-		
-		Vector4 result = limitVelocity(drive.Normalized() * Acceleration);
+		Vector2 factoredHeading = Vector2.Zero;// - heading;//Vector2.Zero;
+		if (desiredHeading.Z == 0f) {
+			factoredHeading = heading;
+		}
+		//drive -= factoredHeading;
+		Vector4 result = limitVelocity(((drive).Normalized() * Acceleration));
 		drive = new Vector2(result.X, result.Y);
+		//drive = drive.Normalized() * Acceleration;
 		if (result.Z == 0f) {
 			ApplyCentralForce(drive);
 		} else if (result.Z == 1f) {
@@ -373,11 +398,15 @@ public partial class Ship : RigidBody2D
 			// 0 --> force in same dir as vel
 			// 1 --> vel but no force on that axis
 			// -1 --> 90 degree diff on axis btwn vel - force
+			Vector2 factoredVel = LinearVelocity - heading;
+			
 			float xOff = Math.Abs(LinearVelocity.Normalized().X) - Math.Abs(force.Normalized().X);
 			float yOff = Math.Abs(LinearVelocity.Normalized().Y) - Math.Abs(force.Normalized().Y);
 
+
+
 			Vector2 absForce = new Vector2(Math.Abs(force.X), Math.Abs(force.Y));
-			Vector2 absVel = new Vector2(Math.Abs(LinearVelocity.X), Math.Abs(LinearVelocity.Y));
+			Vector2 absVel = new Vector2(Math.Abs(factoredVel.X), Math.Abs(factoredVel.Y));
 			float xDest = LinearVelocity.X + (force.X / Mass);// + (heading.X / Mass);// LinearVelocity.X + ((force.X * delta) / Mass);
 			float yDest = LinearVelocity.Y + (force.Y / Mass);// + (heading.Y / Mass);
 
@@ -431,50 +460,34 @@ public partial class Ship : RigidBody2D
 				//force = (force + proposedForce.Normalized() * force.Length())/2f;
 			}
 			if (force.Length() > Acceleration) {
-				//GD.Print("!!!!!!!!!!!!!!!!!!!1 " + force.Length());
 				force = force.Normalized() * Acceleration;
 			}
 			if (((force * delta) + (heading * delta) + LinearVelocity).Length() != curSpeed) {
 			//	GD.Print("???????????2 " + force.Length());		// TODO CHECK THIS!!!
 				Vector2 factoredHeading = ((heading * delta) / Mass); //  * delta
-				//if (force.Dot(heading) > 0f && desiredHeading.Z == 0f) { //|| desiredHeading.Z != 0f
-				//	factoredHeading = Vector2.Zero;
-				//}
+				
 				if (desiredHeading.Z != 0f) {
-					Vector2 dest = ((force * delta) / Mass) + (LinearVelocity * delta);
-					float factor = 1f;
-					dest = dest.Normalized() * curSpeed; //  - factoredHeading
+					/*float factor = 1f;
 					factoredHeading = (Game.Instance.XY(desiredHeading) - heading); // heading;//
 					
-					
 					if (factoredHeading.Length() >= heading.Length()) {
-						factor = (proposedForce.Normalized() - factoredHeading.Normalized()).Length();
+						factor = (force.Normalized().Dot(factoredHeading.Normalized())) * -1f;
 						factoredHeading = factoredHeading.Normalized() * Math.Max(Acceleration, Game.Instance.XY(desiredHeading).Length());
-						
-						GD.Print("?? " + factoredHeading.Length() + " " + factor); 
-					} else if (factoredHeading.Length() == 0f) {
-						GD.Print("!!!!!!!! " + factoredHeading.Length());
-					} else {
-						GD.Print(factoredHeading.Length());
-					}
-					//if ((proposedForce + Game.Instance.XY(desiredHeading)).Length() > Game.Instance.XY(desiredHeading).Length()) {
-					//	GD.Print(":) " + force.Dot(factoredHeading));
-					//}
-					
-					force = (dest - LinearVelocity + factoredHeading) * Mass; // decreases as u approach speed
-					force = force.Normalized() * Acceleration;
-					//force *= factor;
+					} + factoredHeading */
+					//Vector2 dest = ((force) / Mass)  + (LinearVelocity - (heading / Mass)) * delta;
+				
+					force = -LinearVelocity + heading;//  (Vector2.Zero - (LinearVelocity - (heading / Mass))) * Mass; 
 				} else {
 					Vector2 dest = ((force * delta) / Mass) + factoredHeading + (LinearVelocity);
 				
 					dest = dest.Normalized() * curSpeed; //  - factoredHeading
-					force = (dest - LinearVelocity) * Mass; // decreases as u approach speed
+					force = dest - LinearVelocity;//(dest - LinearVelocity) * Mass; // decreases as u approach speed
 				}
 				
 					//
-				if (force.Length() <= Acceleration * delta) { // * 10f                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
+				if (force.Length() <= Acceleration * delta) { //  * 10f                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
 					impulse = 1f;
-				//	GD.Print("IMPULSE");
+					//GD.Print("IMPULSE");
 				}
 			}
 			if (desiredHeading.Z == 0f) {
@@ -487,7 +500,10 @@ public partial class Ship : RigidBody2D
 				}
 			}
 			
-			
+			if (force.Length() > Acceleration) {
+			//	GD.Print((force.Length() - Acceleration) + " " + "!!!!!!!!");
+				//force = force.Normalized() * Acceleration;
+			}
 		}
 		return new Vector4(force.X, force.Y, impulse, limited);
 	}
@@ -497,13 +513,14 @@ public partial class Ship : RigidBody2D
 		float impulse = 0f;
 		float limited = 0f;
 		Vector2 factoredVel = LinearVelocity - heading;
+		GD.Print(heading.Length() + " " + factoredVel.Length() + " " + force.Length());
 		if (factoredVel.Length() != cons && Name == "ship") {
-			GD.Print("!!!!!!! " + (factoredVel - (LinearVelocity.Normalized() * cons)).Length());
-			Vector2 hDiff = (factoredVel - (LinearVelocity.Normalized() * cons));
+		//	GD.Print("!!!!!!! " + (factoredVel - (LinearVelocity.Normalized() * cons)).Length());
+		//	Vector2 hDiff = (factoredVel - (LinearVelocity.Normalized() * cons));
 			
-			if (hDiff.Length() > 0f) {
-				excess += hDiff * delta;
-			}
+		//	if (hDiff.Length() > 0f) {
+		//		excess += hDiff * delta;
+		//	}
 		
 		// apply damping	
 		if ((factoredVel + ((force * delta) / Mass)).Length() >= cons 								// force will exceed speed limit
@@ -533,7 +550,7 @@ public partial class Ship : RigidBody2D
 			if (LinearVelocity.Dot(heading) < 0f) {
 				curSpeed = (LinearVelocity.Normalized() * cons + heading).Length();
 			}
-			curSpeed += excess.Length();
+			//curSpeed += excess.Length();
 			
 			// cleaning up values for xDest + yDest (decreases likelihood generated force will exceed speed limit)
 			int dir = 1;
@@ -594,12 +611,14 @@ public partial class Ship : RigidBody2D
 				}
 				//if (desiredHeading.Z != 0f) {
 					//Vector2 dest = ((force / Mass) + LinearVelocity).Normalized() * cons;
+				//	GD.Print("!!!!!!!!!!!! " + factoredVel.Length());
 					Vector2 dest = ((force * delta) / Mass) + (factoredVel * delta);
 					dest = dest.Normalized() * cons;
 					//dest += factoredHeading/delta; // not giving proper dir?
 					
 					//cvdest = dest.Normalized() * curSpeed; //  - factoredHeading
 					force = (dest - factoredVel) * Mass;
+				//	GD.Print("((((  " + dest + " " + force.Length());
 				/*} else {
 					Vector2 dest = ((force * delta) / Mass) + factoredHeading + factoredVel;
 				
@@ -681,10 +700,8 @@ public partial class Ship : RigidBody2D
 			heading = Game.Instance.XY(desiredHeading);
 
 			if (desiredHeading.Z != 0f) {
-				if (linearDrive.Length() == 0f && (heading - LinearVelocity).Length() < 10f) {
-					ApplyCentralImpulse((heading - LinearVelocity) / 100f);
-					GD.Print("!!!!imppulse");
-				} else {
+				bool impulse = linearDrive.Length() == 0f && (heading - LinearVelocity).Length() < 10f;
+				
 				Vector2 vel = LinearVelocity;
 				bool apply = false;
 				float factor = 0;
@@ -710,9 +727,10 @@ public partial class Ship : RigidBody2D
 					}
 					//GD.Print("!! " + (x * 100f));
 					// if drive = 0 and vel - heading < 0.1f, apply impulse (heading - vel) / 100 
-					
-					ApplyCentralForce(new Vector2(x * 100f, 0f));// * desiredHeading.Z);
-					heading.X = x * 100f;
+					if (!impulse) {
+						ApplyCentralForce(new Vector2(x * 0f, 0f));// * desiredHeading.Z);
+					}
+					heading.X = desiredHeading.X;//x * 100f;
 				}
 				apply = false;
 				factor = 0;
@@ -737,10 +755,16 @@ public partial class Ship : RigidBody2D
 						y = heading.Y - vel.Y;
 					}
 					//GD.Print("?? " + (y * 100f));
-					ApplyCentralForce(new Vector2(0f, y * 100f));// * desiredHeading.Z);
-					heading.Y = 100f * y;
+					if (!impulse) {
+						ApplyCentralForce(new Vector2(0f, y * 0f));// * desiredHeading.Z);
+					}
+					//
+					heading.Y = desiredHeading.Y;// 100f * y;
 				}
-				}
+				if (impulse) {
+					ApplyCentralImpulse((Game.Instance.XY(desiredHeading) - LinearVelocity) / 100f);
+					//GD.Print("!!!!imppulse");
+				} 
 			} else {
 				ApplyCentralForce(heading);
 			}

@@ -271,32 +271,31 @@ script = ExtResource("16_yr6o3")
 [node name="star" parent="space" instance=ExtResource("14_rswqt")]
 mass = 318.0
 
-[node name="planet" parent="space/star" instance=ExtResource("18_183xn")]
-position = Vector2(1e+06, 0)
-orbit = 1.0
-
-[node name="moon" parent="space/star/planet" instance=ExtResource("19_rssrs")]
-position = Vector2(-91984, 0)
-orbit = 4.0
-
-[node name="moon" parent="space/star/planet/moon" instance=ExtResource("19_rssrs")]
-position = Vector2(30672, 768)
-orbit = 8.0
-
 [node name="planet2" parent="space/star" instance=ExtResource("18_183xn")]
 position = Vector2(-1e+06, 0)
 orbit = 2.0
 
 [node name="moon" parent="space/star/planet2" instance=ExtResource("19_rssrs")]
-position = Vector2(133072, -384)
-orbit = 1.0
+position = Vector2(55632, -128)
+orbit = 2.0
+
+[node name="planet" parent="space/star" instance=ExtResource("18_183xn")]
+position = Vector2(-639296, -130)
+orbit = 2.0
+
+[node name="moon" parent="space/star/planet" instance=ExtResource("19_rssrs")]
+position = Vector2(111412, 4224)
+orbit = 4.0
+
+[node name="moon4" parent="space/star/planet/moon" instance=ExtResource("19_rssrs")]
+unique_name_in_owner = true
+position = Vector2(12212, 22272)
+orbit = 8.0
 
 [node name="ship" parent="space" node_paths=PackedStringArray("camera", "star", "skip") instance=ExtResource("5_8a8ed")]
 z_index = 2
-position = Vector2(983556, -120)
-rotation = -1.5708
+position = Vector2(-1.01024e+06, 648)
 camera = NodePath("playercamera")
-Acceleration = 500.0
 star = NodePath("../star")
 skip = NodePath("skip")
 
@@ -344,3 +343,46 @@ light_mask = 7
 visibility_layer = 7
 script = ExtResource("21_leu80")
 ship = NodePath("..")
+
+[node name="ship2" parent="space" node_paths=PackedStringArray("camera", "star", "target", "skip") instance=ExtResource("5_8a8ed")]
+z_index = 2
+position = Vector2(-993084, 136)
+camera = NodePath("")
+star = NodePath("../star")
+target = NodePath("../ship")
+skip = NodePath("")
+
+[node name="furniture" parent="space/ship2" instance=ExtResource("7_shcty")]
+position = Vector2(-16, -88)
+script = null
+
+[node name="furniture2" parent="space/ship2" instance=ExtResource("7_shcty")]
+position = Vector2(-16, -72)
+script = null
+
+[node name="item" parent="space/ship2" instance=ExtResource("8_tndgh")]
+position = Vector2(23.9998, 69.049)
+
+[node name="item2" parent="space/ship2" instance=ExtResource("8_tndgh")]
+position = Vector2(22, 55)
+
+[node name="item3" parent="space/ship2" instance=ExtResource("8_tndgh")]
+position = Vector2(40, -25)
+
+[node name="item4" parent="space/ship2" instance=ExtResource("8_tndgh")]
+position = Vector2(4.99986, 69)
+
+[node name="item5" parent="space/ship2" instance=ExtResource("8_tndgh")]
+position = Vector2(3.00006, 54.951)
+
+[node name="item6" parent="space/ship2" instance=ExtResource("8_tndgh")]
+position = Vector2(21.0001, -25.049)
+
+[node name="item7" parent="space/ship2" instance=ExtResource("8_tndgh")]
+position = Vector2(-12.0001, 70)
+
+[node name="item8" parent="space/ship2" instance=ExtResource("8_tndgh")]
+position = Vector2(-13.9999, 55.951)
+
+[node name="item9" parent="space/ship2" instance=ExtResource("8_tndgh")]
+position = Vector2(4.0001, -24.049)

@@ -9,6 +9,7 @@ public partial class Map : Panel
 	
 	private Dictionary<string, CelestialBody> bodyMap = new Dictionary<string, CelestialBody>();
 	private Dictionary<string, Sprite2D> pinMap = new Dictionary<string, Sprite2D>();
+	private Dictionary<string, Vector2> predMap = new Dictionary<string, Vector2>();
 
 	[Export] Ship ship;
 	Space space;
@@ -100,16 +101,36 @@ public partial class Map : Panel
 		viewport.AddChild(pin);
 		pinMap[body.Name] = pin;
 	}
-
+	float t = 1f;
+	float delta = 0f;
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _Process(double delta)
 	{
+		this.delta = (float) delta;
 		mapCamera.Position = window / 2;
 		canvas.Texture = viewport.GetTexture();
 		//GD.Print("!!!!!");
 		foreach(CelestialBody body in bodyMap.Values) {
 			//GD.Print("!! " + body.realPos);
-			drawItem(body, body.realPos, body.getSize());
+			if (body.star != body) {
+				if (body.star.star == body.star) {
+					predMap[body.Name] = body.predictPosition(t, Vector2.Zero);
+					//GD.Print(body.Name + " " + predMap[body.Name] + " 0000");
+				} else if (predMap.ContainsKey(body.star.Name)) {
+					predMap[body.Name] = body.predictPosition(t, predMap[body.star.Name] - body.star.realPos);
+				} 
+			} else {
+				predMap[body.Name] = body.realPos;
+			}
+			Vector2 pred = body.realPos;
+			if (predMap.ContainsKey(body.Name)) {
+				pred = predMap[body.Name];
+			}
+			
+			drawItem(body, pred, body.getSize());//body.realPos, body.getSize());
+			if (body.Name == "planet") {
+				pinMap[body.Name].ZIndex = 100;
+			}
 		}
 		drawItem(ship, ship.GlobalPosition, (new Vector2(1f,1f)/offset) * 10f);
 //		GlobalPosition = Vector2.Zero;
@@ -124,6 +145,19 @@ public partial class Map : Panel
 			} else {
 				hide();
 			}
+		}
+		if (Input.IsActionJustPressed("ui_up")) { //todo nav doesnt pause (crew in motion)
+													// maybe from nav callback in crew script calling movenadslide?
+			t += 10000f * delta;
+		} if (Input.IsActionJustPressed("ui_down")) { //todo nav doesnt pause (crew in motion)
+													// maybe from nav callback in crew script calling movenadslide?
+			t -= 10000f * delta;
+		}
+		
+		if (Input.IsActionPressed("lclick") && Visible == true) { //todo nav doesnt pause (crew in motion)
+													// maybe from nav callback in crew script calling movenadslide?
+			
+			ship.trajectory = (GetGlobalMousePosition() - (window/2f)).Normalized();
 		}
 		
 		Vector2 zoomSpeed = new Vector2(1f,1f);
